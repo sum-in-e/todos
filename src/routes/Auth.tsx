@@ -6,17 +6,23 @@ const Auth = () => {
   const [password, setPassword] = useState<string>("");
   const [toggleAccount, setToggleAccount] = useState<boolean>(false);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement> | any): void => {
+  const onSubmit = async (
+    e: React.FormEvent<HTMLFormElement> | any
+  ): Promise<any> => {
     e.preventDefault();
     const {
       target: {
         2: { value },
       },
     } = e;
-    if (value === "Sign Up") {
-      authService.createUserWithEmailAndPassword(email, password);
-    } else if (value === "Log In") {
-      authService.signInWithEmailAndPassword(email, password);
+    try {
+      if (value === "Sign Up") {
+        await authService.createUserWithEmailAndPassword(email, password);
+      } else if (value === "Log In") {
+        await authService.signInWithEmailAndPassword(email, password);
+      }
+    } catch (error) {
+      alert(error.message);
     }
   };
 
