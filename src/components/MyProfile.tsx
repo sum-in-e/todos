@@ -19,6 +19,9 @@ const MyProfile = ({ user }: IProps) => {
       await user?.updateProfile({
         displayName: userName,
       });
+      setToggleEdit((prev) => !prev);
+    } else if (userName === user.displayName) {
+      alert("변경 사항이 없습니다");
     }
   };
 
