@@ -10,7 +10,6 @@ function App() {
   useEffect(() => {
     authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
       if (loggedUser !== null) {
-        console.log(loggedUser.email);
         setIsLoggedIn(true);
         setUser(loggedUser);
       } else {
