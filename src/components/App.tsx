@@ -3,13 +3,14 @@ import Router from "./Router";
 import { authService } from "../fbase";
 
 function App() {
-  const [user, setUser] = useState<object | null>(null);
+  const [user, setUser] = useState<firebase.User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [init, setInit] = useState<boolean>(false);
 
   useEffect(() => {
-    authService.onAuthStateChanged((loggedUser: object | null): void => {
-      if (loggedUser) {
+    authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
+      if (loggedUser !== null) {
+        console.log(loggedUser.email);
         setIsLoggedIn(true);
         setUser(loggedUser);
       } else {

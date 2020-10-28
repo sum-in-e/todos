@@ -9,7 +9,7 @@ import Auth from "../routes/Auth";
 import Home from "../routes/Home";
 
 interface IProps {
-  user: object | null;
+  user: firebase.User | null;
   isLoggedIn: boolean;
 }
 
@@ -20,7 +20,7 @@ const Routes = ({ user, isLoggedIn }: IProps) => {
         {isLoggedIn ? (
           <>
             <Route exact path="/">
-              <Home />
+              <Home user={user} />
             </Route>
             <Redirect from="/*" to="/" />
           </>
