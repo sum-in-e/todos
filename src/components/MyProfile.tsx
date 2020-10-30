@@ -2,25 +2,34 @@ import React, { useState } from "react";
 import { authService } from "../fbase";
 import styled from "styled-components";
 import { Edit } from "styled-icons/boxicons-regular";
+import { useHistory } from "react-router-dom";
 
 interface IProps {
-  user: firebase.User | null;
+  userInfo: {
+    displayName: string | null;
+    updateProfile: (args: object) => void;
+  };
+  reRender: () => void;
 }
 
-const MyProfile = ({ user }: IProps) => {
-  const [userName, setUserName] = useState<string | null>(user!.displayName);
+const MyProfile = ({ userInfo, reRender }: IProps) => {
+  console.log("MyProfile의 userInfo", userInfo);
+  const [userName, setUserName] = useState<string | null>(userInfo.displayName);
+  console.log("MyProfile의 userName", userName);
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+  const history = useHistory();
 
   const onSubmit = async (
     e: React.FormEvent<HTMLFormElement>
-  ): Promise<any> => {
+  ): Promise<void> => {
     e.preventDefault();
-    if (userName !== user?.displayName) {
-      await user?.updateProfile({
+    if (userName !== userInfo.displayName) {
+      await userInfo.updateProfile({
         displayName: userName,
       });
       setToggleEdit((prev) => !prev);
-    } else if (userName === user.displayName) {
+      reRender();
+    } else if (userName === userInfo.displayName) {
       alert("변경 사항이 없습니다");
     }
   };
@@ -38,6 +47,7 @@ const MyProfile = ({ user }: IProps) => {
 
   const onLogOutClick = (): void => {
     authService.signOut();
+    history.push("/");
   };
 
   return (
@@ -49,8 +59,11 @@ const MyProfile = ({ user }: IProps) => {
             <form onSubmit={onSubmit}>
               <input
                 type="text"
-                value={userName !== null ? userName : "user"}
+                placeholder="이름을 입력해주세요"
+                value={userName && userName ? userName : ""}
                 onChange={onChange}
+                autoFocus
+                required
               />
               <input type="submit" value="저장" />
             </form>
@@ -58,7 +71,7 @@ const MyProfile = ({ user }: IProps) => {
           </>
         ) : (
           <>
-            <p>{userName !== null ? userName : "user"}</p>
+            <p>{userName}</p>
             <EditIcon onClick={onToggleClick} />
           </>
         )}

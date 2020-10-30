@@ -2,14 +2,18 @@ import React from "react";
 import MyProfile from "../components/MyProfile";
 
 interface IProps {
-  user: firebase.User | null;
+  userInfo: {
+    displayName: string | null;
+    updateProfile: (args: object) => void;
+  };
+  reRender: () => void;
 }
 
-const Home = ({ user }: IProps) => {
+const Home = ({ userInfo, reRender }: IProps) => {
   return (
     <>
       <p>Home</p>
-      <MyProfile user={user} />
+      <MyProfile userInfo={userInfo} reRender={reRender} />
     </>
   );
 };

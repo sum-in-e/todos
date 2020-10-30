@@ -9,18 +9,22 @@ import Auth from "../routes/Auth";
 import Home from "../routes/Home";
 
 interface IProps {
-  user: firebase.User | null;
+  userInfo: {
+    displayName: string | null;
+    updateProfile: (args: object) => void;
+  };
   isLoggedIn: boolean;
+  reRender: () => void;
 }
 
-const Routes = ({ user, isLoggedIn }: IProps) => {
+const Routes = ({ userInfo, isLoggedIn, reRender }: IProps) => {
   return (
     <Router>
       <Switch>
         {isLoggedIn ? (
           <>
             <Route exact path="/">
-              <Home user={user} />
+              <Home userInfo={userInfo} reRender={reRender} />
             </Route>
             <Redirect from="/*" to="/" />
           </>

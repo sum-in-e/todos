@@ -8,7 +8,7 @@ const Auth = () => {
 
   const onSubmit = async (
     e: React.FormEvent<HTMLFormElement> | any
-  ): Promise<any> => {
+  ): Promise<void> => {
     e.preventDefault();
     const {
       target: {
