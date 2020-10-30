@@ -26,14 +26,12 @@ const Routes = ({ userInfo, isLoggedIn, reRender }: IProps) => {
             <Route exact path="/">
               <Home userInfo={userInfo} reRender={reRender} />
             </Route>
-            <Redirect from="/*" to="/" />
           </>
         ) : (
           <>
-            <Route path="/auth">
+            <Route path="/">
               <Auth />
             </Route>
-            <Redirect from="/*" to="/auth" />
           </>
         )}
       </Switch>
