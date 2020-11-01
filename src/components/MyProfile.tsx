@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { authService } from "../fbase";
+import { authService, storageService } from "../fbase";
 import styled from "styled-components";
 import { Edit } from "styled-icons/boxicons-regular";
 import { useHistory } from "react-router-dom";
