@@ -3,6 +3,7 @@ import MyProfile from "../components/MyProfile";
 
 interface IProps {
   userInfo: {
+    uid: string | null;
     displayName: string | null;
     updateProfile: (args: object) => void;
   };

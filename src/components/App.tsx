@@ -3,12 +3,14 @@ import Router from "./Router";
 import { authService } from "../fbase";
 
 interface IUser {
+  uid: string | null;
   displayName: string | null;
   updateProfile: (args: object) => void;
 }
 
 function App() {
   const [userInfo, setUserInfo] = useState<IUser>({
+    uid: null,
     displayName: null,
     updateProfile: (args) => args,
   });
@@ -19,6 +21,7 @@ function App() {
     authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
       if (loggedUser) {
         setUserInfo({
+          uid: loggedUser.uid,
           displayName: loggedUser.displayName,
           updateProfile: (args) => loggedUser.updateProfile(args),
         });
@@ -34,6 +37,7 @@ function App() {
     const loggedUser: firebase.User | null = authService.currentUser;
     if (loggedUser) {
       setUserInfo({
+        uid: loggedUser.uid,
         displayName: loggedUser.displayName,
         updateProfile: (args) => loggedUser.updateProfile(args),
       });
