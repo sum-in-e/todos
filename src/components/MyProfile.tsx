@@ -19,6 +19,12 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
   const [profileImage, setProfileImage] = useState<string>("");
   const history = useHistory();
 
+  const onFileUpload = () => {
+    // 유저가 파일 선택하면 storage에 유저 uid 가진 folder를 생성해서 파일 업로드
+    // 위에꺼 await해서 기다렸다가 image URL 얻은 다음 그걸 fireStore의 user db imgage에 덮어서 저장
+    // image URL을 setProfileImage -> 바로 변경되게 보이는지 체크
+  };
+
   const onSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -90,7 +96,7 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
     <div>
       <div>
         <UserImg imgUrl={profileImage} />
-        <input type="file" onChange={} />
+        <input type="file" onChange={onFileUpload} />
       </div>
       <div>
         {toggleEdit ? (
