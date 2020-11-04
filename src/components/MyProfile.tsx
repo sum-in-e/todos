@@ -34,7 +34,7 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
     }
   };
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = e;
@@ -90,9 +90,7 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
     <div>
       <div>
         <UserImg imgUrl={profileImage} />
-        <form>
-          <input type="file" />
-        </form>
+        <input type="file" onChange={} />
       </div>
       <div>
         {toggleEdit ? (
@@ -102,7 +100,7 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
                 type="text"
                 placeholder="이름을 입력해주세요"
                 value={userName && userName ? userName : ""}
-                onChange={onChange}
+                onChange={onTextChange}
                 autoFocus
                 required
               />
