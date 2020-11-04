@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { authService, storageService } from "../fbase";
+import React, { useState, useEffect } from "react";
+import { authService, dbService, storageService } from "../fbase";
 import styled from "styled-components";
 import { Edit } from "styled-icons/boxicons-regular";
 import { useHistory } from "react-router-dom";
 
 interface IProps {
   userInfo: {
+    uid: string | null;
     displayName: string | null;
     updateProfile: (args: object) => void;
   };
@@ -13,10 +14,9 @@ interface IProps {
 }
 
 const MyProfile = ({ userInfo, reRender }: IProps) => {
-  console.log("MyProfile의 userInfo", userInfo);
   const [userName, setUserName] = useState<string | null>(userInfo.displayName);
-  console.log("MyProfile의 userName", userName);
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+  const [profileImage, setProfileImage] = useState<string>("");
   const history = useHistory();
 
   const onSubmit = async (
@@ -50,9 +50,41 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
     history.push("/");
   };
 
+  useEffect(() => {
+    const test = async (): Promise<void> => {
+      const hi = await dbService
+        .collection("profile")
+        .where("userId", "==", userInfo.uid)
+        .get();
+
+      if (hi.empty) {
+        // storage에 있는 default image와, uid를 userId로 넣어서 collection 생성하고 그 결과물을 profileImage state에 넣기
+        console.log("docs 없음");
+        const defaultImg = await storageService
+          .ref()
+          .child("defaultProfile.png")
+          .getDownloadURL();
+        await dbService.collection("profile").add({
+          image: defaultImg,
+          userId: userInfo.uid,
+        });
+        setProfileImage(defaultImg);
+      } else {
+        // false면 user의 uid를 가진 docs가 있다는 거니까, 해당 collection을 가져와서 profileImage state에 넣기
+        console.log("docs 있음");
+      }
+    };
+    test();
+  }, []);
+
   return (
     <div>
-      <button onClick={onLogOutClick}>Log Out</button>
+      <div>
+        <ProfileImg />
+        <form>
+          <input type="file" />
+        </form>
+      </div>
       <div>
         {toggleEdit ? (
           <>
@@ -71,17 +103,25 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
           </>
         ) : (
           <>
-            <p>{userName}</p>
+            <p>{userName ? userName : "User"}</p>
             <EditIcon onClick={onToggleClick} />
           </>
         )}
       </div>
+      <button onClick={onLogOutClick}>Log Out</button>
     </div>
   );
 };
 
 const EditIcon = styled(Edit)`
   width: 20px;
+`;
+
+const ProfileImg = styled.div`
+  width: 60px;
+  height: 60px;
+  background-color: black;
+  border-radius: 10px;
 `;
 
 export default MyProfile;
