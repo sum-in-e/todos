@@ -51,13 +51,13 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
   };
 
   useEffect(() => {
-    const test = async (): Promise<void> => {
-      const hi = await dbService
+    const getProfileImg = async (): Promise<void> => {
+      const docs = await dbService
         .collection("profile")
         .where("userId", "==", userInfo.uid)
         .get();
 
-      if (hi.empty) {
+      if (docs.empty) {
         // storage에 있는 default image와, uid를 userId로 넣어서 collection 생성하고 그 결과물을 profileImage state에 넣기
         console.log("docs 없음");
         const defaultImg = await storageService
@@ -72,15 +72,24 @@ const MyProfile = ({ userInfo, reRender }: IProps) => {
       } else {
         // false면 user의 uid를 가진 docs가 있다는 거니까, 해당 collection을 가져와서 profileImage state에 넣기
         console.log("docs 있음");
+        const userProfileCollection = await dbService
+          .collection("profile")
+          .where("userId", "==", userInfo.uid)
+          .get();
+        const userProfileImg = await userProfileCollection.docs.map(
+          (doc) => doc.data().image
+        );
+        setProfileImage(userProfileImg[0]);
       }
     };
-    test();
+
+    getProfileImg();
   }, []);
 
   return (
     <div>
       <div>
-        <ProfileImg />
+        <UserImg imgUrl={profileImage} />
         <form>
           <input type="file" />
         </form>
@@ -117,10 +126,12 @@ const EditIcon = styled(Edit)`
   width: 20px;
 `;
 
-const ProfileImg = styled.div`
+const UserImg = styled.div<{ imgUrl: string }>`
   width: 60px;
   height: 60px;
-  background-color: black;
+  background-image: url(${(props) => props.imgUrl});
+  background-position: center;
+  background-size: contain;
   border-radius: 10px;
 `;
 
