@@ -1,142 +1,86 @@
-import React, { useState, useEffect } from "react";
-import { authService, dbService, storageService } from "../fbase";
-import styled from "styled-components";
-import { Edit } from "styled-icons/boxicons-regular";
-import { useHistory } from "react-router-dom";
+import React, { useState } from 'react';
+import { authService } from '../fbase';
+import styled from 'styled-components';
+import { Edit } from 'styled-icons/boxicons-regular';
+import { useHistory } from 'react-router-dom';
+import ProfileImg from './ProfileImg';
 
 interface IProps {
-  userInfo: {
-    uid: string | null;
-    displayName: string | null;
-    updateProfile: (args: object) => void;
-  };
-  reRender: () => void;
+	userInfo: {
+		uid: string | null;
+		displayName: string | null;
+		updateProfile: (args: object) => void;
+	};
+	reRender: () => void;
 }
 
-const MyProfile = ({ userInfo, reRender }: IProps) => {
-  const [userName, setUserName] = useState<string | null>(userInfo.displayName);
-  const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-  const [profileImage, setProfileImage] = useState<string>("");
-  const history = useHistory();
+const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }: IProps) => {
+	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
+	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+	const history = useHistory();
 
-  const onFileUpload = () => {
-    // 유저가 파일 선택하면 storage에 유저 uid 가진 folder를 생성해서 파일 업로드
-    // 위에꺼 await해서 기다렸다가 image URL 얻은 다음 그걸 fireStore의 user db imgage에 덮어서 저장
-    // image URL을 setProfileImage -> 바로 변경되게 보이는지 체크
-  };
+	const onSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+		e.preventDefault();
+		if (userName !== userInfo.displayName) {
+			await userInfo.updateProfile({
+				displayName: userName,
+			});
+			setToggleEdit(prev => !prev);
+			reRender();
+		} else if (userName === userInfo.displayName) {
+			alert('변경 사항이 없습니다');
+		}
+	};
 
-  const onSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    e.preventDefault();
-    if (userName !== userInfo.displayName) {
-      await userInfo.updateProfile({
-        displayName: userName,
-      });
-      setToggleEdit((prev) => !prev);
-      reRender();
-    } else if (userName === userInfo.displayName) {
-      alert("변경 사항이 없습니다");
-    }
-  };
+	const onTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const {
+			target: { value },
+		} = e;
+		setUserName(value);
+	};
 
-  const onTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { value },
-    } = e;
-    setUserName(value);
-  };
+	const onToggleClick = (): void => {
+		setToggleEdit(prev => !prev);
+	};
 
-  const onToggleClick = (): void => {
-    setToggleEdit((prev) => !prev);
-  };
+	const onLogOutClick = (): void => {
+		authService.signOut();
+		history.push('/');
+	};
 
-  const onLogOutClick = (): void => {
-    authService.signOut();
-    history.push("/");
-  };
-
-  useEffect(() => {
-    const getProfileImg = async (): Promise<void> => {
-      const docs = await dbService
-        .collection("profile")
-        .where("userId", "==", userInfo.uid)
-        .get();
-
-      if (docs.empty) {
-        // storage에 있는 default image와, uid를 userId로 넣어서 collection 생성하고 그 결과물을 profileImage state에 넣기
-        console.log("docs 없음");
-        const defaultImg = await storageService
-          .ref()
-          .child("defaultProfile.png")
-          .getDownloadURL();
-        await dbService.collection("profile").add({
-          image: defaultImg,
-          userId: userInfo.uid,
-        });
-        setProfileImage(defaultImg);
-      } else {
-        // false면 user의 uid를 가진 docs가 있다는 거니까, 해당 collection을 가져와서 profileImage state에 넣기
-        console.log("docs 있음");
-        const userProfileCollection = await dbService
-          .collection("profile")
-          .where("userId", "==", userInfo.uid)
-          .get();
-        const userProfileImg = await userProfileCollection.docs.map(
-          (doc) => doc.data().image
-        );
-        setProfileImage(userProfileImg[0]);
-      }
-    };
-
-    getProfileImg();
-  }, []);
-
-  return (
-    <div>
-      <div>
-        <UserImg imgUrl={profileImage} />
-        <input type="file" onChange={onFileUpload} />
-      </div>
-      <div>
-        {toggleEdit ? (
-          <>
-            <form onSubmit={onSubmit}>
-              <input
-                type="text"
-                placeholder="이름을 입력해주세요"
-                value={userName && userName ? userName : ""}
-                onChange={onTextChange}
-                autoFocus
-                required
-              />
-              <input type="submit" value="저장" />
-            </form>
-            <button onClick={onToggleClick}>취소</button>
-          </>
-        ) : (
-          <>
-            <p>{userName ? userName : "User"}</p>
-            <EditIcon onClick={onToggleClick} />
-          </>
-        )}
-      </div>
-      <button onClick={onLogOutClick}>Log Out</button>
-    </div>
-  );
+	return (
+		<div>
+			<ProfileImg userInfo={userInfo} />
+			<div>
+				{toggleEdit ? (
+					<>
+						<form onSubmit={onSubmit}>
+							<input
+								type="text"
+								placeholder="이름을 입력해주세요"
+								value={userName && userName ? userName : ''}
+								onChange={onTextChange}
+								autoFocus
+								required
+							/>
+							<input type="submit" value="저장" />
+						</form>
+						<button onClick={onToggleClick}>취소</button>
+					</>
+				) : (
+					<>
+						<p>{userName ? userName : 'User'}</p>
+						<EditIcon onClick={onToggleClick} />
+					</>
+				)}
+			</div>
+			<button onClick={onLogOutClick}>Log Out</button>
+		</div>
+	);
 };
 
 const EditIcon = styled(Edit)`
-  width: 20px;
-`;
-
-const UserImg = styled.div<{ imgUrl: string }>`
-  width: 60px;
-  height: 60px;
-  background-image: url(${(props) => props.imgUrl});
-  background-position: center;
-  background-size: contain;
-  border-radius: 10px;
+	width: 20px;
 `;
 
 export default MyProfile;
