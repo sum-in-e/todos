@@ -14,6 +14,21 @@ interface IProps {
 const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [profileImage, setProfileImage] = useState<string>('');
 
+	const onClickDelete = async (): Promise<void> => {
+		const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+		const theDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
+		theDoc.forEach(result =>
+			dbService.doc(`profile/${result.id}`).update({
+				image: defaultImg,
+			}),
+		);
+		const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+		if (items.length > 0) {
+			await items[0].delete();
+		}
+		setProfileImage(defaultImg);
+	};
+
 	const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
 		const {
 			target: { files },
@@ -69,6 +84,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		<div>
 			<UserImg imgUrl={profileImage} />
 			<input type="file" onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
+			<button onClick={onClickDelete}>Delete Profile Image</button>
 		</div>
 	);
 };
