@@ -7,12 +7,45 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: any) => void;
+		updateProfile: (args: object) => void;
 	};
 }
 
 const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [profileImage, setProfileImage] = useState<string>('');
+
+	const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+		const {
+			target: { files },
+		} = e;
+
+		if (files !== null) {
+			const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+			if (items.length > 0) {
+				await items[0].delete();
+			}
+
+			const theFile = files[0];
+			const reader = new FileReader();
+			reader.readAsDataURL(theFile);
+			reader.onload = async (): Promise<void> => {
+				const result = reader.result;
+				if (result !== null) {
+					const dataUrl = result.toString();
+					const imgRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
+					const response = await imgRef.putString(dataUrl, 'data_url');
+					const downLoadUrl = await response.ref.getDownloadURL();
+					const theDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
+					theDoc.forEach(result =>
+						dbService.doc(`profile/${result.id}`).update({
+							image: downLoadUrl,
+						}),
+					);
+					setProfileImage(downLoadUrl);
+				}
+			};
+		}
+	};
 
 	useEffect(() => {
 		const getProfileImg = async (): Promise<void> => {
@@ -35,7 +68,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	return (
 		<div>
 			<UserImg imgUrl={profileImage} />
-			<input type="file" />
+			<input type="file" onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
 		</div>
 	);
 };
