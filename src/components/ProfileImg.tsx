@@ -14,8 +14,9 @@ interface IProps {
 const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [profileImage, setProfileImage] = useState<string>('');
 
-	const onClickDelete = async (): Promise<void> => {
+	const onClickDelete = async (e: any): Promise<void> => {
 		const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+		setProfileImage(defaultImg);
 		const theDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
 		theDoc.forEach(result =>
 			dbService.doc(`profile/${result.id}`).update({
@@ -26,7 +27,8 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		if (items.length > 0) {
 			await items[0].delete();
 		}
-		setProfileImage(defaultImg);
+		// 이부분 이벤트 타입 수정
+		e.target.parentElement.children[1].value = null;
 	};
 
 	const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
@@ -50,13 +52,13 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 					const imgRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
 					const response = await imgRef.putString(dataUrl, 'data_url');
 					const downLoadUrl = await response.ref.getDownloadURL();
+					setProfileImage(downLoadUrl);
 					const theDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
 					theDoc.forEach(result =>
 						dbService.doc(`profile/${result.id}`).update({
 							image: downLoadUrl,
 						}),
 					);
-					setProfileImage(downLoadUrl);
 				}
 			};
 		}
