@@ -96,7 +96,8 @@ const UserImg = styled.div<{ imgUrl: string }>`
 	height: 60px;
 	background-image: url(${props => props.imgUrl});
 	background-position: center;
-	background-size: contain;
+	background-size: cover;
+	background-repeat: no-repeat;
 	border-radius: 10px;
 `;
 
