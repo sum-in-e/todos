@@ -15,7 +15,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [inputValue, setInputValue] = useState<string>('');
 	const [date, setDate] = useState<string>('날짜미정');
 	const [taskList, setTaskList] = useState<[]>([]);
-	const taskArray: any = [];
+	const temporaryStorage: any = [];
 
 	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
@@ -33,32 +33,14 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const onTaskSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			// userId를 가진 doc을 가져옴
 			const userCollection = await dbService.collection(userInfo.uid).get();
+			const docList = userCollection.docs.map(doc => doc.id);
 
-			if (userCollection.empty) {
-				// doc이 없는 경우
-				console.log('Collection 안에 없음');
-				await dbService.collection(userInfo.uid).doc(date).set({
-					1: inputValue,
-				});
-				// 리얼타임처럼 화면에 실시간으로 반영되게 하기 -> setState
-				await taskArray.push({
-					date: date,
-					tasks: [inputValue],
-				});
-				setTaskList(taskArray);
-				// inputValue, date setState해서 각각의 uesState 및 input 값 초기화 시키기
-				setInputValue('');
-				setDate('날짜미정');
-			} else {
-				// doc이 하나이상 있는 경우
-				console.log('Collection 안에 있음');
+			if (docList.includes(date)) {
+				console.log('일치하는 doc 있음');
 				userCollection.docs.forEach(
 					async (result): Promise<void> => {
 						if (result.id === date) {
-							// 제출한 날짜와 같은 날짜를 가진 doc이 있으면 해당 doc면 콘솔 뜸(같은 날짜 가진 doc 없으면 이 부분 실행 안 됨)
-							// 기존에 doc에 있던 data와, 새롭게 입력한 데이터를 taskObj로 구성해서 update.
 							const data = result.data();
 							const dataLength = Object.keys(data).length;
 							const taskObj = {
@@ -66,15 +48,20 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 								[dataLength + 1]: inputValue,
 							};
 							await result.ref.update(taskObj);
-							// 리얼타임처럼 setState 시켜야 함
 							await getTasks();
-							// inputValue, date setState해서 각각의 uesState 및 input 값 초기화 시키기
 							setInputValue('');
 							setDate('날짜미정');
 						}
 					},
 				);
-				// 지정한 날짜와 일치하는 doc이 없는 경우판별한 후 set하게 만들면 됨
+			} else {
+				console.log('일치하는 doc 없음');
+				await dbService.collection(userInfo.uid).doc(date).set({
+					1: inputValue,
+				});
+				await getTasks();
+				setInputValue('');
+				setDate('날짜미정');
 			}
 		}
 	};
@@ -94,8 +81,8 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 							date: docDate,
 							tasks: tasks,
 						};
-						await taskArray.push(taskObj);
-						setTaskList(taskArray);
+						await temporaryStorage.push(taskObj);
+						setTaskList(temporaryStorage);
 					},
 				);
 			}
