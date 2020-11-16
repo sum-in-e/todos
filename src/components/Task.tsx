@@ -1,19 +1,22 @@
 import React from 'react';
+import styled from 'styled-components';
+import { Edit } from 'styled-icons/boxicons-regular';
 
 interface IProps {
-	date: string;
-	tasks: [];
+	task: string;
 }
 
-const Task: React.FunctionComponent<IProps> = ({ date, tasks }) => {
+const Task: React.FunctionComponent<IProps> = ({ task }) => {
 	return (
 		<>
-			<div>{date}</div>
-			<div>
-				{tasks && tasks.length > 0 && tasks.map((task: any, index: any) => <div key={index}>{task}</div>)}
-			</div>
+			<div>{task}</div>
+			<EditIcon />
 		</>
 	);
 };
+
+const EditIcon = styled(Edit)`
+	width: 20px;
+`;
 
 export default Task;

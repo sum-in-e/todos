@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
-import Task from './Task';
+import Task from './TaskContainer';
 
 interface IProps {
 	userInfo: {
@@ -14,7 +14,7 @@ interface IProps {
 const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [inputValue, setInputValue] = useState<string>('');
 	const [date, setDate] = useState<string>('날짜미정');
-	const [taskList, setTaskList] = useState<[]>([]);
+	const [taskList, setTaskList] = useState<string[]>([]);
 	const temporaryStorage: any = [];
 
 	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -92,6 +92,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	useEffect(() => {
 		getTasks();
 	}, []);
+
 	return (
 		<>
 			<Container>
@@ -111,7 +112,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				<div>
 					{taskList &&
 						taskList.length > 0 &&
-						taskList.map((result: any) => (
+						taskList.map((result: any, index: any) => (
 							<Task key={result.date} date={result.date} tasks={result.tasks} />
 						))}
 				</div>
