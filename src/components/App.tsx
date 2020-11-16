@@ -5,10 +5,10 @@ import { authService } from '../fbase';
 interface IUser {
 	uid: string | null;
 	displayName: string | null;
-	updateProfile: (args: Object) => void;
+	updateProfile: (args: object) => void;
 }
 
-function App() {
+const App: React.FunctionComponent = () => {
 	const [userInfo, setUserInfo] = useState<IUser>({
 		uid: null,
 		displayName: null,
@@ -45,6 +45,6 @@ function App() {
 	};
 
 	return <>{init ? <Router userInfo={userInfo} isLoggedIn={isLoggedIn} reRender={reRender} /> : '초기화중...'}</>;
-}
+};
 
 export default App;
