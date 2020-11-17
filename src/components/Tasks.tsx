@@ -80,6 +80,8 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 								tasks: tasks,
 							};
 							await temporaryStorage.push(taskObj);
+						} else if (tasks.length === 0) {
+							doc.ref.delete();
 						}
 					},
 				);
