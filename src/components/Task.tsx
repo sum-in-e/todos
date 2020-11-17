@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { dbService } from '../fbase';
+import { defualtFirebase, dbService } from '../fbase';
 
 interface IProps {
 	date: string;
@@ -17,14 +17,29 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 	const [inputValue, setInputValue] = useState<string>(task);
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
 
+	const onDeleteClick = async (): Promise<void> => {
+		if (userInfo.uid !== null) {
+			const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+			const docData = (await theDoc.get()).data();
+			for (const key in docData) {
+				if (docData[key] === task) {
+					await theDoc.update({
+						[key]: defualtFirebase.firestore.FieldValue.delete(),
+					});
+					getTasks();
+				}
+			}
+		}
+	};
+
 	const onSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			const theDoc = await dbService.doc(`${userInfo.uid}/${date}`).get();
-			const docData = theDoc.data();
+			const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+			const docData = (await theDoc.get()).data();
 			for (const key in docData) {
 				if (docData[key] === task) {
-					await dbService.doc(`${userInfo.uid}/${date}`).update({
+					await theDoc.update({
 						[key]: inputValue,
 					});
 					await getTasks();
@@ -65,6 +80,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 				<Container>
 					<div>{task}</div>
 					<button onClick={onToggleClick}>수정</button>
+					<button onClick={onDeleteClick}>삭제</button>
 				</Container>
 			)}
 		</>

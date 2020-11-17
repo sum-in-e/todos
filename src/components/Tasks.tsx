@@ -68,24 +68,23 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 
 	const getTasks = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			// userId를 가진 collection 가져오기
 			const userCollection = await dbService.collection(userInfo.uid).get();
-			// doc이 없는 경우 작동 안 함.
 			if (!userCollection.empty) {
-				// 유저의 collection에 forEach해서 날짜별 doc을 가져옴
 				userCollection.forEach(
 					async (doc): Promise<void> => {
 						const docDate = doc.id;
 						const tasks = Object.values(doc.data());
-						const taskObj = {
-							date: docDate,
-							tasks: tasks,
-						};
-						await temporaryStorage.push(taskObj);
-						setTaskList(temporaryStorage);
+						if (tasks.length > 0) {
+							const taskObj = {
+								date: docDate,
+								tasks: tasks,
+							};
+							await temporaryStorage.push(taskObj);
+						}
 					},
 				);
 			}
+			setTaskList(temporaryStorage);
 		}
 	};
 
