@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
-import Task from './TaskContainer';
+import TaskContainer from './TaskContainer';
 
 interface IProps {
 	userInfo: {
@@ -74,9 +74,9 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			if (!userCollection.empty) {
 				// 유저의 collection에 forEach해서 날짜별 doc을 가져옴
 				userCollection.forEach(
-					async (docOfDate): Promise<void> => {
-						const docDate = docOfDate.id;
-						const tasks = Object.values(docOfDate.data());
+					async (doc): Promise<void> => {
+						const docDate = doc.id;
+						const tasks = Object.values(doc.data());
 						const taskObj = {
 							date: docDate,
 							tasks: tasks,
@@ -112,8 +112,14 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				<div>
 					{taskList &&
 						taskList.length > 0 &&
-						taskList.map((result: any, index: any) => (
-							<Task key={result.date} date={result.date} tasks={result.tasks} />
+						taskList.map((result: any) => (
+							<TaskContainer
+								key={result.date}
+								date={result.date}
+								tasks={result.tasks}
+								userInfo={userInfo}
+								getTasks={getTasks}
+							/>
 						))}
 				</div>
 			</Container>
