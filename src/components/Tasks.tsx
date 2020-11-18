@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import TaskContainer from './TaskContainer';
+import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {
 	userInfo: {
@@ -42,10 +43,9 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 					async (result): Promise<void> => {
 						if (result.id === date) {
 							const data = result.data();
-							const dataLength = Object.keys(data).length;
 							const taskObj = {
 								...data,
-								[dataLength + 1]: inputValue,
+								[uuidv4()]: inputValue,
 							};
 							await result.ref.update(taskObj);
 							await getTasks();
@@ -56,9 +56,12 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				);
 			} else {
 				console.log('일치하는 doc 없음');
-				await dbService.collection(userInfo.uid).doc(date).set({
-					1: inputValue,
-				});
+				await dbService
+					.collection(userInfo.uid)
+					.doc(date)
+					.set({
+						[uuidv4()]: inputValue,
+					});
 				await getTasks();
 				setInputValue('');
 				setDate('날짜미정');

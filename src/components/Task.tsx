@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { defualtFirebase, dbService } from '../fbase';
+import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {
 	date: string;
@@ -68,10 +69,9 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 							async (result): Promise<void> => {
 								if (result.id === editedDate) {
 									const data = result.data();
-									const dataLength = Object.keys(data).length;
 									const taskObj = {
 										...data,
-										[dataLength + 1]: inputValue,
+										[uuidv4()]: inputValue,
 									};
 									await result.ref.update(taskObj);
 								}
@@ -79,9 +79,12 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 						);
 					} else {
 						// 수정된 날짜의 doc이 존재하지 않는 경우
-						await dbService.collection(userInfo.uid).doc(editedDate).set({
-							1: inputValue,
-						});
+						await dbService
+							.collection(userInfo.uid)
+							.doc(editedDate)
+							.set({
+								[uuidv4()]: inputValue,
+							});
 					}
 				} catch (err) {
 					console.log(err);
