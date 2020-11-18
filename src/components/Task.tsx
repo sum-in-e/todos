@@ -15,7 +15,15 @@ interface IProps {
 
 const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks }) => {
 	const [inputValue, setInputValue] = useState<string>(task);
+	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+
+	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+		const {
+			target: { value },
+		} = e;
+		setEditedDate(value);
+	};
 
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
@@ -37,15 +45,59 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		if (userInfo.uid !== null) {
 			const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
 			const docData = (await theDoc.get()).data();
-			for (const key in docData) {
-				if (docData[key] === task) {
-					await theDoc.update({
-						[key]: inputValue,
-					});
-					await getTasks();
+			if (date === editedDate) {
+				// 날짜 수정 안한 경우 -> 값만 update 하면 됨
+				for (const key in docData) {
+					if (docData[key] === task) {
+						await theDoc.update({
+							[key]: inputValue,
+						});
+						await getTasks();
+					}
+				}
+				setToggleEdit(prev => !prev);
+			} else if (date !== editedDate) {
+				// 날짜 수정한 경우 -> 수정된 날짜의 doc이 존재하는 경우와, 수정된 날짜의 doc이 존재하지 않는 경우로 나눔
+				const userCollection = await dbService.collection(userInfo.uid).get();
+				const docList = userCollection.docs.map(doc => doc.id);
+				try {
+					// 수정된 날짜의 doc이 존재하는 경우
+					if (docList.includes(editedDate)) {
+						// 수정된 날짜의 doc에 새롭게 변경된 inputValue와 editedDate 넣어서 업데이트
+						userCollection.docs.forEach(
+							async (result): Promise<void> => {
+								if (result.id === editedDate) {
+									const data = result.data();
+									const dataLength = Object.keys(data).length;
+									const taskObj = {
+										...data,
+										[dataLength + 1]: inputValue,
+									};
+									await result.ref.update(taskObj);
+								}
+							},
+						);
+					} else {
+						// 수정된 날짜의 doc이 존재하지 않는 경우
+						await dbService.collection(userInfo.uid).doc(editedDate).set({
+							1: inputValue,
+						});
+					}
+				} catch (err) {
+					console.log(err);
+				} finally {
+					// 기존 날짜의 doc에서 이전 task 제거
+					for (const key in docData) {
+						if (docData[key] === task) {
+							await theDoc.update({
+								[key]: defualtFirebase.firestore.FieldValue.delete(),
+							});
+							getTasks();
+							setToggleEdit(false);
+						}
+					}
 				}
 			}
-			setToggleEdit(prev => !prev);
 		}
 	};
 
@@ -58,6 +110,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 
 	const onToggleClick = (): void => {
 		setToggleEdit(prev => !prev);
+		setEditedDate(date);
 	};
 
 	return (
@@ -71,6 +124,11 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 							onChange={onInputChange}
 							placeholder="Edit Task"
 							required
+						/>
+						<input
+							type="date"
+							value={editedDate === '날짜미정' ? '' : editedDate}
+							onChange={onDateChange}
 						/>
 						<button>저장</button>
 						<button onClick={onToggleClick}>취소</button>
