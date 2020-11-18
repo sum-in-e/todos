@@ -116,6 +116,59 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		setEditedDate(date);
 	};
 
+	const onCheckboxClick = async (e: any): Promise<void> => {
+		if (userInfo.uid !== null) {
+			const {
+				target: {
+					labels: {
+						0: { innerText: text },
+					},
+				},
+			} = e;
+			try {
+				if (e.target.checked) {
+					const userCollection = await dbService.collection(userInfo.uid).get();
+					const docList = userCollection.docs.map(doc => doc.id);
+					if (docList.includes('완료')) {
+						userCollection.docs.forEach(
+							async (result): Promise<void> => {
+								if (result.id === '완료') {
+									const data = result.data();
+									const taskObj = {
+										...data,
+										[uuidv4()]: text,
+									};
+									await result.ref.update(taskObj);
+								}
+							},
+						);
+					} else {
+						await dbService
+							.collection(userInfo.uid)
+							.doc('완료')
+							.set({
+								[uuidv4()]: text,
+							});
+					}
+				}
+			} catch (err) {
+				console.log(err);
+			} finally {
+				const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+				const docData = (await theDoc.get()).data();
+				for (const key in docData) {
+					if (docData[key] === text) {
+						await theDoc.update({
+							[key]: defualtFirebase.firestore.FieldValue.delete(),
+						});
+						getTasks();
+						e.target.checked = false;
+					}
+				}
+			}
+		}
+	};
+
 	return (
 		<>
 			{toggleEdit ? (
@@ -139,7 +192,12 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 				</>
 			) : (
 				<Container>
-					<div>{task}</div>
+					<div>
+						<label>
+							<input type="checkbox" onChange={onCheckboxClick} />
+							{task}
+						</label>
+					</div>
 					<button onClick={onToggleClick}>수정</button>
 					<button onClick={onDeleteClick}>삭제</button>
 				</Container>

@@ -1,5 +1,6 @@
 import React from 'react';
 import Task from './Task';
+import CompletedTask from './CompletedTask';
 
 interface IProps {
 	date: string;
@@ -17,11 +18,19 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 		<>
 			<strong>{date}</strong>
 			<div>
-				{tasks &&
-					tasks.length > 0 &&
-					tasks.map((task: string, index: number) => (
-						<Task key={index} date={date} task={task} userInfo={userInfo} getTasks={getTasks} />
-					))}
+				{date === '완료'
+					? tasks.map((task: string, index: number) => (
+							<CompletedTask
+								key={index}
+								date={date}
+								task={task}
+								userInfo={userInfo}
+								getTasks={getTasks}
+							/>
+					  ))
+					: tasks.map((task: string, index: number) => (
+							<Task key={index} date={date} task={task} userInfo={userInfo} getTasks={getTasks} />
+					  ))}
 			</div>
 		</>
 	);
