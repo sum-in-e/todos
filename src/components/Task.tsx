@@ -23,7 +23,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		const {
 			target: { value },
 		} = e;
-		setEditedDate(value);
+		setEditedDate(value === '' ? '날짜미정' : value);
 	};
 
 	const onDeleteClick = async (): Promise<void> => {
