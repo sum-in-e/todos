@@ -35,7 +35,7 @@ const Auth = () => {
 		}
 	};
 
-	const onClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+	const onClick = (): void => {
 		setToggleAccount(prev => !prev);
 	};
 

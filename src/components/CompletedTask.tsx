@@ -44,7 +44,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 			const userCollection = await dbService.collection(userInfo.uid).get();
 			const docList = userCollection.docs.map(doc => doc.id);
 			try {
-				// 수정된 날짜의 doc이 존재하는 경우
 				if (docList.includes(editedDate)) {
 					userCollection.docs.forEach(
 						async (result): Promise<void> => {
@@ -59,7 +58,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 						},
 					);
 				} else {
-					// 수정된 날짜의 doc이 존재하지 않는 경우
 					await dbService
 						.collection(userInfo.uid)
 						.doc(editedDate)
@@ -70,7 +68,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 			} catch (err) {
 				console.log(err);
 			} finally {
-				// 기존 날짜의 doc에서 이전 task 제거
 				const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
 				const docData = (await theDoc.get()).data();
 				for (const key in docData) {
@@ -98,9 +95,5 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 };
 
 const Container = styled.div``;
-
-const Label = styled.label`
-	text-decoration: line-through;
-`;
 
 export default CompletedTask;
