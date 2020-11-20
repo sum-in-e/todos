@@ -18,6 +18,12 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [taskList, setTaskList] = useState<string[]>([]);
 	const temporaryStorage: any = [];
 
+	const today = new Date();
+	const dd = today.getDate();
+	const mm = today.getMonth() + 1;
+	const yyyy = today.getFullYear();
+	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
+
 	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
@@ -28,7 +34,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		const {
 			target: { value },
 		} = e;
-		setDate(value);
+		setDate(value === '' ? '날짜미정' : value);
 	};
 
 	const onTaskSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -38,7 +44,6 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			const docList = userCollection.docs.map(doc => doc.id);
 
 			if (docList.includes(date)) {
-				console.log('일치하는 doc 있음');
 				userCollection.docs.forEach(
 					async (result): Promise<void> => {
 						if (result.id === date) {
@@ -55,7 +60,6 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 					},
 				);
 			} else {
-				console.log('일치하는 doc 없음');
 				await dbService
 					.collection(userInfo.uid)
 					.doc(date)
@@ -84,7 +88,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 							};
 							await temporaryStorage.push(taskObj);
 						} else if (tasks.length === 0) {
-							doc.ref.delete();
+							await doc.ref.delete();
 						}
 					},
 				);
@@ -123,6 +127,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 								tasks={result.tasks}
 								userInfo={userInfo}
 								getTasks={getTasks}
+								todaysDate={todaysDate}
 							/>
 						))}
 				</div>
