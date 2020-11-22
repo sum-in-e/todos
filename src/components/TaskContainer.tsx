@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Task from './Task';
-import { dbService } from '../fbase';
 import CompletedTask from './CompletedTask';
 
 interface IProps {
@@ -13,39 +12,32 @@ interface IProps {
 		updateProfile: (args: object) => void;
 	};
 	getTasks: () => void;
-	todaysDate: string;
 }
 
-const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, getTasks, todaysDate }) => {
+const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, getTasks }) => {
 	const [isPast, setIsPast] = useState<boolean>(false);
+	const today = new Date();
+	const dd = today.getDate();
+	const mm = today.getMonth() + 1;
+	const yyyy = today.getFullYear();
+	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
 
-	const identification = async (): Promise<void> => {
+	const identifyPast = async (): Promise<void> => {
 		const todayArr = todaysDate.split('-');
 		const changeToday = new Date(parseInt(todayArr[0]), parseInt(todayArr[1]) - 1, parseInt(todayArr[2]));
 		const changedToday = changeToday.setDate(changeToday.getDate());
-		if (userInfo.uid !== null) {
-			const userCollection = await dbService.collection(userInfo.uid).get();
-
-			userCollection.docs.forEach(
-				async (doc): Promise<void> => {
-					if (doc.id !== '과거' && doc.id !== '완료' && doc.id !== '날짜미정' && doc.id === date) {
-						const dateArr = doc.id.split('-');
-						const changeDate = new Date(
-							parseInt(dateArr[0]),
-							parseInt(dateArr[1]) - 1,
-							parseInt(dateArr[2]),
-						);
-						const changedDate = changeDate.setDate(changeDate.getDate());
-						if (changedDate < changedToday) {
-							setIsPast(true);
-						}
-					}
-				},
-			);
+		if (date !== '과거' && date !== '완료' && date !== '날짜미정') {
+			const dateArr = date.split('-');
+			const changeDate = new Date(parseInt(dateArr[0]), parseInt(dateArr[1]) - 1, parseInt(dateArr[2]));
+			const changedDate = changeDate.setDate(changeDate.getDate());
+			if (changedDate < changedToday) {
+				setIsPast(true);
+			}
 		}
 	};
+
 	useEffect(() => {
-		identification();
+		identifyPast();
 	}, []);
 
 	return (

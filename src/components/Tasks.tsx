@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
-import TaskContainer from './TaskContainer';
 import { v4 as uuidv4 } from 'uuid';
+import TaskContainer from './TaskContainer';
 
 interface IProps {
 	userInfo: {
@@ -17,12 +17,6 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [date, setDate] = useState<string>('날짜미정');
 	const [taskList, setTaskList] = useState<string[]>([]);
 	const temporaryStorage: any = [];
-
-	const today = new Date();
-	const dd = today.getDate();
-	const mm = today.getMonth() + 1;
-	const yyyy = today.getFullYear();
-	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
 
 	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
@@ -42,37 +36,33 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		if (userInfo.uid !== null) {
 			const userCollection = await dbService.collection(userInfo.uid).get();
 			const docList = userCollection.docs.map(doc => doc.id);
-
-			if (docList.includes(date)) {
-				userCollection.docs.forEach(
-					async (result): Promise<void> => {
-						if (result.id === date) {
-							const data = result.data();
-							const taskObj = {
-								...data,
-								[uuidv4()]: inputValue,
-							};
-							await result.ref.update(taskObj);
-							await getTasks();
-							setInputValue('');
-							setDate('날짜미정');
-						}
-					},
-				);
-			} else {
-				await dbService
-					.collection(userInfo.uid)
-					.doc(date)
-					.set({
+			try {
+				if (docList.includes(date)) {
+					const doc = dbService.doc(`${userInfo.uid}/${date}`);
+					const data = (await doc.get()).data();
+					const taskObj = {
+						...data,
 						[uuidv4()]: inputValue,
-					});
+					};
+					await doc.update(taskObj);
+				} else {
+					await dbService
+						.collection(userInfo.uid)
+						.doc(date)
+						.set({
+							[uuidv4()]: inputValue,
+						});
+				}
+			} catch (err) {
+				console.log(err);
+			} finally {
 				await getTasks();
 				setInputValue('');
 				setDate('날짜미정');
 			}
 		}
 	};
-
+	console.log(taskList);
 	const getTasks = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const userCollection = await dbService.collection(userInfo.uid).get();
@@ -84,7 +74,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						if (tasks.length > 0) {
 							const taskObj = {
 								date: docDate,
-								tasks: tasks,
+								tasks,
 							};
 							await temporaryStorage.push(taskObj);
 						} else if (tasks.length === 0) {
@@ -127,7 +117,6 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 								tasks={result.tasks}
 								userInfo={userInfo}
 								getTasks={getTasks}
-								todaysDate={todaysDate}
 							/>
 						))}
 				</div>
