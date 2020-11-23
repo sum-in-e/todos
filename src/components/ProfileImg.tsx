@@ -14,7 +14,7 @@ interface IProps {
 const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [profileImage, setProfileImage] = useState<string>('');
 
-	const onClickDelete = async (e: any): Promise<void> => {
+	const onClickDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
 		const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 		setProfileImage(defaultImg);
 		const theDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
@@ -27,8 +27,8 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		if (items.length > 0) {
 			await items[0].delete();
 		}
-		// 이부분 이벤트 타입 수정
-		e.target.parentElement.children[1].value = null;
+		const input = e.target as HTMLButtonElement;
+		(input.parentElement?.children[1] as HTMLInputElement).value = '';
 	};
 
 	const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
