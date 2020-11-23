@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import Task from './Task';
 import CompletedTask from './CompletedTask';
 
@@ -9,7 +10,7 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: object) => void;
+		updateProfile: (args: { displayName: string | null }) => void;
 	};
 	getTasks: () => void;
 }
@@ -41,7 +42,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	}, []);
 
 	return (
-		<>
+		<Container>
 			<Dates isPast={isPast}>{date === todaysDate ? '오늘' : date}</Dates>
 			<div>
 				{date === '완료'
@@ -54,13 +55,14 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 								getTasks={getTasks}
 							/>
 					  ))
-					: tasks.map((task: string, index: number) => (
-							<Task key={index} date={date} task={task} userInfo={userInfo} getTasks={getTasks} />
+					: tasks.map((task: string) => (
+							<Task key={uuidv4()} date={date} task={task} userInfo={userInfo} getTasks={getTasks} />
 					  ))}
 			</div>
-		</>
+		</Container>
 	);
 };
+const Container = styled.div``;
 
 const Dates = styled.h3<{ isPast: boolean }>`
 	color: ${props => (props.isPast ? 'red' : 'black')};

@@ -9,7 +9,7 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: object) => void;
+		updateProfile: (args: { displayName: string | null }) => void;
 	};
 	reRender: () => void;
 }

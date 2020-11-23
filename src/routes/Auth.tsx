@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { authService } from '../fbase';
 
-const Auth = () => {
+const Auth: React.FunctionComponent = () => {
 	const [email, setEmail] = useState<string>('');
 	const [password, setPassword] = useState<string>('');
 	const [toggleAccount, setToggleAccount] = useState<boolean>(false);

@@ -7,13 +7,13 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: object) => void;
+		updateProfile: (args: { displayName: string | null }) => void;
 	};
 	isLoggedIn: boolean;
 	reRender: () => void;
 }
 
-const Routes = ({ userInfo, isLoggedIn, reRender }: IProps) => {
+const Routes: React.FunctionComponent<IProps> = ({ userInfo, isLoggedIn, reRender }) => {
 	return (
 		<Router>
 			<Switch>

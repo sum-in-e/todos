@@ -9,7 +9,7 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: object) => void;
+		updateProfile: (args: { displayName: string | null }) => void;
 	};
 	getTasks: () => void;
 }
@@ -39,7 +39,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 		setEditedDate(value === '' ? '날짜미정' : value);
 	};
 
-	const onRestoreClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
+	const onRestoreClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const userCollection = await dbService.collection(userInfo.uid).get();
 			const docList = userCollection.docs.map(doc => doc.id);

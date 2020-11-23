@@ -5,7 +5,7 @@ import { authService } from '../fbase';
 interface IUser {
 	uid: string | null;
 	displayName: string | null;
-	updateProfile: (args: object) => void;
+	updateProfile: (args: { displayName: string | null }) => void;
 }
 
 const App: React.FunctionComponent = () => {

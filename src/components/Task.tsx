@@ -9,7 +9,7 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: object) => void;
+		updateProfile: (args: { displayName: string | null }) => void;
 	};
 	getTasks: () => void;
 }
@@ -28,7 +28,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 			const docData = (await theDoc.get()).data();
 			for (const key in docData) {
 				if (docData[key] === task) {
@@ -44,7 +44,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 	const onSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 			const docData = (await theDoc.get()).data();
 			if (date === editedDate) {
 				for (const key in docData) {
@@ -52,7 +52,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 						await theDoc.update({
 							[key]: inputValue,
 						});
-						await getTasks();
+						getTasks();
 					}
 				}
 				setToggleEdit(prev => !prev);
@@ -110,53 +110,56 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		setEditedDate(date);
 	};
 
-	const onCheckboxClick = async (e: any): Promise<void> => {
+	const onCheckboxClick = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const {
-				target: {
-					labels: {
-						0: { innerText: text },
+			if (e.target.labels !== null) {
+				const {
+					target: {
+						labels: {
+							0: { innerText: text },
+						},
 					},
-				},
-			} = e;
-			try {
-				if (e.target.checked) {
-					const userCollection = await dbService.collection(userInfo.uid).get();
-					const docList = userCollection.docs.map(doc => doc.id);
-					if (docList.includes('완료')) {
-						userCollection.docs.forEach(
-							async (result): Promise<void> => {
-								if (result.id === '완료') {
-									const data = result.data();
-									const taskObj = {
-										...data,
-										[uuidv4()]: text,
-									};
-									await result.ref.update(taskObj);
-								}
-							},
-						);
-					} else {
-						await dbService
-							.collection(userInfo.uid)
-							.doc('완료')
-							.set({
-								[uuidv4()]: text,
-							});
+				} = e;
+
+				try {
+					if (e.target.checked) {
+						const userCollection = await dbService.collection(userInfo.uid).get();
+						const docList = userCollection.docs.map(doc => doc.id);
+						if (docList.includes('완료')) {
+							userCollection.docs.forEach(
+								async (result): Promise<void> => {
+									if (result.id === '완료') {
+										const data = result.data();
+										const taskObj = {
+											...data,
+											[uuidv4()]: text,
+										};
+										await result.ref.update(taskObj);
+									}
+								},
+							);
+						} else {
+							await dbService
+								.collection(userInfo.uid)
+								.doc('완료')
+								.set({
+									[uuidv4()]: text,
+								});
+						}
 					}
-				}
-			} catch (err) {
-				console.log(err);
-			} finally {
-				const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
-				const docData = (await theDoc.get()).data();
-				for (const key in docData) {
-					if (docData[key] === text) {
-						await theDoc.update({
-							[key]: defualtFirebase.firestore.FieldValue.delete(),
-						});
-						getTasks();
-						e.target.checked = false;
+				} catch (err) {
+					console.log(err);
+				} finally {
+					const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+					const docData = (await theDoc.get()).data();
+					for (const key in docData) {
+						if (docData[key] === text) {
+							await theDoc.update({
+								[key]: defualtFirebase.firestore.FieldValue.delete(),
+							});
+							getTasks();
+							e.target.checked = false;
+						}
 					}
 				}
 			}
@@ -166,7 +169,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 	return (
 		<>
 			{toggleEdit ? (
-				<>
+				<Container>
 					<form onSubmit={onSave}>
 						<input
 							type="text"
@@ -183,7 +186,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 						<button>저장</button>
 						<button onClick={onToggleClick}>취소</button>
 					</form>
-				</>
+				</Container>
 			) : (
 				<Container>
 					<div>
