@@ -28,51 +28,56 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-			const docData = (await theDoc.get()).data();
-			for (const key in docData) {
-				if (docData[key] === task) {
-					await theDoc.update({
-						[key]: defualtFirebase.firestore.FieldValue.delete(),
-					});
-					getTasks();
+			try {
+				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
+				const docData = (await theDoc.get()).data();
+				for (const key in docData) {
+					if (docData[key] === task) {
+						await theDoc.update({
+							[key]: defualtFirebase.firestore.FieldValue.delete(),
+						});
+					}
 				}
+			} catch (err) {
+				alert(err);
+			} finally {
+				getTasks();
 			}
 		}
 	};
 
-	const onSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+	const onEditSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
 			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 			const docData = (await theDoc.get()).data();
 			if (date === editedDate) {
-				for (const key in docData) {
-					if (docData[key] === task) {
-						await theDoc.update({
-							[key]: inputValue,
-						});
-						getTasks();
+				try {
+					for (const key in docData) {
+						if (docData[key] === task) {
+							await theDoc.update({
+								[key]: inputValue,
+							});
+						}
 					}
+				} catch (err) {
+					alert(err.message);
+				} finally {
+					getTasks();
+					setToggleEdit(prev => !prev);
 				}
-				setToggleEdit(prev => !prev);
-			} else if (date !== editedDate) {
+			} else {
 				const userCollection = await dbService.collection(userInfo.uid).get();
 				const docList = userCollection.docs.map(doc => doc.id);
 				try {
 					if (docList.includes(editedDate)) {
-						userCollection.docs.forEach(
-							async (result): Promise<void> => {
-								if (result.id === editedDate) {
-									const data = result.data();
-									const taskObj = {
-										...data,
-										[uuidv4()]: inputValue,
-									};
-									await result.ref.update(taskObj);
-								}
-							},
-						);
+						const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
+						const data = doc.data();
+						const taskObj = {
+							...data,
+							[uuidv4()]: inputValue,
+						};
+						await doc.ref.update(taskObj);
 					} else {
 						await dbService
 							.collection(userInfo.uid)
@@ -81,18 +86,18 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 								[uuidv4()]: inputValue,
 							});
 					}
-				} catch (err) {
-					console.log(err);
-				} finally {
 					for (const key in docData) {
 						if (docData[key] === task) {
 							await theDoc.update({
 								[key]: defualtFirebase.firestore.FieldValue.delete(),
 							});
-							getTasks();
-							setToggleEdit(false);
 						}
 					}
+				} catch (err) {
+					alert(err.message);
+				} finally {
+					getTasks();
+					setToggleEdit(false);
 				}
 			}
 		}
@@ -120,24 +125,18 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 						},
 					},
 				} = e;
-
 				try {
 					if (e.target.checked) {
 						const userCollection = await dbService.collection(userInfo.uid).get();
 						const docList = userCollection.docs.map(doc => doc.id);
 						if (docList.includes('완료')) {
-							userCollection.docs.forEach(
-								async (result): Promise<void> => {
-									if (result.id === '완료') {
-										const data = result.data();
-										const taskObj = {
-											...data,
-											[uuidv4()]: text,
-										};
-										await result.ref.update(taskObj);
-									}
-								},
-							);
+							const completeDoc = await dbService.doc(`${userInfo.uid}/완료`).get();
+							const data = completeDoc.data();
+							const taskObj = {
+								...data,
+								[uuidv4()]: text,
+							};
+							await completeDoc.ref.update(taskObj);
 						} else {
 							await dbService
 								.collection(userInfo.uid)
@@ -146,21 +145,21 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 									[uuidv4()]: text,
 								});
 						}
+						const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
+						const docData = (await theDoc.get()).data();
+						for (const key in docData) {
+							if (docData[key] === text) {
+								await theDoc.update({
+									[key]: defualtFirebase.firestore.FieldValue.delete(),
+								});
+							}
+						}
 					}
 				} catch (err) {
 					console.log(err);
 				} finally {
-					const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
-					const docData = (await theDoc.get()).data();
-					for (const key in docData) {
-						if (docData[key] === text) {
-							await theDoc.update({
-								[key]: defualtFirebase.firestore.FieldValue.delete(),
-							});
-							getTasks();
-							e.target.checked = false;
-						}
-					}
+					getTasks();
+					e.target.checked = false;
 				}
 			}
 		}
@@ -170,7 +169,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		<>
 			{toggleEdit ? (
 				<Container>
-					<form onSubmit={onSave}>
+					<form onSubmit={onEditSave}>
 						<input
 							type="text"
 							value={inputValue}

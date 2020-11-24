@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { authService } from '../fbase';
 import styled from 'styled-components';
 import { Edit } from 'styled-icons/boxicons-regular';
-import { useHistory } from 'react-router-dom';
 import ProfileImg from './ProfileImg';
 
 interface IProps {
@@ -17,22 +16,26 @@ interface IProps {
 const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }: IProps) => {
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-	const history = useHistory();
 
-	const onSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+	const onSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
 		e.preventDefault();
 		if (userName !== userInfo.displayName) {
-			await userInfo.updateProfile({
-				displayName: userName,
-			});
-			setToggleEdit(prev => !prev);
-			reRender();
+			try {
+				userInfo.updateProfile({
+					displayName: userName,
+				});
+			} catch (err) {
+				alert(err.message);
+			} finally {
+				setToggleEdit(prev => !prev);
+				reRender();
+			}
 		} else if (userName === userInfo.displayName) {
 			alert('변경 사항이 없습니다');
 		}
 	};
 
-	const onTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const onTextChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
 		} = e;
@@ -45,7 +48,6 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }: IPro
 
 	const onLogOutClick = (): void => {
 		authService.signOut();
-		history.push('/');
 	};
 
 	return (

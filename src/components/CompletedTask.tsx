@@ -19,15 +19,20 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-			const docData = (await theDoc.get()).data();
-			for (const key in docData) {
-				if (docData[key] === task) {
-					await theDoc.update({
-						[key]: defualtFirebase.firestore.FieldValue.delete(),
-					});
-					getTasks();
+			try {
+				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
+				const docData = (await theDoc.get()).data();
+				for (const key in docData) {
+					if (docData[key] === task) {
+						await theDoc.update({
+							[key]: defualtFirebase.firestore.FieldValue.delete(),
+						});
+					}
 				}
+			} catch (err) {
+				alert(err.message);
+			} finally {
+				getTasks();
 			}
 		}
 	};
@@ -47,13 +52,17 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 				if (docList.includes(editedDate)) {
 					userCollection.docs.forEach(
 						async (result): Promise<void> => {
-							if (result.id === editedDate) {
-								const data = result.data();
-								const taskObj = {
-									...data,
-									[uuidv4()]: task,
-								};
-								await result.ref.update(taskObj);
+							try {
+								if (result.id === editedDate) {
+									const data = result.data();
+									const taskObj = {
+										...data,
+										[uuidv4()]: task,
+									};
+									await result.ref.update(taskObj);
+								}
+							} catch (err) {
+								alert(err.message);
 							}
 						},
 					);
@@ -65,19 +74,19 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, task, userInfo, 
 							[uuidv4()]: task,
 						});
 				}
-			} catch (err) {
-				console.log(err);
-			} finally {
-				const theDoc = await dbService.doc(`${userInfo.uid}/${date}`);
+				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 				const docData = (await theDoc.get()).data();
 				for (const key in docData) {
 					if (docData[key] === task) {
 						await theDoc.update({
 							[key]: defualtFirebase.firestore.FieldValue.delete(),
 						});
-						getTasks();
 					}
 				}
+			} catch (err) {
+				alert(err.massage);
+			} finally {
+				getTasks();
 			}
 		}
 	};
