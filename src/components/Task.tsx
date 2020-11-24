@@ -26,7 +26,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		setEditedDate(value === '' ? '날짜미정' : value);
 	};
 
-	const onDeleteClick = async (): Promise<void> => {
+	const onDeleteClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
 		if (userInfo.uid !== null) {
 			try {
 				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);

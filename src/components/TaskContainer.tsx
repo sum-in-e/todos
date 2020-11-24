@@ -23,7 +23,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	const yyyy = today.getFullYear();
 	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
 
-	const identifyPast = async (): Promise<void> => {
+	const identifyPast = (): void => {
 		const todayArr = todaysDate.split('-');
 		const changeToday = new Date(parseInt(todayArr[0]), parseInt(todayArr[1]) - 1, parseInt(todayArr[2]));
 		const changedToday = changeToday.setDate(changeToday.getDate());

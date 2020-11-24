@@ -6,13 +6,10 @@ const Auth: React.FunctionComponent = () => {
 	const [password, setPassword] = useState<string>('');
 	const [toggleAccount, setToggleAccount] = useState<boolean>(false);
 
-	const onSubmit = async (e: React.FormEvent<HTMLFormElement> | any): Promise<void> => {
+	const onSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
-		const {
-			target: {
-				2: { value },
-			},
-		} = e;
+		const form = e.target as HTMLFormElement;
+		const value = (form.children[2] as HTMLInputElement).value;
 		try {
 			if (value === 'Sign Up') {
 				await authService.createUserWithEmailAndPassword(email, password);
