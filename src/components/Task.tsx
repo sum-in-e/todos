@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {
 	date: string;
-	task: string;
+	taskKey: string;
+	taskValue: string;
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
@@ -14,8 +15,8 @@ interface IProps {
 	getTasks: () => void;
 }
 
-const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks }) => {
-	const [inputValue, setInputValue] = useState<string>(task);
+const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
+	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
 
@@ -25,14 +26,13 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 		} = e;
 		setEditedDate(value === '' ? '날짜미정' : value);
 	};
-
 	const onDeleteClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
 		if (userInfo.uid !== null) {
 			try {
 				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 				const docData = (await theDoc.get()).data();
 				for (const key in docData) {
-					if (docData[key] === task) {
+					if (key === taskKey) {
 						await theDoc.update({
 							[key]: defualtFirebase.firestore.FieldValue.delete(),
 						});
@@ -54,7 +54,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 			if (date === editedDate) {
 				try {
 					for (const key in docData) {
-						if (docData[key] === task) {
+						if (key === taskKey) {
 							await theDoc.update({
 								[key]: inputValue,
 							});
@@ -87,7 +87,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 							});
 					}
 					for (const key in docData) {
-						if (docData[key] === task) {
+						if (key === taskKey) {
 							await theDoc.update({
 								[key]: defualtFirebase.firestore.FieldValue.delete(),
 							});
@@ -148,7 +148,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 						const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 						const docData = (await theDoc.get()).data();
 						for (const key in docData) {
-							if (docData[key] === text) {
+							if (key === taskKey) {
 								await theDoc.update({
 									[key]: defualtFirebase.firestore.FieldValue.delete(),
 								});
@@ -191,7 +191,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, task, userInfo, getTasks 
 					<div>
 						<label>
 							<input type="checkbox" onChange={onCheckboxClick} />
-							{task}
+							{taskValue}
 						</label>
 					</div>
 					<button onClick={onToggleClick}>수정</button>

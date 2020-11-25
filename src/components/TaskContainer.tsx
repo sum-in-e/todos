@@ -6,7 +6,7 @@ import CompletedTask from './CompletedTask';
 
 interface IProps {
 	date: string;
-	tasks: string[];
+	tasks: { taskKey: string; taskValue: string };
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
@@ -46,17 +46,25 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 			<Dates isPast={isPast}>{date === todaysDate ? '오늘' : date}</Dates>
 			<div>
 				{date === '완료'
-					? tasks.map((task: string, index: number) => (
+					? Object.entries(tasks).map(([taskKey, taskValue]) => (
 							<CompletedTask
-								key={index}
+								key={uuidv4()}
 								date={date}
-								task={task}
+								taskKey={taskKey}
+								taskValue={taskValue}
 								userInfo={userInfo}
 								getTasks={getTasks}
 							/>
 					  ))
-					: tasks.map((task: string) => (
-							<Task key={uuidv4()} date={date} task={task} userInfo={userInfo} getTasks={getTasks} />
+					: Object.entries(tasks).map(([taskKey, taskValue]) => (
+							<Task
+								key={uuidv4()}
+								date={date}
+								taskKey={taskKey}
+								taskValue={taskValue}
+								userInfo={userInfo}
+								getTasks={getTasks}
+							/>
 					  ))}
 			</div>
 		</Container>

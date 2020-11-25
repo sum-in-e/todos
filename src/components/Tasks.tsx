@@ -8,15 +8,15 @@ interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
-		updateProfile: (args: object) => void;
+		updateProfile: (args: { displayName: string | null }) => void;
 	};
 }
 
 const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [inputValue, setInputValue] = useState<string>('');
 	const [date, setDate] = useState<string>('날짜미정');
-	const [taskList, setTaskList] = useState<string[]>([]);
-	const temporaryStorage: any = [];
+	const [taskList, setTaskList] = useState<any[]>([]);
+	const temporaryStorage: any[] = [];
 
 	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
@@ -44,6 +44,8 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						...data,
 						[uuidv4()]: inputValue,
 					};
+					const num = taskList.findIndex(Sequence => Sequence.date === date);
+					taskList.splice(num, 1, { date, tasks: taskObj });
 					await doc.update(taskObj);
 				} else {
 					await dbService
@@ -52,17 +54,16 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						.set({
 							[uuidv4()]: inputValue,
 						});
+					await getTasks();
 				}
 			} catch (err) {
 				console.log(err);
 			} finally {
-				await getTasks();
 				setInputValue('');
 				setDate('날짜미정');
 			}
 		}
 	};
-	console.log(taskList);
 	const getTasks = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const userCollection = await dbService.collection(userInfo.uid).get();
@@ -70,21 +71,30 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				userCollection.forEach(
 					async (doc): Promise<void> => {
 						const docDate = doc.id;
-						const tasks = Object.values(doc.data());
-						if (tasks.length > 0) {
-							const taskObj = {
-								date: docDate,
-								tasks,
-							};
-							await temporaryStorage.push(taskObj);
-						} else if (tasks.length === 0) {
-							await doc.ref.delete();
+						const tasks = doc.data();
+						const taskValues = Object.values(doc.data());
+						try {
+							if (taskValues.length > 0) {
+								const taskObj = {
+									date: docDate,
+									tasks,
+								};
+								await temporaryStorage.push(taskObj);
+							} else if (taskValues.length === 0) {
+								await doc.ref.delete();
+							}
+						} catch (err) {
+							alert(err.message);
+						} finally {
+							setTaskList(temporaryStorage);
 						}
 					},
 				);
+			} else {
+				setTaskList([]);
 			}
-			setTaskList(temporaryStorage);
 		}
+		console.log('getTasks 발동!');
 	};
 
 	useEffect(() => {
@@ -110,9 +120,9 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				<div>
 					{taskList &&
 						taskList.length > 0 &&
-						taskList.map((result: any) => (
+						taskList.map((result: { date: string; tasks: { taskKey: string; taskValue: string } }) => (
 							<TaskContainer
-								key={result.date}
+								key={uuidv4()}
 								date={result.date}
 								tasks={result.tasks}
 								userInfo={userInfo}
