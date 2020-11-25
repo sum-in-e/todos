@@ -19,6 +19,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+	const temporaryStorage: any = {};
 
 	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
@@ -26,7 +27,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		} = e;
 		setEditedDate(value === '' ? '날짜미정' : value);
 	};
-	const onDeleteClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
+	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			try {
 				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
@@ -41,7 +42,16 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 			} catch (err) {
 				alert(err);
 			} finally {
-				getTasks();
+				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
+				const docData = (await theDoc.get()).data();
+				if (docData !== undefined) {
+					const values = Object.values(docData);
+					values.forEach((value, index): void => {
+						temporaryStorage[index] = value;
+					});
+					await theDoc.set(temporaryStorage);
+					getTasks();
+				}
 			}
 		}
 	};
@@ -73,18 +83,18 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					if (docList.includes(editedDate)) {
 						const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
 						const data = doc.data();
-						const taskObj = {
-							...data,
-							[uuidv4()]: inputValue,
-						};
-						await doc.ref.update(taskObj);
+						if (data !== undefined) {
+							const dataLength = Object.keys(data).length;
+							const taskObj = {
+								...data,
+								[dataLength]: inputValue,
+							};
+							await doc.ref.update(taskObj);
+						}
 					} else {
-						await dbService
-							.collection(userInfo.uid)
-							.doc(editedDate)
-							.set({
-								[uuidv4()]: inputValue,
-							});
+						await dbService.collection(userInfo.uid).doc(editedDate).set({
+							0: inputValue,
+						});
 					}
 					for (const key in docData) {
 						if (key === taskKey) {
@@ -96,6 +106,15 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 				} catch (err) {
 					alert(err.message);
 				} finally {
+					const doc = dbService.doc(`${userInfo.uid}/${date}`);
+					const data = (await doc.get()).data();
+					if (data !== undefined) {
+						const values = Object.values(data);
+						values.forEach((value, index): void => {
+							temporaryStorage[index] = value;
+						});
+						await doc.set(temporaryStorage);
+					}
 					getTasks();
 					setToggleEdit(false);
 				}
@@ -132,24 +151,24 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 						if (docList.includes('완료')) {
 							const completeDoc = await dbService.doc(`${userInfo.uid}/완료`).get();
 							const data = completeDoc.data();
-							const taskObj = {
-								...data,
-								[uuidv4()]: text,
-							};
-							await completeDoc.ref.update(taskObj);
+							if (data !== undefined) {
+								const dataLength = Object.keys(data).length;
+								const taskObj = {
+									...data,
+									[dataLength]: text,
+								};
+								await completeDoc.ref.update(taskObj);
+							}
 						} else {
-							await dbService
-								.collection(userInfo.uid)
-								.doc('완료')
-								.set({
-									[uuidv4()]: text,
-								});
+							await dbService.collection(userInfo.uid).doc('완료').set({
+								0: text,
+							});
 						}
-						const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-						const docData = (await theDoc.get()).data();
-						for (const key in docData) {
+						const doc = dbService.doc(`${userInfo.uid}/${date}`);
+						const data = (await doc.get()).data();
+						for (const key in data) {
 							if (key === taskKey) {
-								await theDoc.update({
+								await doc.update({
 									[key]: defualtFirebase.firestore.FieldValue.delete(),
 								});
 							}
@@ -158,6 +177,15 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 				} catch (err) {
 					console.log(err);
 				} finally {
+					const doc = dbService.doc(`${userInfo.uid}/${date}`);
+					const data = (await doc.get()).data();
+					if (data !== undefined) {
+						const values = Object.values(data);
+						values.forEach((value, index): void => {
+							temporaryStorage[index] = value;
+						});
+						await doc.set(temporaryStorage);
+					}
 					getTasks();
 					e.target.checked = false;
 				}

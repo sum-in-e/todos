@@ -40,20 +40,20 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				if (docList.includes(date)) {
 					const doc = dbService.doc(`${userInfo.uid}/${date}`);
 					const data = (await doc.get()).data();
-					const taskObj = {
-						...data,
-						[uuidv4()]: inputValue,
-					};
-					const num = taskList.findIndex(Sequence => Sequence.date === date);
-					taskList.splice(num, 1, { date, tasks: taskObj });
-					await doc.update(taskObj);
+					if (data !== undefined) {
+						const dataLength = Object.keys(data).length;
+						const taskObj = {
+							...data,
+							[dataLength]: inputValue,
+						};
+						const num = taskList.findIndex(Sequence => Sequence.date === date);
+						taskList.splice(num, 1, { date, tasks: taskObj });
+						await doc.update(taskObj);
+					}
 				} else {
-					await dbService
-						.collection(userInfo.uid)
-						.doc(date)
-						.set({
-							[uuidv4()]: inputValue,
-						});
+					await dbService.collection(userInfo.uid).doc(date).set({
+						0: inputValue,
+					});
 					await getTasks();
 				}
 			} catch (err) {
