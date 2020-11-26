@@ -17,11 +17,11 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }: IPro
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
 
-	const onSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+	const onSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userName !== userInfo.displayName) {
 			try {
-				userInfo.updateProfile({
+				await userInfo.updateProfile({
 					displayName: userName,
 				});
 			} catch (err) {
