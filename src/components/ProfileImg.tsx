@@ -44,7 +44,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		if (files !== null) {
 			const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
 			if (items.length > 0) {
-				await items[0].delete();
+				items[0].delete();
 			}
 			const theFile = files[0];
 			const reader = new FileReader();
@@ -52,21 +52,15 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			reader.onload = async (): Promise<void> => {
 				const result = reader.result;
 				try {
-					if (result !== null) {
+					if (result !== null && userInfo.uid !== null) {
 						const dataUrl = result.toString();
 						const imgRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
 						const response = await imgRef.putString(dataUrl, 'data_url');
 						const downLoadUrl = await response.ref.getDownloadURL();
 						setProfileImage(downLoadUrl);
-						const profileDoc = await dbService
-							.collection('profile')
-							.where('userId', '==', userInfo.uid)
-							.get();
-						profileDoc.forEach(result =>
-							dbService.doc(`profile/${result.id}`).update({
-								image: downLoadUrl,
-							}),
-						);
+						dbService.collection('profile').doc(userInfo.uid).update({
+							image: downLoadUrl,
+						});
 					}
 				} catch (err) {
 					alert(err.message);
