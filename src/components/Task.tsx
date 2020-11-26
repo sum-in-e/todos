@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { defualtFirebase, dbService } from '../fbase';
-import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {
 	date: string;
@@ -21,6 +20,18 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
+	const relocation = async (): Promise<void> => {
+		const doc = dbService.doc(`${userInfo.uid}/${date}`);
+		const data = (await doc.get()).data();
+		if (data !== undefined) {
+			const values = Object.values(data);
+			values.forEach((value, index): void => {
+				temporaryStorage[index] = value;
+			});
+			await doc.set(temporaryStorage);
+		}
+	};
+
 	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
@@ -29,29 +40,21 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 	};
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
+			const doc = dbService.doc(`${userInfo.uid}/${date}`);
+			const data = (await doc.get()).data();
 			try {
-				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-				const docData = (await theDoc.get()).data();
-				for (const key in docData) {
+				for (const key in data) {
 					if (key === taskKey) {
-						await theDoc.update({
+						await doc.update({
 							[key]: defualtFirebase.firestore.FieldValue.delete(),
 						});
 					}
 				}
+				relocation();
 			} catch (err) {
 				alert(err);
 			} finally {
-				const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-				const docData = (await theDoc.get()).data();
-				if (docData !== undefined) {
-					const values = Object.values(docData);
-					values.forEach((value, index): void => {
-						temporaryStorage[index] = value;
-					});
-					await theDoc.set(temporaryStorage);
-					getTasks();
-				}
+				getTasks();
 			}
 		}
 	};
@@ -61,63 +64,59 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		if (userInfo.uid !== null) {
 			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
 			const docData = (await theDoc.get()).data();
-			if (date === editedDate) {
-				try {
-					for (const key in docData) {
-						if (key === taskKey) {
-							await theDoc.update({
-								[key]: inputValue,
+			try {
+				if (date === editedDate) {
+					try {
+						for (const key in docData) {
+							if (key === taskKey) {
+								await theDoc.update({
+									[key]: inputValue,
+								});
+							}
+						}
+					} catch (err) {
+						alert(err.message);
+					} finally {
+						getTasks();
+					}
+				} else {
+					const userCollection = await dbService.collection(userInfo.uid).get();
+					const docList = userCollection.docs.map(doc => doc.id);
+					try {
+						if (docList.includes(editedDate)) {
+							const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
+							const data = doc.data();
+							if (data !== undefined) {
+								const dataLength = Object.keys(data).length;
+								const taskObj = {
+									...data,
+									[dataLength]: inputValue,
+								};
+								await doc.ref.update(taskObj);
+							}
+						} else {
+							await dbService.collection(userInfo.uid).doc(editedDate).set({
+								0: inputValue,
 							});
 						}
-					}
-				} catch (err) {
-					alert(err.message);
-				} finally {
-					getTasks();
-					setToggleEdit(prev => !prev);
-				}
-			} else {
-				const userCollection = await dbService.collection(userInfo.uid).get();
-				const docList = userCollection.docs.map(doc => doc.id);
-				try {
-					if (docList.includes(editedDate)) {
-						const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
-						const data = doc.data();
-						if (data !== undefined) {
-							const dataLength = Object.keys(data).length;
-							const taskObj = {
-								...data,
-								[dataLength]: inputValue,
-							};
-							await doc.ref.update(taskObj);
+						for (const key in docData) {
+							if (key === taskKey) {
+								await theDoc.update({
+									[key]: defualtFirebase.firestore.FieldValue.delete(),
+								});
+							}
 						}
-					} else {
-						await dbService.collection(userInfo.uid).doc(editedDate).set({
-							0: inputValue,
-						});
+						relocation();
+					} catch (err) {
+						alert(err.message);
+					} finally {
+						getTasks();
 					}
-					for (const key in docData) {
-						if (key === taskKey) {
-							await theDoc.update({
-								[key]: defualtFirebase.firestore.FieldValue.delete(),
-							});
-						}
-					}
-				} catch (err) {
-					alert(err.message);
-				} finally {
-					const doc = dbService.doc(`${userInfo.uid}/${date}`);
-					const data = (await doc.get()).data();
-					if (data !== undefined) {
-						const values = Object.values(data);
-						values.forEach((value, index): void => {
-							temporaryStorage[index] = value;
-						});
-						await doc.set(temporaryStorage);
-					}
-					getTasks();
-					setToggleEdit(false);
 				}
+			} catch (err) {
+				alert(err.message);
+			} finally {
+				setToggleEdit(prev => !prev);
 			}
 		}
 	};
@@ -174,18 +173,10 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 							}
 						}
 					}
+					relocation();
 				} catch (err) {
 					console.log(err);
 				} finally {
-					const doc = dbService.doc(`${userInfo.uid}/${date}`);
-					const data = (await doc.get()).data();
-					if (data !== undefined) {
-						const values = Object.values(data);
-						values.forEach((value, index): void => {
-							temporaryStorage[index] = value;
-						});
-						await doc.set(temporaryStorage);
-					}
 					getTasks();
 					e.target.checked = false;
 				}

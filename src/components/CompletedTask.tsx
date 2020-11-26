@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { defualtFirebase, dbService } from '../fbase';
-import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {
 	date: string;
@@ -19,6 +18,18 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const temporaryStorage: any = {};
 
+	const relocation = async (): Promise<void> => {
+		const doc = dbService.doc(`${userInfo.uid}/${date}`);
+		const data = (await doc.get()).data();
+		if (data !== undefined) {
+			const values = Object.values(data);
+			values.forEach((value, index): void => {
+				temporaryStorage[index] = value;
+			});
+			await doc.set(temporaryStorage);
+		}
+	};
+
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			try {
@@ -31,18 +42,10 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 						});
 					}
 				}
+				relocation();
 			} catch (err) {
 				alert(err.message);
 			} finally {
-				const doc = dbService.doc(`${userInfo.uid}/${date}`);
-				const data = (await doc.get()).data();
-				if (data !== undefined) {
-					const values = Object.values(data);
-					values.forEach((value, index): void => {
-						temporaryStorage[index] = value;
-					});
-					await doc.set(temporaryStorage);
-				}
 				getTasks();
 			}
 		}
@@ -85,18 +88,10 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 						});
 					}
 				}
+				relocation();
 			} catch (err) {
 				alert(err.massage);
 			} finally {
-				const doc = dbService.doc(`${userInfo.uid}/${date}`);
-				const data = (await doc.get()).data();
-				if (data !== undefined) {
-					const values = Object.values(data);
-					values.forEach((value, index): void => {
-						temporaryStorage[index] = value;
-					});
-					await doc.set(temporaryStorage);
-				}
 				getTasks();
 			}
 		}
