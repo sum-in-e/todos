@@ -48,22 +48,23 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						};
 						const num = taskList.findIndex(Sequence => Sequence.date === date);
 						taskList.splice(num, 1, { date, tasks: taskObj });
-						await doc.update(taskObj);
+						doc.update(taskObj);
 					}
 				} else {
 					await dbService.collection(userInfo.uid).doc(date).set({
 						0: inputValue,
 					});
-					await getTasks();
+					getTasks();
 				}
 			} catch (err) {
-				console.log(err);
+				alert(err.message);
 			} finally {
 				setInputValue('');
 				setDate('날짜미정');
 			}
 		}
 	};
+
 	const getTasks = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const userCollection = await dbService.collection(userInfo.uid).get();

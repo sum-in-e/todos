@@ -27,6 +27,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 				temporaryStorage[index] = value;
 			});
 			await doc.set(temporaryStorage);
+			console.log('relocation 끝');
 		}
 	};
 
@@ -40,9 +41,9 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 						await doc.update({
 							[key]: defualtFirebase.firestore.FieldValue.delete(),
 						});
+						await relocation();
 					}
 				}
-				relocation();
 			} catch (err) {
 				alert(err.message);
 			} finally {
@@ -62,37 +63,53 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 		if (userInfo.uid !== null) {
 			const userCollection = await dbService.collection(userInfo.uid).get();
 			const docList = userCollection.docs.map(doc => doc.id);
-			try {
-				if (docList.includes(editedDate)) {
-					const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
-					const data = doc.data();
-					if (data !== undefined) {
-						const dataLength = Object.keys(data).length;
-						const taskObj = {
-							...data,
-							[dataLength]: taskValue,
-						};
+			if (docList.includes(editedDate)) {
+				const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
+				const data = doc.data();
+				const completeDoc = dbService.doc(`${userInfo.uid}/${date}`);
+				const completeDocData = (await completeDoc.get()).data();
+				if (data !== undefined) {
+					const dataLength = Object.keys(data).length;
+					const taskObj = {
+						...data,
+						[dataLength]: taskValue,
+					};
+					try {
 						await doc.ref.update(taskObj);
+						for (const key in completeDocData) {
+							if (key === taskKey) {
+								await completeDoc.update({
+									[key]: defualtFirebase.firestore.FieldValue.delete(),
+								});
+								await relocation();
+							}
+						}
+					} catch (err) {
+						alert(err.message);
+					} finally {
+						getTasks();
 					}
-				} else {
+				}
+			} else {
+				const completeDoc = dbService.doc(`${userInfo.uid}/${date}`);
+				const completeDocData = (await completeDoc.get()).data();
+				try {
 					await dbService.collection(userInfo.uid).doc(editedDate).set({
 						0: taskValue,
 					});
-				}
-				const doc = dbService.doc(`${userInfo.uid}/${date}`);
-				const data = (await doc.get()).data();
-				for (const key in data) {
-					if (key === taskKey) {
-						await doc.update({
-							[key]: defualtFirebase.firestore.FieldValue.delete(),
-						});
+					for (const key in completeDocData) {
+						if (key === taskKey) {
+							await completeDoc.update({
+								[key]: defualtFirebase.firestore.FieldValue.delete(),
+							});
+							await relocation();
+						}
 					}
+				} catch (err) {
+					alert(err.message);
+				} finally {
+					getTasks();
 				}
-				relocation();
-			} catch (err) {
-				alert(err.massage);
-			} finally {
-				getTasks();
 			}
 		}
 	};
