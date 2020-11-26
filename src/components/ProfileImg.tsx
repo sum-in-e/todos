@@ -77,24 +77,31 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 
 	useEffect(() => {
 		const getProfileImg = async (): Promise<void> => {
-			const theDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
-			if (theDoc.empty) {
-				try {
-					const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
-					await dbService.collection('profile').add({
-						image: defaultImg,
-						userId: userInfo.uid,
-					});
-					setProfileImage(defaultImg);
-				} catch (err) {
-					alert(err.message);
-				}
-			} else {
-				try {
-					const userProfileImg = theDoc.docs.map(doc => doc.data().image);
-					setProfileImage(userProfileImg[0]);
-				} catch (err) {
-					alert(err.message);
+			if (userInfo.uid !== null) {
+				const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
+				if (profileDoc.exists) {
+					// 이미지가 뭐가 되었든 프로필 doc 있는 상태
+					try {
+						const theDoc = await dbService.doc(`profile/${userInfo.uid}`).get();
+						const data = theDoc.data();
+						if (data !== undefined) {
+							const userProfileImg = data.image;
+							setProfileImage(userProfileImg);
+						}
+					} catch (err) {
+						alert(err.message);
+					}
+				} else {
+					// 프로필doc 없는 경우 (아예 초기상태)
+					try {
+						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+						setProfileImage(defaultImg);
+						dbService.collection('profile').doc(userInfo.uid).set({
+							image: defaultImg,
+						});
+					} catch (err) {
+						alert(err.message);
+					}
 				}
 			}
 		};
