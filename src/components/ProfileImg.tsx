@@ -18,12 +18,11 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		try {
 			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 			setProfileImage(defaultImg);
-			const profileDoc = await dbService.collection('profile').where('userId', '==', userInfo.uid).get();
-			profileDoc.forEach(result =>
-				dbService.doc(`profile/${result.id}`).update({
+			if (userInfo.uid) {
+				dbService.collection('profile').doc(userInfo.uid).update({
 					image: defaultImg,
-				}),
-			);
+				});
+			}
 			const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
 			if (items.length > 0) {
 				await items[0].delete();
@@ -74,10 +73,8 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			if (userInfo.uid !== null) {
 				const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
 				if (profileDoc.exists) {
-					// 이미지가 뭐가 되었든 프로필 doc 있는 상태
 					try {
-						const theDoc = await dbService.doc(`profile/${userInfo.uid}`).get();
-						const data = theDoc.data();
+						const data = profileDoc.data();
 						if (data !== undefined) {
 							const userProfileImg = data.image;
 							setProfileImage(userProfileImg);
@@ -86,7 +83,6 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						alert(err.message);
 					}
 				} else {
-					// 프로필doc 없는 경우 (아예 초기상태)
 					try {
 						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 						setProfileImage(defaultImg);
