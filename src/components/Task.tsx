@@ -25,7 +25,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		const data = (await doc.get()).data();
 		if (data !== undefined) {
 			const values = Object.values(data);
-			values.forEach((value, index): void => {
+			values.forEach((value: string, index: number): void => {
 				temporaryStorage[index] = value;
 			});
 			await doc.set(temporaryStorage);
@@ -44,15 +44,20 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		if (userInfo.uid !== null) {
 			const doc = dbService.doc(`${userInfo.uid}/${date}`);
 			const data = (await doc.get()).data();
-			for (const key in data) {
-				if (key === taskKey) {
-					await doc.update({
-						[key]: defualtFirebase.firestore.FieldValue.delete(),
-					});
+			try {
+				for (const key in data) {
+					if (key === taskKey) {
+						await doc.update({
+							[key]: defualtFirebase.firestore.FieldValue.delete(),
+						});
+						await relocation();
+					}
 				}
+			} catch (err) {
+				alert(err.message);
+			} finally {
+				getTasks();
 			}
-			await relocation();
-			getTasks();
 		}
 	};
 

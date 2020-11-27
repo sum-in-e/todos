@@ -70,7 +70,9 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			const userCollection = await dbService.collection(userInfo.uid).get();
 			if (!userCollection.empty) {
 				userCollection.forEach(
-					async (doc): Promise<void> => {
+					async (
+						doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
+					): Promise<void> => {
 						const docDate = doc.id;
 						const tasks = doc.data();
 						const taskValues = Object.values(doc.data());
@@ -82,7 +84,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 								};
 								await temporaryStorage.push(taskObj);
 							} else if (taskValues.length === 0) {
-								await doc.ref.delete();
+								doc.ref.delete();
 							}
 						} catch (err) {
 							alert(err.message);
@@ -94,8 +96,8 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			} else {
 				setTaskList([]);
 			}
+			console.log('getTask 실행');
 		}
-		console.log('getTasks 발동!');
 	};
 
 	useEffect(() => {

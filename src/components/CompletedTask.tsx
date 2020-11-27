@@ -33,9 +33,9 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 
 	const onDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
+			const doc = dbService.doc(`${userInfo.uid}/${date}`);
+			const data = (await doc.get()).data();
 			try {
-				const doc = dbService.doc(`${userInfo.uid}/${date}`);
-				const data = (await doc.get()).data();
 				for (const key in data) {
 					if (key === taskKey) {
 						await doc.update({
