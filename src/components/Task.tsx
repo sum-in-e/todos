@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { defualtFirebase, dbService } from '../fbase';
+import theme from '../styles/theme';
 
 interface IProps {
 	date: string;

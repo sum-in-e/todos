@@ -73,7 +73,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 const Container = styled.div``;
 
 const Dates = styled.h3<{ isPast: boolean }>`
-	color: ${props => (props.isPast ? 'red' : 'black')};
+	color: ${props => (props.isPast ? props.theme.light.greenColor : 'black')};
 	font-weight: bold;
 `;
 
