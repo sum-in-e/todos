@@ -13,7 +13,7 @@ const Auth: React.FunctionComponent = () => {
 		const form = e.target as HTMLFormElement;
 		const value = (form.children[1] as HTMLInputElement).value;
 		try {
-			if (value === 'SIGNUP') {
+			if (value === 'SIGN UP') {
 				await authService.createUserWithEmailAndPassword(email, password);
 			} else if (value === 'LOGIN') {
 				await authService.signInWithEmailAndPassword(email, password);
@@ -54,7 +54,7 @@ const Auth: React.FunctionComponent = () => {
 							required
 						/>
 					</TextInputWrapper>
-					<SubmitInput type="submit" value={toggleAccount ? 'LOGIN' : 'SIGNUP'} />
+					<SubmitInput type="submit" value={toggleAccount ? 'LOGIN' : 'SIGN UP'} />
 				</Form>
 				<ToggleWrapper>
 					<GuidePhrase>
@@ -74,44 +74,51 @@ const Container = styled.section`
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
 `;
+
 /* ************** Main ************** */
 const Main = styled.main`
 	display: flex;
 	flex-direction: column;
 	align-content: center;
-	padding: 60px 35px;
-	height: 75vh;
+	${({ theme }) => theme.media.mobile`
+		padding: 60px 35px;
+		height: 75vh;  
+    `}
 `;
 
 const Title = styled.h1`
-	margin-bottom: 4rem;
-	font-size: 17px;
-	font-weight: 400;
 	text-align: center;
+	${({ theme }) => theme.media.mobile`
+		margin-bottom: 4rem;
+		font-size: 17px;
+		font-weight: 400;
+    `}
 `;
 
 const Form = styled.form`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	margin-bottom: 5rem;
-	height: 50%;
+	${({ theme }) => theme.media.mobile`
+		margin-bottom: 5rem;
+		height: 50%;
+    `}
 `;
 
 const TextInputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: 60%;
-	font-size: 2rem;
+	${({ theme }) => theme.media.mobile`
+		height: 60%;
+		font-size: 2rem;
+    `}
 `;
 
 const TextInput = styled.input`
-	height: 45%;
 	border: none;
-	border-bottom: 2px solid ${props => props.theme.light.whiteColor};
-	font-weight: 900;
 	background: none;
+	font-weight: 900;
 	color: ${props => props.theme.light.whiteColor};
 	&:focus {
 		outline: none;
@@ -120,17 +127,23 @@ const TextInput = styled.input`
 		color: ${props => props.theme.light.whiteColor};
 		font-weight: 900;
 	}
+	${({ theme }) => theme.media.mobile`
+		height: 45%;
+		border-bottom: 2px solid ${theme.light.whiteColor};
+    `}
 `;
 
 const SubmitInput = styled.input`
-	width: 100%;
-	height: 40px;
 	font-weight: 700;
 	color: ${props => props.theme.light.greenColor};
 	background-color: ${props => props.theme.light.whiteColor};
 	border: none;
 	outline: none;
 	cursor: pointer;
+	${({ theme }) => theme.media.mobile`
+		width: 100%;
+		height: 40px;
+    `}
 `;
 
 const ToggleWrapper = styled.div`
@@ -139,8 +152,10 @@ const ToggleWrapper = styled.div`
 `;
 
 const GuidePhrase = styled.span`
-	margin-right: 10px;
-	font-weight: 300;
+	${({ theme }) => theme.media.mobile`
+			margin-right: 10px;
+			font-weight: 300;
+    `}
 `;
 
 const ToggleButton = styled.span`
@@ -149,10 +164,13 @@ const ToggleButton = styled.span`
 	background: none;
 	cursor: pointer;
 `;
+
 /* ************** Footer ************** */
 const Footer = styled.footer`
-	height: 10vh;
 	border-top: 1px solid ${props => props.theme.light.grayColor};
+	${({ theme }) => theme.media.mobile`
+		height: 10vh;
+    `}
 `;
 
 export default Auth;
