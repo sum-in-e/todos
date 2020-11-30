@@ -5,8 +5,9 @@ type BackQuoteArgs = string[];
 
 const theme: DefaultTheme = {
 	light: {
-		greenColor: '#5E7B60',
+		greenColor: '#135046',
 		yellowColor: '#FFBE49',
+		grayColor: '#caccd1',
 		blackColor: '#1C1C1C',
 		whiteColor: '#FFFFFF',
 	},
