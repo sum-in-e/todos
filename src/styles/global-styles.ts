@@ -15,12 +15,10 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: 'Eoe_Zno_L';
     overflow: hidden;
-    ${({ theme }) => theme.media.mobile`
+    ${({ theme }) => theme.media.portraitMobile`
 		font-size : 16px;
 			`}
-    ${({ theme }) => theme.media.smallTablet`
-		font-size : 22px;
-			`}
+  
   }
 
   * {
