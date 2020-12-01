@@ -21,6 +21,9 @@ const Container = styled.header`
 	${({ theme }) => theme.media.landscapeMobile`
 		padding : 1rem 2.5rem;
 	`}
+	${({ theme }) => theme.media.portraitTablet`
+		height : 10vh;
+	`}
 `;
 
 const AppTitle = styled.h1`

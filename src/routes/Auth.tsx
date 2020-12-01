@@ -87,6 +87,11 @@ const Main = styled.main`
 		height : 85vh;
 		padding : 1rem 10rem;
 	`}
+	${({ theme }) => theme.media.portraitTablet`
+		height: 80vh;
+		padding : 3rem 9rem;
+
+	`}
 `;
 
 const Title = styled.h1`
