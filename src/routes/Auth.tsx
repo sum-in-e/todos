@@ -86,6 +86,10 @@ const Main = styled.main`
 		padding : 1rem 8rem;
 		height: 85vh;
 	`}
+	${({ theme }) => theme.media.portraitTablet`
+		padding: 5rem 6rem;
+
+	`}
 `;
 
 const Title = styled.h1`
@@ -104,7 +108,7 @@ const Form = styled.form`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: 65%;
+
 	margin-bottom: 6rem;
 	${({ theme }) => theme.media.landscapeMobile`
 		margin-bottom: 1rem;
@@ -115,7 +119,7 @@ const TextInputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: 60%;
+	height: 7rem;
 	margin-bottom: 3rem;
 	font-size: 2rem;
 	${({ theme }) => theme.media.landscapeMobile`
@@ -126,7 +130,7 @@ const TextInputWrapper = styled.div`
 const TextInput = styled.input`
 	border: none;
 	background: none;
-	height: 45%;
+	height: 50%;
 	border-bottom: 2px solid ${props => props.theme.light.whiteColor};
 	font-weight: 900;
 	color: ${props => props.theme.light.whiteColor};

@@ -18,7 +18,9 @@ export const GlobalStyle = createGlobalStyle`
     ${({ theme }) => theme.media.portraitMobile`
 		font-size : 16px;
 			`}
-  
+    ${({ theme }) => theme.media.portraitTablet`
+		font-size : 25px;
+			`}
   }
 
   * {
