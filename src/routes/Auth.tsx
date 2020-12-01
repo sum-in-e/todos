@@ -80,27 +80,18 @@ const Main = styled.main`
 	display: flex;
 	flex-direction: column;
 	align-content: center;
-	padding: 5rem 2.5rem;
+	padding: 3rem 1.5rem;
 	height: 75vh;
-	${({ theme }) => theme.media.landscapeMobile`
-		padding : 1rem 8rem;
-		height: 85vh;
-	`}
-	${({ theme }) => theme.media.portraitTablet`
-		padding: 5rem 6rem;
-
-	`}
 `;
 
 const Title = styled.h1`
 	text-align: center;
-	font-size: 1.1rem;
+	font-size: 0.8rem;
 	font-weight: 400;
 	margin: 0;
-	margin-bottom: 4rem;
+	margin-bottom: 2rem;
 	${({ theme }) => theme.media.landscapeMobile`
-		margin-bottom: 2rem;
-		font-size: 1rem;
+		
 	`}
 `;
 
@@ -108,10 +99,9 @@ const Form = styled.form`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-
-	margin-bottom: 6rem;
+	margin-bottom: 3rem;
 	${({ theme }) => theme.media.landscapeMobile`
-		margin-bottom: 1rem;
+		
 	`}
 `;
 
@@ -119,11 +109,11 @@ const TextInputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: 7rem;
-	margin-bottom: 3rem;
-	font-size: 2rem;
+	height: 5rem;
+	margin-bottom: 1.5rem;
+	font-size: 1rem;
 	${({ theme }) => theme.media.landscapeMobile`
-		font-size: 1.5rem;
+		
 	`}
 `;
 
@@ -145,9 +135,10 @@ const TextInput = styled.input`
 
 const SubmitInput = styled.input`
 	width: 100%;
-	height: 2.5rem;
+	height: 1.5rem;
 	background-color: ${props => props.theme.light.whiteColor};
 	font-weight: 700;
+	font-size: 0.8rem;
 	color: ${props => props.theme.light.greenColor};
 	border: none;
 	outline: none;
@@ -162,23 +153,21 @@ const ToggleWrapper = styled.div`
 const GuidePhrase = styled.span`
 	margin-right: 10px;
 	font-weight: 300;
+	font-size: 0.6rem;
 `;
 
 const ToggleButton = styled.span`
 	border: none;
+	font-size: 0.6rem;
 	font-weight: 700;
 	background: none;
 	cursor: pointer;
-	font-size: 1rem;
 `;
 
 /* ************** Footer ************** */
 const Footer = styled.footer`
 	border-top: 1px solid ${props => props.theme.light.grayColor};
 	height: 10vh;
-	${({ theme }) => theme.media.landscapeMobile`
-		display : none;
-	`}
 `;
 
 export default Auth;

@@ -1,10 +1,12 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-const Header = () => {
+const Header: React.FunctionComponent = () => {
+	const history = useHistory();
 	return (
 		<Container>
-			<AppTitle>To Dos</AppTitle>
+			<AppTitle onClick={() => history.push('/')}>To Dos</AppTitle>
 		</Container>
 	);
 };
@@ -12,8 +14,8 @@ const Header = () => {
 const Container = styled.header`
 	display: flex;
 	align-items: center;
-	padding: 30px;
 	height: 15vh;
+	padding: 1.5rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
 `;
@@ -21,6 +23,8 @@ const Container = styled.header`
 const AppTitle = styled.h1`
 	margin: 0;
 	text-align: center;
+	cursor: pointer;
+	font-size: 1rem;
 `;
 
 export default Header;

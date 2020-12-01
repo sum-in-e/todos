@@ -15,12 +15,19 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: 'Eoe_Zno_L';
     overflow: hidden;
-    ${({ theme }) => theme.media.portraitMobile`
-		font-size : 16px;
+		font-size : 25px;
+    ${({ theme }) => theme.media.landscapeMobile`
+		
 			`}
     ${({ theme }) => theme.media.portraitTablet`
-		font-size : 25px;
+		
 			`}
+    ${({ theme }) => theme.media.landscapeTablet`
+		
+    `}
+    ${({ theme }) => theme.media.desktop`
+		
+    `}
   }
 
   * {
