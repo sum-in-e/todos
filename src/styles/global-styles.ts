@@ -17,7 +17,7 @@ export const GlobalStyle = createGlobalStyle`
     overflow: hidden;
 		font-size : 25px;
     ${({ theme }) => theme.media.landscapeMobile`
-		
+		  font-size : 22px;
 			`}
     ${({ theme }) => theme.media.portraitTablet`
 		

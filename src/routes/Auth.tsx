@@ -80,8 +80,13 @@ const Main = styled.main`
 	display: flex;
 	flex-direction: column;
 	align-content: center;
+	justify-content: center;
 	padding: 3rem 1.5rem;
 	height: 75vh;
+	${({ theme }) => theme.media.landscapeMobile`
+		height : 85vh;
+		padding : 1rem 10rem;
+	`}
 `;
 
 const Title = styled.h1`
@@ -101,7 +106,7 @@ const Form = styled.form`
 	justify-content: space-between;
 	margin-bottom: 3rem;
 	${({ theme }) => theme.media.landscapeMobile`
-		
+		margin-bottom: 1.5rem;
 	`}
 `;
 
@@ -109,7 +114,7 @@ const TextInputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	height: 5rem;
+	height: 4rem;
 	margin-bottom: 1.5rem;
 	font-size: 1rem;
 	${({ theme }) => theme.media.landscapeMobile`
@@ -118,18 +123,18 @@ const TextInputWrapper = styled.div`
 `;
 
 const TextInput = styled.input`
-	border: none;
-	background: none;
 	height: 50%;
+	border: none;
 	border-bottom: 2px solid ${props => props.theme.light.whiteColor};
+	background: none;
 	font-weight: 900;
 	color: ${props => props.theme.light.whiteColor};
 	&:focus {
 		outline: none;
 	}
 	&::placeholder {
-		color: ${props => props.theme.light.whiteColor};
 		font-weight: 900;
+		color: ${props => props.theme.light.whiteColor};
 	}
 `;
 
@@ -168,6 +173,9 @@ const ToggleButton = styled.span`
 const Footer = styled.footer`
 	border-top: 1px solid ${props => props.theme.light.grayColor};
 	height: 10vh;
+	${({ theme }) => theme.media.landscapeMobile`
+		display : none;
+	`}
 `;
 
 export default Auth;

@@ -18,6 +18,9 @@ const Container = styled.header`
 	padding: 1.5rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		padding : 1rem 2.5rem;
+	`}
 `;
 
 const AppTitle = styled.h1`
