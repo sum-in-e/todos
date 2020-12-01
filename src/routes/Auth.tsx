@@ -80,44 +80,40 @@ const Main = styled.main`
 	display: flex;
 	flex-direction: column;
 	align-content: center;
-	${({ theme }) => theme.media.mobile`
-		padding: 60px 35px;
-		height: 75vh;  
-    `}
+	padding: 5rem 2.5rem;
+	height: 75vh;
 `;
 
 const Title = styled.h1`
 	text-align: center;
-	${({ theme }) => theme.media.mobile`
-		margin-bottom: 4rem;
-		font-size: 17px;
-		font-weight: 400;
-    `}
+	font-size: 1.1rem;
+	font-weight: 400;
+	margin: 0;
+	margin-bottom: 4rem;
 `;
 
 const Form = styled.form`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	${({ theme }) => theme.media.mobile`
-		margin-bottom: 5rem;
-		height: 50%;
-    `}
+	height: 65%;
+	margin-bottom: 6rem;
 `;
 
 const TextInputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	${({ theme }) => theme.media.mobile`
-		height: 60%;
-		font-size: 2rem;
-    `}
+	height: 60%;
+	margin-bottom: 3rem;
+	font-size: 2rem;
 `;
 
 const TextInput = styled.input`
 	border: none;
 	background: none;
+	height: 45%;
+	border-bottom: 2px solid ${props => props.theme.light.whiteColor};
 	font-weight: 900;
 	color: ${props => props.theme.light.whiteColor};
 	&:focus {
@@ -127,23 +123,17 @@ const TextInput = styled.input`
 		color: ${props => props.theme.light.whiteColor};
 		font-weight: 900;
 	}
-	${({ theme }) => theme.media.mobile`
-		height: 45%;
-		border-bottom: 2px solid ${theme.light.whiteColor};
-    `}
 `;
 
 const SubmitInput = styled.input`
+	width: 100%;
+	height: 2.5rem;
+	background-color: ${props => props.theme.light.whiteColor};
 	font-weight: 700;
 	color: ${props => props.theme.light.greenColor};
-	background-color: ${props => props.theme.light.whiteColor};
 	border: none;
 	outline: none;
 	cursor: pointer;
-	${({ theme }) => theme.media.mobile`
-		width: 100%;
-		height: 40px;
-    `}
 `;
 
 const ToggleWrapper = styled.div`
@@ -152,10 +142,8 @@ const ToggleWrapper = styled.div`
 `;
 
 const GuidePhrase = styled.span`
-	${({ theme }) => theme.media.mobile`
-			margin-right: 10px;
-			font-weight: 300;
-    `}
+	margin-right: 10px;
+	font-weight: 300;
 `;
 
 const ToggleButton = styled.span`
@@ -163,14 +151,13 @@ const ToggleButton = styled.span`
 	font-weight: 700;
 	background: none;
 	cursor: pointer;
+	font-size: 1rem;
 `;
 
 /* ************** Footer ************** */
 const Footer = styled.footer`
 	border-top: 1px solid ${props => props.theme.light.grayColor};
-	${({ theme }) => theme.media.mobile`
-		height: 10vh;
-    `}
+	height: 10vh;
 `;
 
 export default Auth;
