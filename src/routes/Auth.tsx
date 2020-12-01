@@ -82,16 +82,17 @@ const Main = styled.main`
 	align-content: center;
 	justify-content: center;
 	padding: 3rem 1.5rem;
-	height: 75vh;
+	height: 80vh;
 	${({ theme }) => theme.media.landscapeMobile`
-		height : 85vh;
+		height : 90vh;
 		padding : 1rem 10rem;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		height: 80vh;
 		padding : 3rem 9rem;
-
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		padding : 3rem 15rem;
+    `}
 `;
 
 const Title = styled.h1`
