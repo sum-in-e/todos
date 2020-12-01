@@ -12,74 +12,70 @@ const theme: DefaultTheme = {
 		whiteColor: '#FFFFFF',
 	},
 	media: {
-		mobile: (...args: BackQuoteArgs): undefined => undefined,
-		smallTablet: (...args: BackQuoteArgs): undefined => undefined,
-		wideTablet: (...args: BackQuoteArgs): undefined => undefined,
-		smallDesktop: (...args: BackQuoteArgs): undefined => undefined,
-		wideDesktop: (...args: BackQuoteArgs): undefined => undefined,
+		portraitMobile: (...args: BackQuoteArgs): undefined => undefined,
+		landscapeMobile: (...args: BackQuoteArgs): undefined => undefined,
+		portraitTablet: (...args: BackQuoteArgs): undefined => undefined,
+		landscapeTablet: (...args: BackQuoteArgs): undefined => undefined,
+		desktop: (...args: BackQuoteArgs): undefined => undefined,
 	},
 };
 
 const sizes: { [key: string]: number } = {
-	mobile: 320,
-	// 599px ~ 320px
-
-	smallTablet: 600,
-	// 839px ~ 600px
-
-	wideTablet: 840,
-	// 1023px ~ 840px
-
-	smallDesktop: 1024,
-	// 1365px ~ 1024px
-
-	wideDesktop: 1366,
-	//  1920px ~ 1366px
+	/*  Smartphones in portrait mode -> max-width : 420 */
+	portraitMobile: 420,
+	/*  Smartphones in landscape mode -> 421x767 */
+	landscapeMobile: 767,
+	/*  Tablets in portrait mode, large display smartphones landscape mode -> 768X1023 */
+	portraitTablet: 1023,
+	/*  Tablets in landscape mode, older desktop monitors -> 1024X1365 */
+	landscapeTablet: 1365,
+	/* Monitors with screen width 1366px or above -> 1366 and above */
+	desktop: 1366,
 };
 
 Object.keys(sizes).reduce((media: DefaultTheme['media'], label: string) => {
 	switch (label) {
 		default:
 			break;
-		case 'mobile':
-			media.mobile = (...args: BackQuoteArgs) =>
+		case 'portraitMobile':
+			media.portraitMobile = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.smallTablet - 1}px) {
+					@media only screen and (max-width: ${sizes.portraitMobile}px) {
 						${args}
 					}
 				`;
 			break;
-		case 'smallTablet':
-			media.smallTablet = (...args: BackQuoteArgs) =>
+		case 'landscapeMobile':
+			media.landscapeMobile = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.wideTablet -
-						1}px) and (min-width: ${sizes.smallTablet}px) {
+					@media only screen and (max-width: ${sizes.landscapeMobile}px) and (min-width: ${sizes.portraitMobile +
+						1}px) {
 						${args}
 					}
 				`;
 			break;
-		case 'wideTablet':
-			media.wideTablet = (...args: BackQuoteArgs) =>
+		case 'portraitTablet':
+			media.portraitTablet = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.smallDesktop -
-						1}px) and (min-width: ${sizes.wideTablet}px) {
+					@media only screen and (max-width: ${sizes.portraitTablet}px) and (min-width: ${sizes.landscapeMobile +
+						1}px) {
 						${args}
 					}
 				`;
 			break;
-		case 'smallDesktop':
-			media.smallDesktop = (...args: BackQuoteArgs) =>
+		case 'landscapeTablet':
+			media.landscapeTablet = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.wideDesktop -
-						1}px) and (min-width: ${sizes.smallDesktop}px) {
+					@media only screen and (max-width: ${sizes.landscapeTablet}px) and (min-width: ${sizes.portraitTablet +
+						1}px) {
 						${args}
 					}
 				`;
 			break;
-		case 'wideDesktop':
-			media.wideDesktop = (...args: BackQuoteArgs) =>
+		case 'desktop':
+			media.desktop = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (min-width: ${sizes.wideDesktop}px) {
+					@media only screen and (min-width: ${sizes.desktop}px) {
 						${args}
 					}
 				`;

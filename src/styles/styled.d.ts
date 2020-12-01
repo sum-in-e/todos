@@ -11,11 +11,11 @@ declare module 'styled-components' {
 			whiteColor: string;
 		};
 		media: {
-			mobile: (...args: BackQuoteArgs) => CSSProp | undefined;
-			smallTablet: (...args: BackQuoteArgs) => CSSProp | undefined;
-			wideTablet: (...args: BackQuoteArgs) => CSSProp | undefined;
-			smallDesktop: (...args: BackQuoteArgs) => CSSProp | undefined;
-			wideDesktop: (...args: BackQuoteArgs) => CSSProp | undefined;
+			portraitMobile: (...args: BackQuoteArgs) => CSSProp | undefined;
+			landscapeMobile: (...args: BackQuoteArgs) => CSSProp | undefined;
+			portraitTablet: (...args: BackQuoteArgs) => CSSProp | undefined;
+			landscapeTablet: (...args: BackQuoteArgs) => CSSProp | undefined;
+			desktop: (...args: BackQuoteArgs) => CSSProp | undefined;
 		};
 	}
 }
