@@ -82,6 +82,10 @@ const Main = styled.main`
 	align-content: center;
 	padding: 5rem 2.5rem;
 	height: 75vh;
+	${({ theme }) => theme.media.landscapeMobile`
+		padding : 1rem 8rem;
+		height: 85vh;
+	`}
 `;
 
 const Title = styled.h1`
@@ -90,6 +94,10 @@ const Title = styled.h1`
 	font-weight: 400;
 	margin: 0;
 	margin-bottom: 4rem;
+	${({ theme }) => theme.media.landscapeMobile`
+		margin-bottom: 2rem;
+		font-size: 1rem;
+	`}
 `;
 
 const Form = styled.form`
@@ -98,6 +106,9 @@ const Form = styled.form`
 	justify-content: space-between;
 	height: 65%;
 	margin-bottom: 6rem;
+	${({ theme }) => theme.media.landscapeMobile`
+		margin-bottom: 1rem;
+	`}
 `;
 
 const TextInputWrapper = styled.div`
@@ -107,6 +118,9 @@ const TextInputWrapper = styled.div`
 	height: 60%;
 	margin-bottom: 3rem;
 	font-size: 2rem;
+	${({ theme }) => theme.media.landscapeMobile`
+		font-size: 1.5rem;
+	`}
 `;
 
 const TextInput = styled.input`
@@ -158,6 +172,9 @@ const ToggleButton = styled.span`
 const Footer = styled.footer`
 	border-top: 1px solid ${props => props.theme.light.grayColor};
 	height: 10vh;
+	${({ theme }) => theme.media.landscapeMobile`
+		display : none;
+	`}
 `;
 
 export default Auth;
