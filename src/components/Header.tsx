@@ -14,6 +14,7 @@ const Header: React.FunctionComponent = () => {
 const Container = styled.header`
 	display: flex;
 	align-items: center;
+	width: 100vw;
 	height: 10vh;
 	padding: 1.5rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};

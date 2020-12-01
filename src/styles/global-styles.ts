@@ -19,12 +19,6 @@ export const GlobalStyle = createGlobalStyle`
     ${({ theme }) => theme.media.landscapeMobile`
 		  font-size : 22px;
 			`}
-    ${({ theme }) => theme.media.landscapeTablet`
-		
-    `}
-    ${({ theme }) => theme.media.desktop`
-		
-    `}
   }
 
   * {

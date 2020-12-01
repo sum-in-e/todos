@@ -69,6 +69,9 @@ const Auth: React.FunctionComponent = () => {
 };
 
 const Container = styled.section`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	height: 100vh;
 	width: 100vw;
 	background-color: ${props => props.theme.light.greenColor};
@@ -81,17 +84,24 @@ const Main = styled.main`
 	flex-direction: column;
 	align-content: center;
 	justify-content: center;
-	padding: 3rem 1.5rem;
 	height: 80vh;
+	width: 100vw;
+	padding: 1.5rem;
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 90vh;
-		padding : 1rem 10rem;
+		width : 60vw;
+		padding : 1rem;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		padding : 3rem 9rem;
+		width : 50vw;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
-		padding : 3rem 15rem;
+		width : 40vw;
+    `}
+	 ${({ theme }) => theme.media.desktop`
+		width : 40vw;
+
+
     `}
 `;
 
@@ -179,6 +189,7 @@ const ToggleButton = styled.span`
 const Footer = styled.footer`
 	border-top: 1px solid ${props => props.theme.light.grayColor};
 	height: 10vh;
+	width: 100vw;
 	${({ theme }) => theme.media.landscapeMobile`
 		display : none;
 	`}
