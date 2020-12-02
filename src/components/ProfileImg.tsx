@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { dbService, storageService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
+import { Edit3 } from 'styled-icons/feather';
 
 interface IProps {
 	userInfo: {
@@ -9,15 +10,22 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
+	setShowingProfileImg: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
+const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfileImg }) => {
 	const [profileImage, setProfileImage] = useState<string>('');
+
+	const onClickImg = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+		const img = e.currentTarget as HTMLDivElement;
+		(img.nextSibling as HTMLInputElement).click();
+	};
 
 	const onClickDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
 		try {
 			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 			setProfileImage(defaultImg);
+			setShowingProfileImg(defaultImg);
 			if (userInfo.uid) {
 				dbService.collection('profile').doc(userInfo.uid).update({
 					image: defaultImg,
@@ -57,6 +65,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						const response = await imgRef.putString(dataUrl, 'data_url');
 						const downLoadUrl = await response.ref.getDownloadURL();
 						setProfileImage(downLoadUrl);
+						setShowingProfileImg(downLoadUrl);
 						dbService.collection('profile').doc(userInfo.uid).update({
 							image: downLoadUrl,
 						});
@@ -78,6 +87,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						if (data !== undefined) {
 							const userProfileImg = data.image;
 							setProfileImage(userProfileImg);
+							setShowingProfileImg(userProfileImg);
 						}
 					} catch (err) {
 						alert(err.message);
@@ -86,6 +96,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 					try {
 						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 						setProfileImage(defaultImg);
+						setShowingProfileImg(defaultImg);
 						dbService.collection('profile').doc(userInfo.uid).set({
 							image: defaultImg,
 						});
@@ -99,22 +110,76 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	}, []);
 
 	return (
-		<div>
-			<UserImg imgUrl={profileImage} />
-			<input type="file" onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
-			<button onClick={onClickDelete}>Delete Profile Image</button>
-		</div>
+		<Container>
+			<ImgWrapper onClick={onClickImg}>
+				<UserImg imgUrl={profileImage} />
+				<Hidden className="">
+					<EditIcon />
+				</Hidden>
+			</ImgWrapper>
+			<FileInput type="file" onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
+			<Btn onClick={onClickDelete}>기본 이미지로 변경</Btn>
+		</Container>
 	);
 };
 
+const Container = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 0.7rem;
+`;
+
+const FileInput = styled.input`
+	display: none;
+`;
+
+const Hidden = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 2;
+	position: absolute;
+	top: 0;
+	opacity: 0;
+	transition: all 0.3s;
+`;
+
+const EditIcon = styled(Edit3)`
+	height: 1.3rem;
+	color: ${props => props.theme.light.grayColor};
+`;
+
+const ImgWrapper = styled.div`
+	position: relative;
+	cursor: pointer;
+`;
+
 const UserImg = styled.div<{ imgUrl: string }>`
-	width: 60px;
-	height: 60px;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
 	background-image: url(${props => props.imgUrl});
 	background-position: center;
-	background-size: cover;
 	background-repeat: no-repeat;
-	border-radius: 10px;
+	background-size: cover;
+`;
+
+const Btn = styled.button`
+	padding: 5px 8px;
+	margin-top: 0.5rem;
+	border: 1px solid ${props => props.theme.light.grayColor};
+	border-radius: 15px;
+	background-color: ${props => props.theme.light.greenColor};
+	font-size: 0.5rem;
+	color: ${props => props.theme.light.grayColor};
+	outline: none;
+	cursor: pointer;
+	transition: all 0.3s;
 `;
 
 export default ProfileImg;
