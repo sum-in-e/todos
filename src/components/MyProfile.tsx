@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { authService } from '../fbase';
 import styled from 'styled-components';
 import { Edit } from 'styled-icons/entypo';
@@ -19,6 +19,13 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
 	const [showingProfileImg, setShowingProfileImg] = useState<string>('');
+
+	const imgRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
+	const mainRef = React.useRef() as React.MutableRefObject<HTMLElement>;
+	const editRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
+	const iconRef = React.useRef() as React.MutableRefObject<SVGSVGElement>;
+	const logOutRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
+
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userName !== userInfo.displayName) {
@@ -52,13 +59,38 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		authService.signOut();
 	};
 
+	const onProfileClick = () => {
+		mainRef.current.classList.add('showing');
+		window.addEventListener('click', onOutsideClick);
+	};
+
+	const onOutsideClick = (e: any) => {
+		const isInside = editRef.current.contains(e.target as Node);
+		if (isInside) {
+			console.log('내부 클릭');
+			if (e.target === iconRef.current || e.target.parentNode === iconRef.current) {
+				onToggleClick();
+			}
+		} else if (imgRef.current === e.target) {
+			console.log('showing profile 클릭');
+		} else if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
+			console.log('로그아웃 클릭');
+			window.removeEventListener('click', onOutsideClick);
+			onLogOutClick();
+		} else {
+			console.log('바깥 클릭');
+			window.removeEventListener('click', onOutsideClick);
+			mainRef.current.classList.remove('showing');
+		}
+	};
+
 	return (
 		<Container>
-			<HiddenWrapper>
-				<ShowingProfileImg imgUrl={showingProfileImg} />
-			</HiddenWrapper>
-			<Main>
-				<EditWrapper>
+			<ImgWrapper>
+				<ShowingProfileImg ref={imgRef} onClick={onProfileClick} imgUrl={showingProfileImg} />
+			</ImgWrapper>
+			<Main ref={mainRef}>
+				<EditWrapper ref={editRef}>
 					<ProfileImg userInfo={userInfo} setShowingProfileImg={setShowingProfileImg} />
 					{toggleEdit ? (
 						<FormWrapper>
@@ -75,16 +107,16 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 									<SaveIcon />
 								</SaveWrapper>
 							</Form>
-							<CancelIcon onClick={onToggleClick} />
+							<CancelIcon ref={iconRef} />
 						</FormWrapper>
 					) : (
 						<NameWrapper>
 							<UserName>{userName ? userName : 'User'}</UserName>
-							<EditIcon onClick={onToggleClick} />
+							<EditIcon ref={iconRef} />
 						</NameWrapper>
 					)}
 				</EditWrapper>
-				<LogOutBtn onClick={onLogOutClick}>
+				<LogOutBtn ref={logOutRef}>
 					<span>LOG OUT</span>
 				</LogOutBtn>
 			</Main>
@@ -115,7 +147,7 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 `;
 
 const Main = styled.main`
-	display: flex;
+	display: none;
 	flex-direction: column;
 	align-items: center;
 	position: relative;
@@ -124,22 +156,25 @@ const Main = styled.main`
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
 	box-shadow: 0px 0px 5px 0px rgba(255, 255, 255, 0.84);
-	transition: all 0.3s;
-	opacity: 0;
+	&.showing {
+		display: flex;
+	}
 `;
 
-const HiddenWrapper = styled.div``;
+const ImgWrapper = styled.div``;
 
 const EditWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	width: 100%;
 	padding: 1rem;
 `;
 
 const FormWrapper = styled.div`
 	display: flex;
 	align-items: center;
+	justify-content: center;
 `;
 
 const Form = styled.form`
