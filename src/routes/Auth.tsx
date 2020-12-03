@@ -84,11 +84,11 @@ const Main = styled.main`
 	flex-direction: column;
 	align-content: center;
 	justify-content: center;
-	height: 80vh;
+	height: 78vh;
 	width: 100vw;
 	padding: 1.5rem;
 	${({ theme }) => theme.media.landscapeMobile`
-		height : 90vh;
+		height : 88vh;
 		width : 60vw;
 		padding : 1rem;
 	`}

@@ -15,8 +15,9 @@ const Container = styled.header`
 	display: flex;
 	align-items: center;
 	width: 100vw;
-	height: 10vh;
-	padding: 1.5rem;
+	height: 12vh;
+	padding: 2rem 1.5rem 1rem 1.5rem;
+	background-color: ${props => props.theme.light.greenColor};
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
