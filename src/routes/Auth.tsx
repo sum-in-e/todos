@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { authService } from '../fbase';
-import Header from '../components/Header';
 
 const Auth: React.FunctionComponent = () => {
 	const [email, setEmail] = useState<string>('');
@@ -40,7 +39,9 @@ const Auth: React.FunctionComponent = () => {
 
 	return (
 		<Container>
-			<Header />
+			<Header>
+				<AppTitle>To Dos</AppTitle>
+			</Header>
 			<Main>
 				<Title>{toggleAccount ? 'Sign In' : 'Sign Up'}</Title>
 				<Form onSubmit={onSubmit}>
@@ -63,7 +64,7 @@ const Auth: React.FunctionComponent = () => {
 					<ToggleButton onClick={onClick}>{toggleAccount ? 'Sign Up' : 'Sign In'}</ToggleButton>
 				</ToggleWrapper>
 			</Main>
-			<Footer></Footer>
+			<Footer />
 		</Container>
 	);
 };
@@ -76,6 +77,28 @@ const Container = styled.section`
 	width: 100vw;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+`;
+
+/* ************** Header ************** */
+const Header = styled.header`
+	display: flex;
+	align-items: center;
+	width: 100vw;
+	height: 12vh;
+	padding: 2rem 1.5rem 1rem 1.5rem;
+	background-color: ${props => props.theme.light.greenColor};
+	border-bottom: 1px solid ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.whiteColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		padding : 1rem 2.5rem;
+	`}
+`;
+
+const AppTitle = styled.h1`
+	margin: 0;
+	text-align: center;
+	cursor: pointer;
+	font-size: 1rem;
 `;
 
 /* ************** Main ************** */
