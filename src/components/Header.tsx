@@ -1,12 +1,23 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import MyProfile from './MyProfile';
 
-const Header: React.FunctionComponent = () => {
+interface IProps {
+	userInfo: {
+		uid: string | null;
+		displayName: string | null;
+		updateProfile: (args: { displayName: string | null }) => void;
+	};
+	reRender: () => void;
+}
+
+const Header: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const history = useHistory();
 	return (
 		<Container>
 			<AppTitle onClick={() => history.push('/')}>To Dos</AppTitle>
+			<MyProfile userInfo={userInfo} reRender={reRender} />
 		</Container>
 	);
 };
@@ -14,9 +25,10 @@ const Header: React.FunctionComponent = () => {
 const Container = styled.header`
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	width: 100vw;
 	height: 12vh;
-	padding: 2rem 1.5rem 1rem 1.5rem;
+	padding: 2rem 1rem 1rem 1rem;
 	background-color: ${props => props.theme.light.greenColor};
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};

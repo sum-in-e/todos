@@ -1,6 +1,7 @@
 import React from 'react';
-import MyProfile from '../components/MyProfile';
+import styled from 'styled-components';
 import Tasks from '../components/Tasks';
+import Header from '../components/Header';
 
 interface IProps {
 	userInfo: {
@@ -13,11 +14,17 @@ interface IProps {
 
 const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	return (
-		<>
-			<MyProfile userInfo={userInfo} reRender={reRender} />
+		<Container>
+			<Header userInfo={userInfo} reRender={reRender} />
 			<Tasks userInfo={userInfo} />
-		</>
+		</Container>
 	);
 };
+
+const Container = styled.section`
+	width: 100vw;
+	min-height: 100vh;
+	background-color: ${props => props.theme.light.greenColor};
+`;
 
 export default Home;
