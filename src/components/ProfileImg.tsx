@@ -156,6 +156,9 @@ const Hidden = styled.div`
 	${({ theme }) => theme.media.portraitTablet`
 		opacity : 1;		
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		opacity : 1;		
+	`}
 `;
 
 const EditIcon = styled(Edit3)`
@@ -175,7 +178,11 @@ const EditIcon = styled(Edit3)`
 		&:active {
 			transform: scale(0.9, 0.9);
 		}
-	
+	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		&:active {
+			transform: scale(0.9, 0.9);
+		}
 	`}
 `;
 
@@ -216,6 +223,11 @@ const ImgDelBtn = styled.button`
 		}
 	`}
 	${({ theme }) => theme.media.portraitTablet`
+		&:active {
+			transform: scale(0.9, 0.9);
+		}
+	`}
+	${({ theme }) => theme.media.landscapeTablet`
 		&:active {
 			transform: scale(0.9, 0.9);
 		}

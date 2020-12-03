@@ -280,6 +280,11 @@ const LogOutBtn = styled.div`
 			transform: scale(0.9, 0.9);
 		}
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		&:active span {
+			transform: scale(0.9, 0.9);
+		}
+	`}
 `;
 
 export default MyProfile;
