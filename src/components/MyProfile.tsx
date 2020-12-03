@@ -132,16 +132,23 @@ const Container = styled.section`
 	z-index: 10;
 `;
 
+const ImgWrapper = styled.div``;
+
 const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	width: 2rem;
 	height: 2rem;
 	margin-bottom: 1rem;
 	border: 2px solid ${props => props.theme.light.whiteColor};
-	border-radius: 30px;
+	border-radius: 50%;
 	background-image: url(${props => props.imgUrl});
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
+	${({ theme }) => theme.media.portraitTablet`
+		width: 2.5rem;
+		height: 2.5rem;
+		margin-bottom : 1rem;
+	`}
 `;
 
 const Main = styled.main`
@@ -158,9 +165,10 @@ const Main = styled.main`
 	&.showing {
 		display: flex;
 	}
+	${({ theme }) => theme.media.portraitTablet`
+		top : 4rem;
+	`}
 `;
-
-const ImgWrapper = styled.div``;
 
 const EditWrapper = styled.div`
 	display: flex;
@@ -263,6 +271,11 @@ const LogOutBtn = styled.div`
 		}
 		`}
 	${({ theme }) => theme.media.landscapeMobile`
+		&:active span {
+			transform: scale(0.9, 0.9);
+		}
+		`}
+	${({ theme }) => theme.media.portraitTablet`
 		&:active span {
 			transform: scale(0.9, 0.9);
 		}
