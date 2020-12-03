@@ -128,9 +128,7 @@ const Container = styled.section`
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	position: fixed;
-	top: 0.5rem;
-	right: 0.5rem;
+	position: relative;
 	z-index: 10;
 `;
 
@@ -150,9 +148,10 @@ const Main = styled.main`
 	display: none;
 	flex-direction: column;
 	align-items: center;
-	position: relative;
-	height: 10rem;
-	width: 8rem;
+	position: absolute;
+	top: 3rem;
+	height: 11rem;
+	width: 9rem;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
 	box-shadow: 0px 0px 5px 0px rgba(255, 255, 255, 0.84);
@@ -167,8 +166,9 @@ const EditWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	align-items: center;
 	width: 100%;
-	padding: 1rem;
+	padding: 0.8rem;
 `;
 
 const FormWrapper = styled.div`
@@ -189,7 +189,7 @@ const TextInput = styled.input`
 	border: none;
 	border-bottom: 1px solid ${props => props.theme.light.yellowColor};
 	background: none;
-	font-size: 0.7rem;
+	font-size: 0.8rem;
 	color: ${props => props.theme.light.yellowColor};
 	&:focus {
 		outline: none;
@@ -202,7 +202,7 @@ const TextInput = styled.input`
 const SaveWrapper = styled.button`
 	display: flex;
 	align-items: center;
-	margin-right: 3px;
+	margin-right: 5px;
 	padding: 0;
 	border: none;
 	background: none;
@@ -210,7 +210,7 @@ const SaveWrapper = styled.button`
 `;
 
 const SaveIcon = styled(Save)`
-	height: 0.7rem;
+	height: 0.8rem;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	transition: all 0.3s;
@@ -230,7 +230,7 @@ const NameWrapper = styled.div`
 `;
 
 const UserName = styled.span`
-	font-size: 0.7rem;
+	font-size: 0.8rem;
 	color: ${props => props.theme.light.yellowColor};
 `;
 
@@ -257,6 +257,11 @@ const LogOutBtn = styled.div`
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	transition: all 0.3s;
+	${({ theme }) => theme.media.portraitMobile`
+		&:active span {
+			transform: scale(0.9, 0.9);
+		}
+	`}
 `;
 
 export default MyProfile;

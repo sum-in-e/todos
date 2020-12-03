@@ -21,7 +21,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfi
 		(img.nextSibling as HTMLInputElement).click();
 	};
 
-	const onClickDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
+	const onDeleteClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
 		try {
 			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 			setProfileImage(defaultImg);
@@ -113,12 +113,12 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfi
 		<Container>
 			<ImgWrapper onClick={onClickImg}>
 				<UserImg imgUrl={profileImage} />
-				<Hidden className="">
+				<Hidden>
 					<EditIcon />
 				</Hidden>
 			</ImgWrapper>
 			<FileInput type="file" onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
-			<Btn onClick={onClickDelete}>기본 이미지로 변경</Btn>
+			<ImgDelBtn onClick={onDeleteClick}>기본 이미지로 변경</ImgDelBtn>
 		</Container>
 	);
 };
@@ -127,7 +127,7 @@ const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-bottom: 0.7rem;
+	margin-bottom: 1rem;
 `;
 
 const FileInput = styled.input`
@@ -138,8 +138,8 @@ const Hidden = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 3rem;
-	height: 3rem;
+	width: 4rem;
+	height: 4rem;
 	border-radius: 50%;
 	background-color: rgba(0, 0, 0, 0.3);
 	z-index: 2;
@@ -147,11 +147,19 @@ const Hidden = styled.div`
 	top: 0;
 	opacity: 0;
 	transition: all 0.3s;
+	${({ theme }) => theme.media.portraitMobile`
+		opacity : 1;
+	`}
 `;
 
 const EditIcon = styled(Edit3)`
-	height: 1.3rem;
+	height: 1.5rem;
 	color: ${props => props.theme.light.grayColor};
+	${({ theme }) => theme.media.portraitMobile`
+		&:active {
+			transform: scale(0.9, 0.9);
+		}
+	`}
 `;
 
 const ImgWrapper = styled.div`
@@ -160,8 +168,8 @@ const ImgWrapper = styled.div`
 `;
 
 const UserImg = styled.div<{ imgUrl: string }>`
-	width: 3rem;
-	height: 3rem;
+	width: 4rem;
+	height: 4rem;
 	border-radius: 50%;
 	background-image: url(${props => props.imgUrl});
 	background-position: center;
@@ -169,7 +177,7 @@ const UserImg = styled.div<{ imgUrl: string }>`
 	background-size: cover;
 `;
 
-const Btn = styled.button`
+const ImgDelBtn = styled.button`
 	padding: 5px 8px;
 	margin-top: 0.5rem;
 	border: 1px solid ${props => props.theme.light.grayColor};
@@ -180,6 +188,11 @@ const Btn = styled.button`
 	outline: none;
 	cursor: pointer;
 	transition: all 0.3s;
+	${({ theme }) => theme.media.portraitMobile`
+		&:active {
+			transform: scale(0.9, 0.9);
+		}
+	`}
 `;
 
 export default ProfileImg;
