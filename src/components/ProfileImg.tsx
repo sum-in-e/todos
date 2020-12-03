@@ -149,6 +149,9 @@ const Hidden = styled.div`
 	transition: all 0.3s;
 	${({ theme }) => theme.media.portraitMobile`
 		opacity : 1;
+		`}
+	${({ theme }) => theme.media.landscapeMobile`
+		opacity : 1;		
 	`}
 `;
 
@@ -159,6 +162,11 @@ const EditIcon = styled(Edit3)`
 		&:active {
 			transform: scale(0.9, 0.9);
 		}
+		`}
+	${({ theme }) => theme.media.landscapeMobile`
+			&:active {
+				transform: scale(0.9, 0.9);
+			}
 	`}
 `;
 
@@ -189,6 +197,11 @@ const ImgDelBtn = styled.button`
 	cursor: pointer;
 	transition: all 0.3s;
 	${({ theme }) => theme.media.portraitMobile`
+		&:active {
+			transform: scale(0.9, 0.9);
+		}
+		`}
+	${({ theme }) => theme.media.landscapeMobile`
 		&:active {
 			transform: scale(0.9, 0.9);
 		}

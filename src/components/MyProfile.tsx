@@ -261,6 +261,11 @@ const LogOutBtn = styled.div`
 		&:active span {
 			transform: scale(0.9, 0.9);
 		}
+		`}
+	${({ theme }) => theme.media.landscapeMobile`
+		&:active span {
+			transform: scale(0.9, 0.9);
+		}
 	`}
 `;
 

@@ -33,7 +33,9 @@ const Container = styled.header`
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
-		padding : 1rem 2.5rem;
+		height : 18vh;
+		padding: 2rem 2rem 1rem 2rem;
+
 	`}
 `;
 
