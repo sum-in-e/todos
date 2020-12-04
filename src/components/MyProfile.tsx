@@ -59,12 +59,12 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		authService.signOut();
 	};
 
-	const onProfileClick = () => {
+	const onProfileClick = (): void => {
 		mainRef.current.classList.add('showing');
 		window.addEventListener('click', onOutsideClick);
 	};
 
-	const onOutsideClick = (e: any) => {
+	const onOutsideClick = (e: any): void => {
 		const isInside = editRef.current.contains(e.target as Node);
 		if (isInside) {
 			console.log('내부 클릭');
@@ -84,12 +84,27 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		}
 	};
 
+	const onMouseOver = (): void => {
+		mainRef.current.classList.add('showing');
+		window.addEventListener('click', onOutsideClick);
+	};
+
+	const onMouseLeave = (): void => {
+		mainRef.current.classList.remove('showing');
+		window.removeEventListener('click', onOutsideClick);
+	};
+
 	return (
 		<Container>
-			<ImgWrapper>
-				<ShowingProfileImg ref={imgRef} onClick={onProfileClick} imgUrl={showingProfileImg} />
+			<ImgWrapper onMouseLeave={onMouseLeave}>
+				<ShowingProfileImg
+					ref={imgRef}
+					onClick={onProfileClick}
+					onMouseOver={onMouseOver}
+					imgUrl={showingProfileImg}
+				/>
 			</ImgWrapper>
-			<Main ref={mainRef}>
+			<Main ref={mainRef} onMouseLeave={onMouseLeave} onMouseOver={onMouseOver}>
 				<EditWrapper ref={editRef}>
 					<ProfileImg userInfo={userInfo} setShowingProfileImg={setShowingProfileImg} />
 					{toggleEdit ? (
@@ -144,6 +159,7 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
+	cursor: pointer;
 	${({ theme }) => theme.media.portraitTablet`
 		width: 2.5rem;
 		height: 2.5rem;
@@ -222,6 +238,12 @@ const SaveIcon = styled(Save)`
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	transition: all 0.3s;
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			color: rgb(199, 149, 55);
+			transition: color ease-in-out 0.3s;
+		}
+	`}
 `;
 
 const CancelIcon = styled(CancelCircle)`
@@ -229,6 +251,12 @@ const CancelIcon = styled(CancelCircle)`
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	transition: all 0.3s;
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			color: rgb(199, 149, 55);
+			transition: color ease-in-out 0.3s;
+		}
+	`}
 `;
 
 const NameWrapper = styled.div`
@@ -248,6 +276,12 @@ const EditIcon = styled(Edit)`
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	transition: all 0.3s;
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			color: rgb(199, 149, 55);
+			transition: color ease-in-out 0.3s;
+		}
+	`}
 `;
 
 const LogOutBtn = styled.div`
@@ -283,6 +317,12 @@ const LogOutBtn = styled.div`
 	${({ theme }) => theme.media.landscapeTablet`
 		&:active span {
 			transform: scale(0.9, 0.9);
+		}
+	`}
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			background-color: rgb(14, 59, 51);
+			transition: background-color ease-in-out 0.3s;
 		}
 	`}
 `;

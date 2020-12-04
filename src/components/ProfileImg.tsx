@@ -130,6 +130,11 @@ const Container = styled.div`
 	margin-bottom: 1rem;
 `;
 
+const ImgWrapper = styled.div`
+	position: relative;
+	cursor: pointer;
+`;
+
 const FileInput = styled.input`
 	display: none;
 `;
@@ -159,6 +164,12 @@ const Hidden = styled.div`
 	${({ theme }) => theme.media.landscapeTablet`
 		opacity : 1;		
 	`}
+	${ImgWrapper}:hover & {
+		${({ theme }) => theme.media.desktop`
+			opacity: 1;
+			transition: opacity ease-in-out 0.3s;
+		`}
+	}
 `;
 
 const EditIcon = styled(Edit3)`
@@ -184,11 +195,6 @@ const EditIcon = styled(Edit3)`
 			transform: scale(0.9, 0.9);
 		}
 	`}
-`;
-
-const ImgWrapper = styled.div`
-	position: relative;
-	cursor: pointer;
 `;
 
 const UserImg = styled.div<{ imgUrl: string }>`
@@ -230,6 +236,12 @@ const ImgDelBtn = styled.button`
 	${({ theme }) => theme.media.landscapeTablet`
 		&:active {
 			transform: scale(0.9, 0.9);
+		}
+	`}
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			background-color: rgb(14, 59, 51);
+			transition: background-color ease-in-out 0.3s;
 		}
 	`}
 `;
