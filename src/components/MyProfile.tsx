@@ -1,9 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { authService } from '../fbase';
+import React, { useState, useRef } from 'react';
+import { dbService, authService, storageService } from '../fbase';
+import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
-import { Edit } from 'styled-icons/entypo';
-import { Save } from 'styled-icons/foundation';
-import { CancelCircle } from 'styled-icons/icomoon';
 import ProfileImg from './ProfileImg';
 
 interface IProps {
@@ -17,30 +15,95 @@ interface IProps {
 
 const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
-	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-	const [showingProfileImg, setShowingProfileImg] = useState<string>('');
+	const [isEdit, setIsEdit] = useState<boolean>(false);
+	const [headerProfileImg, setHeaderProfileImg] = useState<string>('');
+	const [profileImg, setProfileImg] = useState<string>('');
+	const [newProfileImg, setNewProfileImg] = useState<string>('');
+	const [defaultProfileImg, setDefaultProfileImg] = useState<string>('');
+	const [isSaving, setIsSaving] = useState<boolean>(false);
 
 	const imgRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const mainRef = React.useRef() as React.MutableRefObject<HTMLElement>;
+	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const editRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
-	const iconRef = React.useRef() as React.MutableRefObject<SVGSVGElement>;
 	const logOutRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 
-	const onSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-		e.preventDefault();
-		if (userName !== userInfo.displayName) {
+	const onSave = async (): Promise<void> => {
+		if (userInfo.uid !== null) {
 			try {
-				await userInfo.updateProfile({
-					displayName: userName,
-				});
+				setIsSaving(true);
+
+				// 새 이미지 업로드
+				if (newProfileImg !== '') {
+					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+					if (items.length > 0) {
+						items[0].delete();
+					}
+					const imageRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
+					const response = await imageRef.putString(newProfileImg, 'data_url');
+					const downLoadUrl = await response.ref.getDownloadURL();
+					setProfileImg(downLoadUrl);
+					setHeaderProfileImg(downLoadUrl);
+					setNewProfileImg('');
+					dbService.collection('profile').doc(userInfo.uid).update({
+						image: downLoadUrl,
+					});
+				}
+
+				// 기본 이미지로 변경
+				if (defaultProfileImg !== '') {
+					setProfileImg(defaultProfileImg);
+					setHeaderProfileImg(defaultProfileImg);
+					dbService.collection('profile').doc(userInfo.uid).update({
+						image: defaultProfileImg,
+					});
+
+					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+					if (items.length > 0) {
+						await items[0].delete();
+					}
+				}
+
+				// 이름 변경
+				if (userName !== userInfo.displayName) {
+					await userInfo.updateProfile({
+						displayName: userName,
+					});
+					await reRender();
+				}
 			} catch (err) {
 				alert(err.message);
 			} finally {
-				setToggleEdit(prev => !prev);
-				reRender();
+				setTimeout(function () {
+					setIsEdit(prev => !prev);
+					setIsSaving(false);
+				}, 200);
 			}
-		} else if (userName === userInfo.displayName) {
-			alert('변경 사항이 없습니다');
+		}
+	};
+
+	const onToggleClick = async (e: any): Promise<void> => {
+		const value = e.target.value;
+		if (value === '취소' && userInfo.uid !== null) {
+			try {
+				// 이미지 기존걸로 보이게 하기
+				const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
+				const data = profileDoc.data();
+				if (data !== undefined) {
+					const userProfileImg = data.image;
+					await setProfileImg(userProfileImg);
+				}
+				// 이름 기존걸로 보이게 하기
+				setUserName(userInfo.displayName);
+			} catch (err) {
+				alert(err.message);
+			} finally {
+				setNewProfileImg('');
+				setDefaultProfileImg('');
+				setIsEdit(prev => !prev);
+			}
+		} else if (value === '편집') {
+			setIsEdit(prev => !prev);
 		}
 	};
 
@@ -49,39 +112,6 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 			target: { value },
 		} = e;
 		setUserName(value);
-	};
-
-	const onToggleClick = (): void => {
-		setToggleEdit(prev => !prev);
-	};
-
-	const onLogOutClick = (): void => {
-		authService.signOut();
-	};
-
-	const onProfileClick = (): void => {
-		mainRef.current.classList.add('showing');
-		window.addEventListener('click', onOutsideClick);
-	};
-
-	const onOutsideClick = (e: any): void => {
-		const isInside = editRef.current.contains(e.target as Node);
-		if (isInside) {
-			console.log('내부 클릭');
-			if (e.target === iconRef.current || e.target.parentNode === iconRef.current) {
-				onToggleClick();
-			}
-		} else if (imgRef.current === e.target) {
-			console.log('showing profile 클릭');
-		} else if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
-			console.log('로그아웃 클릭');
-			window.removeEventListener('click', onOutsideClick);
-			onLogOutClick();
-		} else {
-			console.log('바깥 클릭');
-			window.removeEventListener('click', onOutsideClick);
-			mainRef.current.classList.remove('showing');
-		}
 	};
 
 	const onMouseOver = (): void => {
@@ -94,6 +124,36 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		window.removeEventListener('click', onOutsideClick);
 	};
 
+	const onLogOutClick = (): void => {
+		authService.signOut();
+	};
+
+	const onProfileClick = (): void => {
+		mainRef.current.classList.add('showing');
+		window.addEventListener('click', onOutsideClick);
+	};
+
+	const onOutsideClick = (e: any): void => {
+		const isInside = mainRef.current.contains(e.target as Node);
+
+		if (isInside) {
+			console.log('내부 클릭');
+			if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
+				console.log('로그아웃 클릭');
+				window.removeEventListener('click', onOutsideClick);
+				onLogOutClick();
+			}
+			return;
+		} else if (imgRef.current === e.target) {
+			console.log('showing profile 클릭');
+			return;
+		} else {
+			console.log('바깥 클릭');
+			window.removeEventListener('click', onOutsideClick);
+			mainRef.current.classList.remove('showing');
+		}
+	};
+
 	return (
 		<Container>
 			<ImgWrapper onMouseLeave={onMouseLeave}>
@@ -101,39 +161,59 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 					ref={imgRef}
 					onClick={onProfileClick}
 					onMouseOver={onMouseOver}
-					imgUrl={showingProfileImg}
+					imgUrl={headerProfileImg}
 				/>
 			</ImgWrapper>
 			<Main ref={mainRef} onMouseLeave={onMouseLeave} onMouseOver={onMouseOver}>
+				<HiddenWrapper isSaving={isSaving}>
+					<span>저장중...</span>
+				</HiddenWrapper>
+				<SubmitWrapper>
+					{isEdit ? (
+						<>
+							<ToggleBtn onClick={onToggleClick} value="취소">
+								취소
+							</ToggleBtn>
+							<SaveBtn onClick={onSave} ref={saveRef}>
+								저장
+							</SaveBtn>
+						</>
+					) : (
+						<ToggleBtn onClick={onToggleClick} value="편집">
+							편집
+						</ToggleBtn>
+					)}
+				</SubmitWrapper>
 				<EditWrapper ref={editRef}>
-					<ProfileImg userInfo={userInfo} setShowingProfileImg={setShowingProfileImg} />
-					{toggleEdit ? (
-						<FormWrapper>
-							<Form onSubmit={onSubmit}>
-								<TextInput
-									type="text"
-									placeholder="Name"
-									value={userName && userName ? userName : ''}
-									onChange={onTextChange}
-									autoFocus
-									required
-								/>
-								<SaveWrapper type="submit">
-									<SaveIcon />
-								</SaveWrapper>
-							</Form>
-							<CancelIcon ref={iconRef} />
-						</FormWrapper>
+					<ProfileImg
+						userInfo={userInfo}
+						profileImg={profileImg}
+						setProfileImg={setProfileImg}
+						setHeaderProfileImg={setHeaderProfileImg}
+						setNewProfileImg={setNewProfileImg}
+						setDefaultProfileImg={setDefaultProfileImg}
+						isEdit={isEdit}
+					/>
+					{isEdit ? (
+						<EditNameWrapper>
+							<EditName
+								type="text"
+								placeholder="Name"
+								value={userName && userName ? userName : ''}
+								onChange={onTextChange}
+								autoFocus
+								required
+							/>
+						</EditNameWrapper>
 					) : (
 						<NameWrapper>
-							<UserName>{userName ? userName : 'User'}</UserName>
-							<EditIcon ref={iconRef} />
+							<ShowingName>{userName ? userName : 'User'}</ShowingName>
 						</NameWrapper>
 					)}
 				</EditWrapper>
-				<LogOutBtn ref={logOutRef}>
+				<LogOutWrapper ref={logOutRef}>
 					<span>LOG OUT</span>
-				</LogOutBtn>
+				</LogOutWrapper>
 			</Main>
 		</Container>
 	);
@@ -146,6 +226,8 @@ const Container = styled.section`
 	position: relative;
 	z-index: 10;
 `;
+
+/* ********************* Img Wrapper ********************* */
 
 const ImgWrapper = styled.div``;
 
@@ -167,13 +249,15 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	`}
 `;
 
+/* ********************* Main ********************* */
+
 const Main = styled.main`
 	display: none;
 	flex-direction: column;
 	align-items: center;
 	position: absolute;
 	top: 3rem;
-	height: 11rem;
+	height: 12rem;
 	width: 9rem;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
@@ -186,34 +270,92 @@ const Main = styled.main`
 	`}
 `;
 
+/* ********************* Hidden Wrapper ********************* */
+const HiddenWrapper = styled.div<{ isSaving: boolean }>`
+	display: ${props => (props.isSaving ? 'flex' : 'none')};
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	height: inherit;
+	width: inherit;
+	border-radius: inherit;
+	background-color: rgba(49, 49, 49, 0.306);
+	font-size: 0.7rem;
+	z-index: 15;
+`;
+
+/* ********************* Submit Wrapper ********************* */
+
+const SubmitWrapper = styled.div`
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0.4rem;
+`;
+
+const ToggleBtn = styled.button`
+	margin-left: 5px;
+	border: none;
+	border-radius: 10px;
+	background: none;
+	font-size: 0.6rem;
+	color: ${props => props.theme.light.yellowColor};
+	cursor: pointer;
+	outline: none;
+	transition: all 0.3s;
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			color: rgb(199, 149, 55);
+			transition: color ease-in-out 0.3s;
+		}
+	`}
+`;
+
+const SaveBtn = styled.button`
+	margin-left: 5px;
+	border: none;
+	border-radius: 10px;
+	background: none;
+	font-size: 0.6rem;
+	color: ${props => props.theme.light.yellowColor};
+	cursor: pointer;
+	outline: none;
+	transition: all 0.3s;
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			color: rgb(199, 149, 55);
+			transition: color ease-in-out 0.3s;
+		}
+	`}
+`;
+
+/* ********************* Edit Wrapper ********************* */
+
 const EditWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	width: 100%;
-	padding: 0.8rem;
+	padding: 0.5rem 1rem;
 `;
 
-const FormWrapper = styled.div`
+const EditNameWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-`;
-
-const Form = styled.form`
-	display: flex;
-	align-items: center;
 	height: 1rem;
 `;
 
-const TextInput = styled.input`
+const EditName = styled.input`
 	width: 3rem;
 	margin-right: 3px;
 	border: none;
 	border-bottom: 1px solid ${props => props.theme.light.yellowColor};
 	background: none;
 	font-size: 0.8rem;
+	text-align: center;
 	color: ${props => props.theme.light.yellowColor};
 	&:focus {
 		outline: none;
@@ -223,68 +365,19 @@ const TextInput = styled.input`
 	}
 `;
 
-const SaveWrapper = styled.button`
-	display: flex;
-	align-items: center;
-	margin-right: 5px;
-	padding: 0;
-	border: none;
-	background: none;
-	outline: none;
-`;
-
-const SaveIcon = styled(Save)`
-	height: 0.8rem;
-	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
-	transition: all 0.3s;
-	${({ theme }) => theme.media.desktop`
-		&:hover {
-			color: rgb(199, 149, 55);
-			transition: color ease-in-out 0.3s;
-		}
-	`}
-`;
-
-const CancelIcon = styled(CancelCircle)`
-	height: 0.7rem;
-	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
-	transition: all 0.3s;
-	${({ theme }) => theme.media.desktop`
-		&:hover {
-			color: rgb(199, 149, 55);
-			transition: color ease-in-out 0.3s;
-		}
-	`}
-`;
-
 const NameWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
 `;
 
-const UserName = styled.span`
+const ShowingName = styled.span`
 	font-size: 0.8rem;
 	color: ${props => props.theme.light.yellowColor};
 `;
 
-const EditIcon = styled(Edit)`
-	height: 0.7rem;
-	margin-left: 5px;
-	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
-	transition: all 0.3s;
-	${({ theme }) => theme.media.desktop`
-		&:hover {
-			color: rgb(199, 149, 55);
-			transition: color ease-in-out 0.3s;
-		}
-	`}
-`;
-
-const LogOutBtn = styled.div`
+/* ********************* Log Out Wrapper ********************* */
+const LogOutWrapper = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;

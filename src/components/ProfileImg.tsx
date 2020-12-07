@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { dbService, storageService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
@@ -10,36 +10,29 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	setShowingProfileImg: React.Dispatch<React.SetStateAction<string>>;
+	profileImg: string;
+	setProfileImg: React.Dispatch<React.SetStateAction<string>>;
+	setHeaderProfileImg: React.Dispatch<React.SetStateAction<string>>;
+	setNewProfileImg: React.Dispatch<React.SetStateAction<string>>;
+	setDefaultProfileImg: React.Dispatch<React.SetStateAction<string>>;
+	isEdit: boolean;
 }
 
-const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfileImg }) => {
-	const [profileImage, setProfileImage] = useState<string>('');
+const ProfileImg: React.FunctionComponent<IProps> = ({
+	userInfo,
+	profileImg,
+	setProfileImg,
+	setHeaderProfileImg,
+	setNewProfileImg,
+	setDefaultProfileImg,
+	isEdit,
+}) => {
+	const fileRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 
-	const onClickImg = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+	const onImgClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		const img = e.currentTarget as HTMLDivElement;
-		(img.nextSibling as HTMLInputElement).click();
-	};
-
-	const onDeleteClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
-		try {
-			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
-			setProfileImage(defaultImg);
-			setShowingProfileImg(defaultImg);
-			if (userInfo.uid) {
-				dbService.collection('profile').doc(userInfo.uid).update({
-					image: defaultImg,
-				});
-			}
-			const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
-			if (items.length > 0) {
-				await items[0].delete();
-			}
-		} catch (err) {
-			alert(err.message);
-		} finally {
-			const input = e.target as HTMLButtonElement;
-			(input.parentElement?.children[1] as HTMLInputElement).value = '';
+		if (isEdit) {
+			(img.nextSibling as HTMLInputElement).click();
 		}
 	};
 
@@ -49,32 +42,32 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfi
 		} = e;
 
 		if (files !== null) {
-			const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
-			if (items.length > 0) {
-				items[0].delete();
-			}
 			const theFile = files[0];
 			const reader = new FileReader();
 			reader.readAsDataURL(theFile);
 			reader.onload = async (): Promise<void> => {
 				const result = reader.result;
 				try {
-					if (result !== null && userInfo.uid !== null) {
+					if (result !== null) {
 						const dataUrl = result.toString();
-						const imgRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
-						const response = await imgRef.putString(dataUrl, 'data_url');
-						const downLoadUrl = await response.ref.getDownloadURL();
-						setProfileImage(downLoadUrl);
-						setShowingProfileImg(downLoadUrl);
-						dbService.collection('profile').doc(userInfo.uid).update({
-							image: downLoadUrl,
-						});
+						setNewProfileImg(dataUrl);
+						setProfileImg(dataUrl);
+						setDefaultProfileImg('');
+						fileRef.current.value = '';
 					}
 				} catch (err) {
 					alert(err.message);
 				}
 			};
 		}
+	};
+
+	const onDefaultImgClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
+		const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+		setProfileImg(defaultImg);
+		setDefaultProfileImg(defaultImg);
+		setNewProfileImg('');
+		fileRef.current.value = '';
 	};
 
 	useEffect(() => {
@@ -86,8 +79,8 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfi
 						const data = profileDoc.data();
 						if (data !== undefined) {
 							const userProfileImg = data.image;
-							setProfileImage(userProfileImg);
-							setShowingProfileImg(userProfileImg);
+							setProfileImg(userProfileImg);
+							setHeaderProfileImg(userProfileImg);
 						}
 					} catch (err) {
 						alert(err.message);
@@ -95,8 +88,8 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfi
 				} else {
 					try {
 						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
-						setProfileImage(defaultImg);
-						setShowingProfileImg(defaultImg);
+						setProfileImg(defaultImg);
+						setHeaderProfileImg(defaultImg);
 						dbService.collection('profile').doc(userInfo.uid).set({
 							image: defaultImg,
 						});
@@ -111,14 +104,14 @@ const ProfileImg: React.FunctionComponent<IProps> = ({ userInfo, setShowingProfi
 
 	return (
 		<Container>
-			<ImgWrapper onClick={onClickImg}>
-				<UserImg imgUrl={profileImage} />
-				<Hidden>
+			<ImgWrapper onClick={onImgClick}>
+				<UserImg imgUrl={profileImg} />
+				<Hidden isEdit={isEdit}>
 					<EditIcon />
 				</Hidden>
 			</ImgWrapper>
-			<FileInput type="file" onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
-			<ImgDelBtn onClick={onDeleteClick}>기본 이미지로 변경</ImgDelBtn>
+			<FileInput type="file" ref={fileRef} onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
+			{isEdit ? <ImgDelBtn onClick={onDefaultImgClick}>기본 이미지로 변경</ImgDelBtn> : ''}
 		</Container>
 	);
 };
@@ -139,7 +132,7 @@ const FileInput = styled.input`
 	display: none;
 `;
 
-const Hidden = styled.div`
+const Hidden = styled.div<{ isEdit: boolean }>`
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -150,26 +143,7 @@ const Hidden = styled.div`
 	z-index: 2;
 	position: absolute;
 	top: 0;
-	opacity: 0;
-	transition: all 0.3s;
-	${({ theme }) => theme.media.portraitMobile`
-		opacity : 1;
-	`}
-	${({ theme }) => theme.media.landscapeMobile`
-		opacity : 1;		
-	`}
-	${({ theme }) => theme.media.portraitTablet`
-		opacity : 1;		
-	`}
-	${({ theme }) => theme.media.landscapeTablet`
-		opacity : 1;		
-	`}
-	${ImgWrapper}:hover & {
-		${({ theme }) => theme.media.desktop`
-			opacity: 1;
-			transition: opacity ease-in-out 0.3s;
-		`}
-	}
+	opacity: ${props => (props.isEdit ? 1 : 0)};
 `;
 
 const EditIcon = styled(Edit3)`
