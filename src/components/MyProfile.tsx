@@ -114,16 +114,6 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		setUserName(value);
 	};
 
-	const onMouseOver = (): void => {
-		mainRef.current.classList.add('showing');
-		window.addEventListener('click', onOutsideClick);
-	};
-
-	const onMouseLeave = (): void => {
-		mainRef.current.classList.remove('showing');
-		window.removeEventListener('click', onOutsideClick);
-	};
-
 	const onLogOutClick = (): void => {
 		authService.signOut();
 	};
@@ -156,15 +146,10 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 
 	return (
 		<Container>
-			<ImgWrapper onMouseLeave={onMouseLeave}>
-				<ShowingProfileImg
-					ref={imgRef}
-					onClick={onProfileClick}
-					onMouseOver={onMouseOver}
-					imgUrl={headerProfileImg}
-				/>
+			<ImgWrapper>
+				<ShowingProfileImg ref={imgRef} onClick={onProfileClick} imgUrl={headerProfileImg} />
 			</ImgWrapper>
-			<Main ref={mainRef} onMouseLeave={onMouseLeave} onMouseOver={onMouseOver}>
+			<Main ref={mainRef}>
 				<HiddenWrapper isSaving={isSaving}>
 					<span>저장중...</span>
 				</HiddenWrapper>
@@ -257,6 +242,7 @@ const Main = styled.main`
 	align-items: center;
 	position: absolute;
 	top: 3rem;
+	z-index: 15;
 	height: 12rem;
 	width: 9rem;
 	border-radius: 15px;
@@ -277,12 +263,12 @@ const HiddenWrapper = styled.div<{ isSaving: boolean }>`
 	align-items: center;
 	position: absolute;
 	top: 0;
+	z-index: 16;
 	height: inherit;
 	width: inherit;
 	border-radius: inherit;
-	background-color: rgba(49, 49, 49, 0.306);
+	background-color: rgba(17, 17, 17, 0.306);
 	font-size: 0.7rem;
-	z-index: 15;
 `;
 
 /* ********************* Submit Wrapper ********************* */
@@ -349,7 +335,7 @@ const EditNameWrapper = styled.div`
 `;
 
 const EditName = styled.input`
-	width: 3rem;
+	width: 5rem;
 	margin-right: 3px;
 	border: none;
 	border-bottom: 1px solid ${props => props.theme.light.yellowColor};
