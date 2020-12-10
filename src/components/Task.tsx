@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { defualtFirebase, dbService } from '../fbase';
 import theme from '../styles/theme';
+import { EditAlt } from 'styled-icons/boxicons-regular';
+import { DeleteBin } from 'styled-icons/remix-line';
+import EditTaskForm from './EditTaskForm';
 
 interface IProps {
 	date: string;
@@ -16,9 +19,9 @@ interface IProps {
 }
 
 const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
-	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
 	const relocation = async (): Promise<void> => {
@@ -32,13 +35,6 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 			await doc.set(temporaryStorage);
 			console.log('relocation 끝');
 		}
-	};
-
-	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const {
-			target: { value },
-		} = e;
-		setEditedDate(value === '' ? '날짜미정' : value);
 	};
 
 	const onDeleteClick = async (): Promise<void> => {
@@ -62,86 +58,10 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		}
 	};
 
-	const onEditSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-		e.preventDefault();
-		if (userInfo.uid !== null) {
-			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-			const docData = (await theDoc.get()).data();
-			if (date === editedDate) {
-				try {
-					for (const key in docData) {
-						if (key === taskKey) {
-							await theDoc.update({
-								[key]: inputValue,
-							});
-						}
-					}
-				} catch (err) {
-					alert(err.message);
-				} finally {
-					getTasks();
-				}
-			} else {
-				const userCollection = await dbService.collection(userInfo.uid).get();
-				const docList = userCollection.docs.map(doc => doc.id);
-				if (docList.includes(editedDate)) {
-					const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
-					const data = doc.data();
-					if (data !== undefined) {
-						const dataLength = Object.keys(data).length;
-						const taskObj = {
-							...data,
-							[dataLength]: inputValue,
-						};
-						try {
-							await doc.ref.update(taskObj);
-							for (const key in docData) {
-								if (key === taskKey) {
-									await theDoc.update({
-										[key]: defualtFirebase.firestore.FieldValue.delete(),
-									});
-									await relocation();
-								}
-							}
-						} catch (err) {
-							alert(err.message);
-						} finally {
-							getTasks();
-						}
-					}
-				} else {
-					try {
-						dbService.collection(userInfo.uid).doc(editedDate).set({
-							0: inputValue,
-						});
-						for (const key in docData) {
-							if (key === taskKey) {
-								await theDoc.update({
-									[key]: defualtFirebase.firestore.FieldValue.delete(),
-								});
-								await relocation();
-							}
-						}
-					} catch (err) {
-						alert(err.message);
-					} finally {
-						getTasks();
-					}
-				}
-			}
-		}
-	};
-
-	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const {
-			target: { value },
-		} = e;
-		setInputValue(value);
-	};
-
 	const onToggleClick = (): void => {
 		setToggleEdit(prev => !prev);
 		setEditedDate(date);
+		console.log('onToggleClick 실행');
 	};
 
 	const onCheckboxClick = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
@@ -215,40 +135,121 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 	return (
 		<>
 			{toggleEdit ? (
-				<Container>
-					<form onSubmit={onEditSave}>
-						<input
-							type="text"
-							value={inputValue}
-							onChange={onInputChange}
-							placeholder="Edit Task"
-							required
-						/>
-						<input
-							type="date"
-							value={editedDate === '날짜미정' ? '' : editedDate}
-							onChange={onDateChange}
-						/>
-						<button>저장</button>
-						<button onClick={onToggleClick}>취소</button>
-					</form>
-				</Container>
+				<EditTaskForm
+					date={date}
+					taskKey={taskKey}
+					taskValue={taskValue}
+					userInfo={userInfo}
+					getTasks={getTasks}
+					toggleEdit={toggleEdit}
+					editedDate={editedDate}
+					setEditedDate={setEditedDate}
+					onToggleClick={onToggleClick}
+				/>
 			) : (
-				<Container>
-					<div>
-						<label>
-							<input type="checkbox" onChange={onCheckboxClick} />
-							{taskValue}
-						</label>
-					</div>
-					<button onClick={onToggleClick}>수정</button>
-					<button onClick={onDeleteClick}>삭제</button>
-				</Container>
+				''
 			)}
+			<Container>
+				<div>
+					<Label>
+						<CheckInput type="checkbox" onChange={onCheckboxClick} />
+						<CheckSpan />
+						{taskValue}
+					</Label>
+				</div>
+				<div>
+					<EditI onClick={onToggleClick} />
+					<DeleteI onClick={onDeleteClick} />
+				</div>
+			</Container>
 		</>
 	);
 };
 
-const Container = styled.div``;
+/* 
+<SaveI onClick={onSaveClick} />
+<CancelI onClick={onToggleClick} />
+*/
+
+const Container = styled.div`
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
+`;
+
+/* ********************* 편집 비활성화 ********************* */
+const Label = styled.label`
+	position: relative;
+	margin-right: 0.5rem;
+	color: ${props => props.theme.light.whiteColor};
+`;
+
+const CheckInput = styled.input`
+	margin-right: 0.8rem;
+	opacity: 0;
+`;
+
+const CheckSpan = styled.span`
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	height: 24px;
+	width: 24px;
+	background-color: transparent;
+	border-radius: 5px;
+	border: 2px solid ${props => props.theme.light.whiteColor};
+
+	&::after {
+		position: absolute;
+		content: '';
+		left: 12px;
+		top: 12px;
+		height: 0px;
+		width: 0px;
+		border-radius: 5px;
+		border: solid ${props => props.theme.light.greenColor};
+		border-width: 0 3px 3px 0;
+		-webkit-transform: rotate(0deg) scale(0);
+		-ms-transform: rotate(0deg) scale(0);
+		transform: rotate(0deg) scale(0);
+		opacity: 1;
+	}
+
+	${Label} input:checked ~ & {
+		background-color: ${props => props.theme.light.whiteColor};
+		border-radius: 5px;
+		-webkit-transform: rotate(0deg) scale(1);
+		-ms-transform: rotate(0deg) scale(1);
+		transform: rotate(0deg) scale(1);
+		opacity: 1;
+		border: 2px solid ${props => props.theme.light.whiteColor};
+	}
+
+	${Label} input:checked ~ &::after {
+		-webkit-transform: rotate(45deg) scale(1);
+		-ms-transform: rotate(45deg) scale(1);
+		transform: rotate(45deg) scale(1);
+		opacity: 1;
+		left: 6px;
+		top: 1px;
+		width: 6px;
+		height: 12px;
+		border: solid ${props => props.theme.light.greenColor};
+		border-width: 0 2px 2px 0;
+		background-color: transparent;
+		border-radius: 0;
+	}
+`;
+
+const EditI = styled(EditAlt)`
+	width: 1rem;
+	margin-right: 0.2rem;
+	color: ${props => props.theme.light.grayColor};
+`;
+
+const DeleteI = styled(DeleteBin)`
+	width: 1rem;
+	color: ${props => props.theme.light.grayColor};
+`;
 
 export default Task;
