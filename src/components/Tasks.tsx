@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
@@ -88,11 +88,10 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 							}
 						} catch (err) {
 							alert(err.message);
-						} finally {
-							setTaskList(temporaryStorage);
 						}
 					},
 				);
+				setTaskList(temporaryStorage);
 			} else {
 				setTaskList([]);
 			}
@@ -105,39 +104,105 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	}, []);
 
 	return (
-		<>
-			<Container>
-				<div>
-					<form onSubmit={onTaskSubmit}>
-						<input
-							type="text"
-							placeholder="New Task"
-							value={inputValue}
-							onChange={onInputChange}
-							required
+		<Container>
+			<AddTaskWrapper>
+				<Shape />
+				<TaskForm onSubmit={onTaskSubmit}>
+					<WriteTask
+						type="text"
+						placeholder="Add Task"
+						value={inputValue}
+						onChange={onInputChange}
+						required
+						autoFocus
+					/>
+					<TaskDate type="date" value={date === '날짜미정' ? '' : date} onChange={onDateChange} />
+					<SubmitTask type="submit" value="추가" />
+				</TaskForm>
+			</AddTaskWrapper>
+			<TaskListWrapper>
+				{taskList &&
+					taskList.length > 0 &&
+					taskList.map((result: { date: string; tasks: { taskKey: string; taskValue: string } }) => (
+						<TaskContainer
+							key={uuidv4()}
+							date={result.date}
+							tasks={result.tasks}
+							userInfo={userInfo}
+							getTasks={getTasks}
 						/>
-						<input type="date" value={date === '날짜미정' ? '' : date} onChange={onDateChange} />
-						<input type="submit" value="Save" />
-					</form>
-				</div>
-				<div>
-					{taskList &&
-						taskList.length > 0 &&
-						taskList.map((result: { date: string; tasks: { taskKey: string; taskValue: string } }) => (
-							<TaskContainer
-								key={uuidv4()}
-								date={result.date}
-								tasks={result.tasks}
-								userInfo={userInfo}
-								getTasks={getTasks}
-							/>
-						))}
-				</div>
-			</Container>
-		</>
+					))}
+			</TaskListWrapper>
+		</Container>
 	);
 };
 
-const Container = styled.div``;
+const Container = styled.main`
+	overflow: scroll;
+	height: 75vh;
+	margin-top: 12vh;
+	margin-bottom: 13vh;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+`;
 
+/* ********************* Add Task Wrapper ********************* */
+const AddTaskWrapper = styled.section`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 2.3rem;
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid ${props => props.theme.light.grayColor};
+`;
+const TaskForm = styled.form`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 95%;
+`;
+
+const Shape = styled.div`
+	height: 24px;
+	width: 24px;
+	background-color: transparent;
+	border-radius: 5px;
+	border: 2px solid ${props => props.theme.light.whiteColor};
+`;
+
+const WriteTask = styled.input`
+	width: 90%;
+	outline: none;
+	border: none;
+	background-color: ${props => props.theme.light.greenColor};
+	color: ${props => props.theme.light.whiteColor};
+`;
+
+const TaskDate = styled.input`
+	padding: 0 1rem;
+	border: none;
+	border-right: 1px solid ${props => props.theme.light.grayColor};
+	border-left: 1px solid ${props => props.theme.light.grayColor};
+	background-color: transparent;
+	font-size: 0.7rem;
+	color: white;
+`;
+
+const SubmitTask = styled.input`
+	font-size: 0.7rem;
+	padding-left: 1rem;
+	outline: none;
+	border: none;
+	background-color: ${props => props.theme.light.greenColor};
+	color: ${props => props.theme.light.whiteColor};
+`;
+
+/* ********************* Task Wrapper ********************* */
+const TaskListWrapper = styled.section`
+	z-index: -1;
+	padding: 0 1rem;
+`;
 export default Tasks;
