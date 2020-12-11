@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Router from './Router';
 import { authService } from '../fbase';
+import Initializing from './Initializing';
 
 interface IUser {
 	uid: string | null;
@@ -44,7 +45,7 @@ const App: React.FunctionComponent = () => {
 		}
 	};
 
-	return <>{init ? <Router userInfo={userInfo} isLoggedIn={isLoggedIn} reRender={reRender} /> : '초기화중...'}</>;
+	return <>{init ? <Router userInfo={userInfo} isLoggedIn={isLoggedIn} reRender={reRender} /> : <Initializing />}</>;
 };
 
 export default App;
