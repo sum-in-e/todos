@@ -59,7 +59,11 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 				}, 100);
 			}
 			if (e.target === saveRef.current) {
-				console.log('저장 클릭');
+				if (isCompleted) {
+					console.log('복구 클릭');
+				} else {
+					console.log('저장 클릭');
+				}
 				submitRef.current.click();
 				window.removeEventListener('click', onOutsideClick);
 			}
@@ -199,7 +203,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			<Container ref={containerRef}>
 				<SubmitWrapperTop>
 					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
-					<SaveBtn ref={saveRef}>저장</SaveBtn>
+					<SaveBtn ref={saveRef}>{isCompleted ? '복구' : '저장'}</SaveBtn>
 				</SubmitWrapperTop>
 				<Form onSubmit={onEditSave}>
 					<EditTextInput
@@ -242,7 +246,6 @@ const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	margin-bottom: 0.5rem;
 	position: fixed;
 	top: 50%;
 	left: 50%;
@@ -250,6 +253,7 @@ const Container = styled.div`
 	z-index: 25;
 	width: 10rem;
 	height: 10rem;
+	padding: 0.7rem 1rem;
 	border: none;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
@@ -261,7 +265,6 @@ const SubmitWrapperTop = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
-	padding: 0.5rem;
 `;
 
 const SaveBtn = styled.button`
@@ -269,6 +272,7 @@ const SaveBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-size: 0.6rem;
+	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	outline: none;
@@ -279,6 +283,7 @@ const ToggleBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-size: 0.6rem;
+	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	outline: none;
@@ -288,13 +293,13 @@ const ToggleBtn = styled.button`
 const Form = styled.form`
 	display: flex;
 	flex-direction: column;
-	padding: 0.5rem;
 `;
 
 const EditTextInput = styled.input`
 	height: 1.5rem;
 	margin-bottom: 1rem;
 	border: none;
+	border-radius: 5px 5px 0 0;
 	border-bottom: solid 2px ${props => props.theme.light.grayColor};
 	background-color: ${props => props.theme.light.greenColor};
 	font-size: 0.8rem;
@@ -303,6 +308,7 @@ const EditTextInput = styled.input`
 	&:focus {
 		outline: none;
 		background-color: #184039;
+		border-bottom: solid 2px ${props => props.theme.light.yellowColor};
 	}
 	&::placeholder {
 		color: ${props => props.theme.light.grayColor};
@@ -329,6 +335,7 @@ const DateInput = styled.input`
 
 	&:focus {
 		outline: none;
+		border: solid 2px ${props => props.theme.light.yellowColor};
 	}
 `;
 
@@ -339,15 +346,15 @@ const SaveInput = styled.input`
 /* ********************* Submit Wrapper Bottom ********************* */
 const SubmitWrapperBottom = styled.div`
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
 	width: 100%;
-	padding: 0.5rem;
 `;
 const DeleteBtn = styled.button`
 	border: none;
 	border-radius: 10px;
 	background: none;
 	font-size: 0.6rem;
+	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	outline: none;

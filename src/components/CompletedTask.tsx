@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { defualtFirebase, dbService } from '../fbase';
+import EditTaskForm from './EditTaskForm';
+import { EditAlt } from 'styled-icons/boxicons-regular';
+import { DeleteBin } from 'styled-icons/remix-line';
 
 interface IProps {
 	date: string;
@@ -16,6 +19,7 @@ interface IProps {
 
 const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
+	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
 	const relocation = async (): Promise<void> => {
@@ -29,6 +33,12 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 			await doc.set(temporaryStorage);
 			console.log('relocation 끝');
 		}
+	};
+
+	const onToggleClick = (): void => {
+		setToggleEdit(prev => !prev);
+		setEditedDate('날짜미정');
+		console.log('onToggleClick 실행');
 	};
 
 	const onDeleteClick = async (): Promise<void> => {
@@ -52,80 +62,56 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 		}
 	};
 
-	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const {
-			target: { value },
-		} = e;
-		setEditedDate(value === '' ? '날짜미정' : value);
-	};
-
-	const onRestoreClick = async (): Promise<void> => {
-		if (userInfo.uid !== null) {
-			const userCollection = await dbService.collection(userInfo.uid).get();
-			const docList = userCollection.docs.map(doc => doc.id);
-			if (docList.includes(editedDate)) {
-				const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
-				const data = doc.data();
-				const completeDoc = dbService.doc(`${userInfo.uid}/${date}`);
-				const completeDocData = (await completeDoc.get()).data();
-				if (data !== undefined) {
-					const dataLength = Object.keys(data).length;
-					const taskObj = {
-						...data,
-						[dataLength]: taskValue,
-					};
-					try {
-						await doc.ref.update(taskObj);
-						for (const key in completeDocData) {
-							if (key === taskKey) {
-								await completeDoc.update({
-									[key]: defualtFirebase.firestore.FieldValue.delete(),
-								});
-								await relocation();
-							}
-						}
-					} catch (err) {
-						alert(err.message);
-					} finally {
-						getTasks();
-					}
-				}
-			} else {
-				const completeDoc = dbService.doc(`${userInfo.uid}/${date}`);
-				const completeDocData = (await completeDoc.get()).data();
-				try {
-					await dbService.collection(userInfo.uid).doc(editedDate).set({
-						0: taskValue,
-					});
-					for (const key in completeDocData) {
-						if (key === taskKey) {
-							await completeDoc.update({
-								[key]: defualtFirebase.firestore.FieldValue.delete(),
-							});
-							await relocation();
-						}
-					}
-				} catch (err) {
-					alert(err.message);
-				} finally {
-					getTasks();
-				}
-			}
-		}
-	};
-
 	return (
 		<>
+			{toggleEdit ? (
+				<EditTaskForm
+					date={date}
+					taskKey={taskKey}
+					taskValue={taskValue}
+					userInfo={userInfo}
+					getTasks={getTasks}
+					toggleEdit={toggleEdit}
+					editedDate={editedDate}
+					setEditedDate={setEditedDate}
+					onToggleClick={onToggleClick}
+					isCompleted={true}
+				/>
+			) : (
+				''
+			)}
 			<Container>
-				<div>{taskValue}</div>
-				<input type="date" value={editedDate === '날짜미정' ? '' : editedDate} onChange={onDateChange} />
-				<button onClick={onRestoreClick}>복구</button>
-				<button onClick={onDeleteClick}>삭제</button>
+				<Task>{taskValue}</Task>
+				<BtnWrapper>
+					<EditI onClick={onToggleClick} />
+					<DeleteI onClick={onDeleteClick} />
+				</BtnWrapper>
 			</Container>
 		</>
 	);
 };
 
-const Container = styled.div``;
+const Container = styled.div`
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
+`;
+const Task = styled.span`
+	color: ${props => props.theme.light.whiteColor};
+	text-decoration: line-through;
+`;
+
+const BtnWrapper = styled.div``;
+
+const EditI = styled(EditAlt)`
+	width: 1rem;
+	margin-right: 0.2rem;
+	color: ${props => props.theme.light.grayColor};
+`;
+
+const DeleteI = styled(DeleteBin)`
+	width: 1rem;
+	color: ${props => props.theme.light.grayColor};
+`;
 
 export default CompletedTask;
