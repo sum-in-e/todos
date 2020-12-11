@@ -17,6 +17,7 @@ interface IProps {
 	editedDate: string;
 	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
 	onToggleClick: () => void;
+	isCompleted: boolean;
 }
 
 const EditTaskForm: React.FunctionComponent<IProps> = ({
@@ -29,26 +30,22 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	editedDate,
 	setEditedDate,
 	onToggleClick,
+	isCompleted,
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const submitRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const cancelRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
+	const deleteRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const containerRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
 
-	const relocation = async (): Promise<void> => {
-		const doc = dbService.doc(`${userInfo.uid}/${date}`);
-		const data = (await doc.get()).data();
-		if (data !== undefined) {
-			const values = Object.values(data);
-			values.forEach((value: string, index: number): void => {
-				temporaryStorage[index] = value;
-			});
-			await doc.set(temporaryStorage);
-			console.log('relocation 끝');
-		}
-	};
+	if (toggleEdit) {
+		console.log('편집중');
+		setTimeout(function () {
+			window.addEventListener('click', onOutsideClick);
+		}, 100);
+	}
 
 	const onOutsideClick = (e: any): void => {
 		const isInside = containerRef.current.contains(e.target as Node);
@@ -66,6 +63,11 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 				submitRef.current.click();
 				window.removeEventListener('click', onOutsideClick);
 			}
+			if (e.target === deleteRef.current) {
+				console.log('삭제 클릭');
+				window.removeEventListener('click', onOutsideClick);
+				onDeleteClick();
+			}
 		} else {
 			console.log('외부 클릭');
 			onToggleClick();
@@ -73,18 +75,52 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		}
 	};
 
-	if (toggleEdit) {
-		console.log('편집중');
-		setTimeout(function () {
-			window.addEventListener('click', onOutsideClick);
-		}, 100);
-	}
+	const relocation = async (): Promise<void> => {
+		const doc = dbService.doc(`${userInfo.uid}/${date}`);
+		const data = (await doc.get()).data();
+		if (data !== undefined) {
+			const values = Object.values(data);
+			values.forEach((value: string, index: number): void => {
+				temporaryStorage[index] = value;
+			});
+			await doc.set(temporaryStorage);
+			console.log('relocation 끝');
+		}
+	};
+
+	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+		const {
+			target: { value },
+		} = e;
+		setInputValue(value);
+	};
 
 	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
 		} = e;
 		setEditedDate(value === '' ? '날짜미정' : value);
+	};
+
+	const onDeleteClick = async (): Promise<void> => {
+		if (userInfo.uid !== null) {
+			const doc = dbService.doc(`${userInfo.uid}/${date}`);
+			const data = (await doc.get()).data();
+			try {
+				for (const key in data) {
+					if (key === taskKey) {
+						await doc.update({
+							[key]: defualtFirebase.firestore.FieldValue.delete(),
+						});
+						await relocation();
+					}
+				}
+			} catch (err) {
+				alert(err.message);
+			} finally {
+				getTasks();
+			}
+		}
 	};
 
 	const onEditSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -157,21 +193,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		}
 	};
 
-	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const {
-			target: { value },
-		} = e;
-		setInputValue(value);
-	};
-
 	return (
 		<>
 			<Background toggleEdit={toggleEdit} />
 			<Container ref={containerRef}>
-				<SubmitWrapper>
+				<SubmitWrapperTop>
 					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
 					<SaveBtn ref={saveRef}>저장</SaveBtn>
-				</SubmitWrapper>
+				</SubmitWrapperTop>
 				<Form onSubmit={onEditSave}>
 					<EditTextInput
 						type="text"
@@ -188,14 +217,31 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					/>
 					<SaveInput type="submit" ref={submitRef} />
 				</Form>
+				<SubmitWrapperBottom>
+					<DeleteBtn ref={deleteRef}>삭제</DeleteBtn>
+				</SubmitWrapperBottom>
 			</Container>
 		</>
 	);
 };
 
+/* ********************* Background ********************* */
+const Background = styled.div<{ toggleEdit: boolean }>`
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 20;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.6);
+	opacity: ${props => (props.toggleEdit ? 1 : 0)};
+`;
+
+/* ********************* Container ********************* */
 const Container = styled.div`
 	display: flex;
 	flex-direction: column;
+	justify-content: space-between;
 	margin-bottom: 0.5rem;
 	position: fixed;
 	top: 50%;
@@ -210,19 +256,8 @@ const Container = styled.div`
 	box-shadow: 0px 0px 5px 0px rgba(255, 255, 255, 0.84);
 `;
 
-const Background = styled.div<{ toggleEdit: boolean }>`
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 20;
-	width: 100vw;
-	height: 100vh;
-	background-color: rgba(0, 0, 0, 0.6);
-	opacity: ${props => (props.toggleEdit ? 1 : 0)};
-`;
-
-/* ********************* Submit Wrapper ********************* */
-const SubmitWrapper = styled.div`
+/* ********************* Submit Wrapper Top ********************* */
+const SubmitWrapperTop = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
@@ -230,7 +265,6 @@ const SubmitWrapper = styled.div`
 `;
 
 const SaveBtn = styled.button`
-	margin-left: 5px;
 	border: none;
 	border-radius: 10px;
 	background: none;
@@ -241,7 +275,6 @@ const SaveBtn = styled.button`
 `;
 
 const ToggleBtn = styled.button`
-	margin-left: 5px;
 	border: none;
 	border-radius: 10px;
 	background: none;
@@ -301,6 +334,23 @@ const DateInput = styled.input`
 
 const SaveInput = styled.input`
 	display: none;
+`;
+
+/* ********************* Submit Wrapper Bottom ********************* */
+const SubmitWrapperBottom = styled.div`
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0.5rem;
+`;
+const DeleteBtn = styled.button`
+	border: none;
+	border-radius: 10px;
+	background: none;
+	font-size: 0.6rem;
+	color: ${props => props.theme.light.yellowColor};
+	cursor: pointer;
+	outline: none;
 `;
 
 export default EditTaskForm;
