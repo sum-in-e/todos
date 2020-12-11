@@ -21,7 +21,6 @@ interface IProps {
 const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
-	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
 	const relocation = async (): Promise<void> => {
@@ -145,6 +144,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
 					onToggleClick={onToggleClick}
+					isCompleted={false}
 				/>
 			) : (
 				''
@@ -165,11 +165,6 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		</>
 	);
 };
-
-/* 
-<SaveI onClick={onSaveClick} />
-<CancelI onClick={onToggleClick} />
-*/
 
 const Container = styled.div`
 	display: flex;
