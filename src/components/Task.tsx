@@ -20,7 +20,7 @@ interface IProps {
 
 const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
-	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
 	const relocation = async (): Promise<void> => {
@@ -57,10 +57,13 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		}
 	};
 
-	const onToggleClick = (): void => {
-		setToggleEdit(prev => !prev);
+	const onEditClick = () => {
+		setIsEditing(true);
 		setEditedDate(date);
-		console.log('onToggleClick 실행');
+	};
+
+	const onExitEditing = () => {
+		setIsEditing(false);
 	};
 
 	const onCheckboxClick = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
@@ -133,17 +136,17 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 
 	return (
 		<>
-			{toggleEdit ? (
+			{isEditing ? (
 				<EditTaskForm
 					date={date}
 					taskKey={taskKey}
 					taskValue={taskValue}
 					userInfo={userInfo}
 					getTasks={getTasks}
-					toggleEdit={toggleEdit}
+					isEditing={isEditing}
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
-					onToggleClick={onToggleClick}
+					onExitEditing={onExitEditing}
 					isCompleted={false}
 				/>
 			) : (
@@ -158,7 +161,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					</Label>
 				</div>
 				<div>
-					<EditI onClick={onToggleClick} />
+					<EditI onClick={onEditClick} />
 					<DeleteI onClick={onDeleteClick} />
 				</div>
 			</Container>
@@ -170,6 +173,23 @@ const Container = styled.div`
 	display: flex;
 	justify-content: space-between;
 	margin-bottom: 0.5rem;
+`;
+
+/* ********************* Hidden Wrapper Top ********************* */
+const HiddenWrapper = styled.div<{ isSaving: boolean }>`
+	display: ${props => (props.isSaving ? 'flex' : 'none')};
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 16;
+	width: 10rem;
+	height: 10rem;
+	border-radius: 15px;
+	background-color: rgba(17, 17, 17, 0.306);
+	font-size: 0.7rem;
 `;
 
 /* ********************* 편집 비활성화 ********************* */

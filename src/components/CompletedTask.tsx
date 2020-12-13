@@ -19,7 +19,7 @@ interface IProps {
 
 const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
-	const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
 	const relocation = async (): Promise<void> => {
@@ -34,11 +34,13 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 			console.log('relocation 끝');
 		}
 	};
-
-	const onToggleClick = (): void => {
-		setToggleEdit(prev => !prev);
+	const onEditClick = () => {
+		setIsEditing(true);
 		setEditedDate('날짜미정');
-		console.log('onToggleClick 실행');
+	};
+
+	const onExitEditing = () => {
+		setIsEditing(false);
 	};
 
 	const onDeleteClick = async (): Promise<void> => {
@@ -64,17 +66,17 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 
 	return (
 		<>
-			{toggleEdit ? (
+			{isEditing ? (
 				<EditTaskForm
 					date={date}
 					taskKey={taskKey}
 					taskValue={taskValue}
 					userInfo={userInfo}
 					getTasks={getTasks}
-					toggleEdit={toggleEdit}
+					isEditing={isEditing}
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
-					onToggleClick={onToggleClick}
+					onExitEditing={onExitEditing}
 					isCompleted={true}
 				/>
 			) : (
@@ -83,7 +85,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 			<Container>
 				<Task>{taskValue}</Task>
 				<BtnWrapper>
-					<EditI onClick={onToggleClick} />
+					<EditI onClick={onEditClick} />
 					<DeleteI onClick={onDeleteClick} />
 				</BtnWrapper>
 			</Container>

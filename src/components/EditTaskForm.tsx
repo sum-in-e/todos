@@ -13,10 +13,10 @@ interface IProps {
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
 	getTasks: () => void;
-	toggleEdit: boolean;
+	isEditing: boolean;
 	editedDate: string;
 	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
-	onToggleClick: () => void;
+	onExitEditing: () => void;
 	isCompleted: boolean;
 }
 
@@ -26,10 +26,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	taskValue,
 	userInfo,
 	getTasks,
-	toggleEdit,
+	isEditing,
 	editedDate,
 	setEditedDate,
-	onToggleClick,
+	onExitEditing,
 	isCompleted,
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
@@ -40,44 +40,36 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const containerRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
 
-	if (toggleEdit) {
-		console.log('편집중');
-		setTimeout(function () {
-			window.addEventListener('click', onOutsideClick);
-		}, 100);
-	}
-
 	const onOutsideClick = (e: any): void => {
 		const isInside = containerRef.current.contains(e.target as Node);
 		if (isInside) {
-			console.log('내부 클릭');
 			if (e.target === cancelRef.current) {
-				console.log('취소 클릭');
-				window.removeEventListener('click', onOutsideClick);
 				setTimeout(function () {
-					onToggleClick();
+					onExitEditing();
 				}, 100);
+				window.removeEventListener('click', onOutsideClick);
 			}
 			if (e.target === saveRef.current) {
-				if (isCompleted) {
-					console.log('복구 클릭');
-				} else {
-					console.log('저장 클릭');
-				}
-				submitRef.current.click();
 				window.removeEventListener('click', onOutsideClick);
+				submitRef.current.click();
 			}
 			if (e.target === deleteRef.current) {
-				console.log('삭제 클릭');
 				window.removeEventListener('click', onOutsideClick);
 				onDeleteClick();
 			}
 		} else {
-			console.log('외부 클릭');
-			onToggleClick();
+			onExitEditing();
 			window.removeEventListener('click', onOutsideClick);
 		}
 	};
+
+	if (isEditing) {
+		setTimeout(function () {
+			window.addEventListener('click', onOutsideClick);
+		}, 100);
+	} else {
+		window.removeEventListener('click', onOutsideClick);
+	}
 
 	const relocation = async (): Promise<void> => {
 		const doc = dbService.doc(`${userInfo.uid}/${date}`);
@@ -199,7 +191,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	return (
 		<>
-			<Background toggleEdit={toggleEdit} />
+			<Background isEditing={isEditing} />
 			<Container ref={containerRef}>
 				<SubmitWrapperTop>
 					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
@@ -230,7 +222,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 };
 
 /* ********************* Background ********************* */
-const Background = styled.div<{ toggleEdit: boolean }>`
+const Background = styled.div<{ isEditing: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -238,7 +230,7 @@ const Background = styled.div<{ toggleEdit: boolean }>`
 	width: 100vw;
 	height: 100vh;
 	background-color: rgba(0, 0, 0, 0.6);
-	opacity: ${props => (props.toggleEdit ? 1 : 0)};
+	opacity: ${props => (props.isEditing ? 1 : 0)};
 `;
 
 /* ********************* Container ********************* */
@@ -268,6 +260,7 @@ const SubmitWrapperTop = styled.div`
 `;
 
 const SaveBtn = styled.button`
+	padding: 0;
 	border: none;
 	border-radius: 10px;
 	background: none;
@@ -279,6 +272,7 @@ const SaveBtn = styled.button`
 `;
 
 const ToggleBtn = styled.button`
+	padding: 0;
 	border: none;
 	border-radius: 10px;
 	background: none;
@@ -350,6 +344,7 @@ const SubmitWrapperBottom = styled.div`
 	width: 100%;
 `;
 const DeleteBtn = styled.button`
+	padding: 0;
 	border: none;
 	border-radius: 10px;
 	background: none;
