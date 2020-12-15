@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import theme from '../styles/theme';
-import { defualtFirebase, dbService } from '../fbase';
+import { dbService } from '../fbase';
 
 interface IProps {
 	date: string;
@@ -12,12 +12,14 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	getTasks: () => void;
 	isEditing: boolean;
 	editedDate: string;
 	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
-	onExitEditing: () => void;
+	handleExitEditing: () => void;
 	isCompleted: boolean;
+	remainingCount: number;
+	taskList: any[];
+	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 const EditTaskForm: React.FunctionComponent<IProps> = ({
@@ -25,14 +27,18 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	taskKey,
 	taskValue,
 	userInfo,
-	getTasks,
 	isEditing,
 	editedDate,
 	setEditedDate,
-	onExitEditing,
+	handleExitEditing,
 	isCompleted,
+	remainingCount,
+	taskList,
+	setTaskList,
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
+	const [isLimited, setIsLimited] = useState<boolean>(false);
+	const [count, setCount] = useState<number>(remainingCount);
 	const submitRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const cancelRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
@@ -40,151 +46,148 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const containerRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
 
-	const onOutsideClick = (e: any): void => {
+	const handleOutsideClick = (e: any): void => {
 		const isInside = containerRef.current.contains(e.target as Node);
 		if (isInside) {
 			if (e.target === cancelRef.current) {
 				setTimeout(function () {
-					onExitEditing();
+					handleExitEditing();
 				}, 100);
-				window.removeEventListener('click', onOutsideClick);
+				window.removeEventListener('click', handleOutsideClick);
 			}
 			if (e.target === saveRef.current) {
-				window.removeEventListener('click', onOutsideClick);
+				window.removeEventListener('click', handleOutsideClick);
 				submitRef.current.click();
 			}
 			if (e.target === deleteRef.current) {
-				window.removeEventListener('click', onOutsideClick);
-				onDeleteClick();
+				window.removeEventListener('click', handleOutsideClick);
+				handleDeleteClick();
 			}
 		} else {
-			onExitEditing();
-			window.removeEventListener('click', onOutsideClick);
+			window.removeEventListener('click', handleOutsideClick);
+			handleExitEditing();
 		}
 	};
 
 	if (isEditing) {
 		setTimeout(function () {
-			window.addEventListener('click', onOutsideClick);
+			window.addEventListener('click', handleOutsideClick);
 		}, 100);
 	} else {
-		window.removeEventListener('click', onOutsideClick);
+		window.removeEventListener('click', handleOutsideClick);
 	}
 
-	const relocation = async (): Promise<void> => {
-		const doc = dbService.doc(`${userInfo.uid}/${date}`);
-		const data = (await doc.get()).data();
-		if (data !== undefined) {
-			const values = Object.values(data);
-			values.forEach((value: string, index: number): void => {
-				temporaryStorage[index] = value;
-			});
-			await doc.set(temporaryStorage);
-			console.log('relocation 끝');
-		}
-	};
-
-	const onInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+	const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
 		} = e;
 		setInputValue(value);
+
+		const length = value.length;
+		setCount(30 - length);
+
+		if (length >= 30) {
+			setIsLimited(true);
+		} else {
+			setIsLimited(false);
+		}
 	};
 
-	const onDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
 		} = e;
 		setEditedDate(value === '' ? '날짜미정' : value);
 	};
 
-	const onDeleteClick = async (): Promise<void> => {
+	const handleDeleteClick = (): void => {
 		if (userInfo.uid !== null) {
-			const doc = dbService.doc(`${userInfo.uid}/${date}`);
-			const data = (await doc.get()).data();
+			const copyedTaskList = taskList.slice();
+			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			const data = copyedTaskList[docIndex].tasks;
+			const dataLength = Object.keys(data).length;
+			if (dataLength <= 1) {
+				copyedTaskList.splice(docIndex, 1);
+			} else {
+				delete data[taskKey];
+				const values = Object.values(data);
+				values.forEach((value, index): void => {
+					temporaryStorage[index] = value;
+				});
+				const taskObj = {
+					date,
+					tasks: temporaryStorage,
+				};
+				copyedTaskList.splice(docIndex, 1, taskObj);
+			}
+			setTaskList(copyedTaskList);
+			dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+		}
+	};
+
+	const onSubmitEdit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+		e.preventDefault();
+		if (userInfo.uid !== null) {
+			const copyedTaskList = taskList.slice();
 			try {
-				for (const key in data) {
-					if (key === taskKey) {
-						await doc.update({
-							[key]: defualtFirebase.firestore.FieldValue.delete(),
+				if (date === editedDate) {
+					const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+					const data = copyedTaskList[docIndex].tasks;
+					data[taskKey] = inputValue;
+					dbService.doc(`${userInfo.uid}/${date}`).set(data);
+				} else {
+					const docList = copyedTaskList.map(doc => doc.date);
+					if (docList.includes(editedDate)) {
+						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === editedDate);
+						const data = copyedTaskList[docIndex].tasks;
+						const dataLength = Object.keys(data).length;
+						const taskObj = {
+							date: editedDate,
+							tasks: {
+								...data,
+								[dataLength]: inputValue,
+							},
+						};
+						copyedTaskList.splice(docIndex, 1, taskObj);
+						dbService.doc(`${userInfo.uid}/${editedDate}`).update({ [dataLength]: inputValue });
+					} else {
+						const taskObj = {
+							date: editedDate,
+							tasks: {
+								0: inputValue,
+							},
+						};
+						copyedTaskList.push(taskObj);
+						copyedTaskList.sort(function (a, b) {
+							return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
 						});
-						await relocation();
+						dbService.collection(userInfo.uid).doc(editedDate).set({
+							0: inputValue,
+						});
 					}
+					const previousDocIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+					const data = copyedTaskList[previousDocIndex].tasks;
+					const dataLength = Object.keys(data).length;
+					if (dataLength <= 1) {
+						copyedTaskList.splice(previousDocIndex, 1);
+					} else {
+						delete data[taskKey];
+						const values = Object.values(data);
+						values.forEach((value, index): void => {
+							temporaryStorage[index] = value;
+						});
+						const taskObj = {
+							date,
+							tasks: temporaryStorage,
+						};
+						copyedTaskList.splice(previousDocIndex, 1, taskObj);
+					}
+					dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
 				}
 			} catch (err) {
 				alert(err.message);
 			} finally {
-				getTasks();
-			}
-		}
-	};
-
-	const onEditSave = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-		e.preventDefault();
-		if (userInfo.uid !== null) {
-			const theDoc = dbService.doc(`${userInfo.uid}/${date}`);
-			const docData = (await theDoc.get()).data();
-			if (date === editedDate) {
-				try {
-					for (const key in docData) {
-						if (key === taskKey) {
-							await theDoc.update({
-								[key]: inputValue,
-							});
-						}
-					}
-				} catch (err) {
-					alert(err.message);
-				} finally {
-					getTasks();
-				}
-			} else {
-				const userCollection = await dbService.collection(userInfo.uid).get();
-				const docList = userCollection.docs.map(doc => doc.id);
-				if (docList.includes(editedDate)) {
-					const doc = await dbService.doc(`${userInfo.uid}/${editedDate}`).get();
-					const data = doc.data();
-					if (data !== undefined) {
-						const dataLength = Object.keys(data).length;
-						const taskObj = {
-							...data,
-							[dataLength]: inputValue,
-						};
-						try {
-							await doc.ref.update(taskObj);
-							for (const key in docData) {
-								if (key === taskKey) {
-									await theDoc.update({
-										[key]: defualtFirebase.firestore.FieldValue.delete(),
-									});
-									await relocation();
-								}
-							}
-						} catch (err) {
-							alert(err.message);
-						} finally {
-							getTasks();
-						}
-					}
-				} else {
-					try {
-						dbService.collection(userInfo.uid).doc(editedDate).set({
-							0: inputValue,
-						});
-						for (const key in docData) {
-							if (key === taskKey) {
-								await theDoc.update({
-									[key]: defualtFirebase.firestore.FieldValue.delete(),
-								});
-								await relocation();
-							}
-						}
-					} catch (err) {
-						alert(err.message);
-					} finally {
-						getTasks();
-					}
-				}
+				setTaskList(copyedTaskList);
 			}
 		}
 	};
@@ -197,20 +200,26 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
 					<SaveBtn ref={saveRef}>{isCompleted ? '복구' : '저장'}</SaveBtn>
 				</SubmitWrapperTop>
-				<Form onSubmit={onEditSave}>
-					<EditTextInput
-						type="text"
-						value={inputValue}
-						onChange={onInputChange}
-						placeholder="Edit Task"
-						required
-					/>
-					<DateTitle>Date</DateTitle>
-					<DateInput
-						type="date"
-						value={editedDate === '날짜미정' ? '' : editedDate}
-						onChange={onDateChange}
-					/>
+				<Form onSubmit={onSubmitEdit}>
+					<TextWrapper>
+						<EditTextInput
+							type="text"
+							value={inputValue}
+							maxLength={30}
+							onChange={onChangeInput}
+							placeholder="Edit Task"
+							required
+						/>
+						<Counter isLimited={isLimited}>{count}</Counter>
+					</TextWrapper>
+					<DateWrapper>
+						<DateTitle>Date</DateTitle>
+						<DateInput
+							type="date"
+							value={editedDate === '날짜미정' ? '' : editedDate}
+							onChange={onChangeDate}
+						/>
+					</DateWrapper>
 					<SaveInput type="submit" ref={submitRef} />
 				</Form>
 				<SubmitWrapperBottom>
@@ -283,15 +292,21 @@ const ToggleBtn = styled.button`
 	outline: none;
 `;
 
-/* ********************* Form Wrapper ********************* */
+/* ********************* Form ********************* */
 const Form = styled.form`
 	display: flex;
 	flex-direction: column;
 `;
 
+const TextWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	margin-bottom: 1rem;
+`;
+
 const EditTextInput = styled.input`
 	height: 1.5rem;
-	margin-bottom: 1rem;
+	width: 85%;
 	border: none;
 	border-radius: 5px 5px 0 0;
 	border-bottom: solid 2px ${props => props.theme.light.grayColor};
@@ -301,12 +316,29 @@ const EditTextInput = styled.input`
 
 	&:focus {
 		outline: none;
-		background-color: #184039;
 		border-bottom: solid 2px ${props => props.theme.light.yellowColor};
 	}
 	&::placeholder {
 		color: ${props => props.theme.light.grayColor};
 	}
+`;
+
+const Counter = styled.div<{ isLimited: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 1.5rem;
+	width: 15%;
+	margin-left: 0.3rem;
+	padding: 0 0.3rem;
+	border-bottom: 2px solid ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.grayColor)};
+	font-size: 0.7rem;
+	color: ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
+`;
+
+const DateWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
 `;
 
 const DateTitle = styled.span`

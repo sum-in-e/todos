@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { defualtFirebase, dbService } from '../fbase';
+import { dbService } from '../fbase';
 import theme from '../styles/theme';
 import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
@@ -15,58 +15,52 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	getTasks: () => void;
+	taskList: any[];
+	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, getTasks }) => {
+const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, taskList, setTaskList }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
+	const [remainingCount, setRemainingCount] = useState<number>(0);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
-	const relocation = async (): Promise<void> => {
-		const doc = dbService.doc(`${userInfo.uid}/${date}`);
-		const data = (await doc.get()).data();
-		if (data !== undefined) {
-			const values = Object.values(data);
-			values.forEach((value: string, index: number): void => {
-				temporaryStorage[index] = value;
-			});
-			await doc.set(temporaryStorage);
-			console.log('relocation 끝');
-		}
-	};
-
-	const onDeleteClick = async (): Promise<void> => {
+	const onClickDelete = (): void => {
 		if (userInfo.uid !== null) {
-			const doc = dbService.doc(`${userInfo.uid}/${date}`);
-			const data = (await doc.get()).data();
-			try {
-				for (const key in data) {
-					if (key === taskKey) {
-						await doc.update({
-							[key]: defualtFirebase.firestore.FieldValue.delete(),
-						});
-						await relocation();
-					}
-				}
-			} catch (err) {
-				alert(err.message);
-			} finally {
-				getTasks();
+			const copyedTaskList = taskList.slice();
+			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			const data = copyedTaskList[docIndex].tasks;
+			const dataLength = Object.keys(data).length;
+			if (dataLength <= 1) {
+				copyedTaskList.splice(docIndex, 1);
+			} else {
+				delete data[taskKey];
+				const values = Object.values(data);
+				values.forEach((value, index): void => {
+					temporaryStorage[index] = value;
+				});
+				const taskObj = {
+					date,
+					tasks: temporaryStorage,
+				};
+				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
+			setTaskList(copyedTaskList);
+			dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
 		}
 	};
 
-	const onEditClick = () => {
+	const onClickEdit = () => {
 		setIsEditing(true);
 		setEditedDate(date);
+		setRemainingCount(30 - taskValue.length);
 	};
 
-	const onExitEditing = () => {
+	const handleExitEditing = () => {
 		setIsEditing(false);
 	};
 
-	const onCheckboxClick = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+	const onClickCheckbox = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		if (userInfo.uid !== null) {
 			if (e.target.labels !== null) {
 				const {
@@ -77,57 +71,57 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					},
 				} = e;
 				if (e.target.checked) {
-					const userCollection = await dbService.collection(userInfo.uid).get();
-					const docList = userCollection.docs.map(doc => doc.id);
-					if (docList.includes('완료')) {
-						const completeDoc = await dbService.doc(`${userInfo.uid}/완료`).get();
-						const data = completeDoc.data();
-						if (data !== undefined) {
-							const dataLength = Object.keys(data).length;
+					const copyedTaskList = taskList.slice();
+					const docList = copyedTaskList.map(doc => doc.date);
+					try {
+						if (docList.includes('완료')) {
+							const completedDocIndex = copyedTaskList.findIndex(Sequence => Sequence.date === '완료');
+							const completedData = copyedTaskList[completedDocIndex].tasks;
+							const completedDataLength = Object.keys(completedData).length;
 							const taskObj = {
-								...data,
-								[dataLength]: text,
+								date: '완료',
+								tasks: {
+									...completedData,
+									[completedDataLength]: text,
+								},
 							};
-							try {
-								await completeDoc.ref.update(taskObj);
-								const doc = dbService.doc(`${userInfo.uid}/${date}`);
-								const data = (await doc.get()).data();
-								for (const key in data) {
-									if (key === taskKey) {
-										await doc.update({
-											[key]: defualtFirebase.firestore.FieldValue.delete(),
-										});
-										await relocation();
-									}
-								}
-							} catch (err) {
-								alert(err.message);
-							} finally {
-								e.target.checked = false;
-								getTasks();
-							}
-						}
-					} else {
-						try {
-							await dbService.collection(userInfo.uid).doc('완료').set({
+							copyedTaskList.splice(completedDocIndex, 1, taskObj);
+							dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: text });
+						} else {
+							const taskObj = {
+								date: '완료',
+								tasks: {
+									0: text,
+								},
+							};
+							copyedTaskList.push(taskObj);
+							dbService.collection(userInfo.uid).doc('완료').set({
 								0: text,
 							});
-							const doc = dbService.doc(`${userInfo.uid}/${date}`);
-							const data = (await doc.get()).data();
-							for (const key in data) {
-								if (key === taskKey) {
-									await doc.update({
-										[key]: defualtFirebase.firestore.FieldValue.delete(),
-									});
-									await relocation();
-								}
-							}
-						} catch (err) {
-							alert(err.message);
-						} finally {
-							e.target.checked = false;
-							getTasks();
 						}
+						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+						const data = copyedTaskList[docIndex].tasks;
+						const dataLength = Object.keys(data).length;
+						if (dataLength <= 1) {
+							copyedTaskList.splice(docIndex, 1);
+						} else {
+							delete data[taskKey];
+							const values = Object.values(data);
+							values.forEach((value, index): void => {
+								temporaryStorage[index] = value;
+							});
+							const taskObj = {
+								date,
+								tasks: temporaryStorage,
+							};
+							copyedTaskList.splice(docIndex, 1, taskObj);
+						}
+						dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					} catch (err) {
+						alert(err.message);
+					} finally {
+						setTaskList(copyedTaskList);
+						e.target.checked = false;
 					}
 				}
 			}
@@ -142,12 +136,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					taskKey={taskKey}
 					taskValue={taskValue}
 					userInfo={userInfo}
-					getTasks={getTasks}
 					isEditing={isEditing}
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
-					onExitEditing={onExitEditing}
+					handleExitEditing={handleExitEditing}
 					isCompleted={false}
+					remainingCount={remainingCount}
+					taskList={taskList}
+					setTaskList={setTaskList}
 				/>
 			) : (
 				''
@@ -155,14 +151,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 			<Container>
 				<div>
 					<Label>
-						<CheckInput type="checkbox" onChange={onCheckboxClick} />
+						<CheckInput type="checkbox" onChange={onClickCheckbox} />
 						<CheckSpan />
 						{taskValue}
 					</Label>
 				</div>
 				<div>
-					<EditI onClick={onEditClick} />
-					<DeleteI onClick={onDeleteClick} />
+					<EditI onClick={onClickEdit} />
+					<DeleteI onClick={onClickDelete} />
 				</div>
 			</Container>
 		</>

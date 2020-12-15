@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { defualtFirebase, dbService } from '../fbase';
+import { dbService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import Task from './Task';
 import CompletedTask from './CompletedTask';
@@ -13,10 +13,11 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	getTasks: () => void;
+	taskList: any[];
+	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, getTasks }) => {
+const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, taskList, setTaskList }) => {
 	const [isPast, setIsPast] = useState<boolean>(false);
 	const today = new Date();
 	const dd = today.getDate();
@@ -24,16 +25,13 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	const yyyy = today.getFullYear();
 	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
 
-	const onClearClick = async (): Promise<void> => {
+	const onClickClear = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const completedDoc = dbService.doc(`${userInfo.uid}/완료`);
-			try {
-				await completedDoc.delete();
-			} catch (err) {
-				alert(err.message);
-			} finally {
-				getTasks();
-			}
+			const copyedTaskList = taskList.slice();
+			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			copyedTaskList.splice(docIndex, 1);
+			setTaskList(copyedTaskList);
+			dbService.doc(`${userInfo.uid}/완료`).delete();
 		}
 	};
 
@@ -59,7 +57,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 		<Container>
 			<TitleWrapper>
 				<Dates isPast={isPast}>{date === todaysDate ? '오늘' : date}</Dates>
-				{date === '완료' ? <ClearBtn onClick={onClearClick}>비우기</ClearBtn> : ''}
+				{date === '완료' ? <ClearBtn onClick={onClickClear}>비우기</ClearBtn> : ''}
 			</TitleWrapper>
 			<TasksWrapper>
 				{date === '완료'
@@ -70,7 +68,8 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 								taskKey={taskKey}
 								taskValue={taskValue}
 								userInfo={userInfo}
-								getTasks={getTasks}
+								taskList={taskList}
+								setTaskList={setTaskList}
 							/>
 					  ))
 					: Object.entries(tasks).map(([taskKey, taskValue]) => (
@@ -80,7 +79,8 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 								taskKey={taskKey}
 								taskValue={taskValue}
 								userInfo={userInfo}
-								getTasks={getTasks}
+								taskList={taskList}
+								setTaskList={setTaskList}
 							/>
 					  ))}
 			</TasksWrapper>
