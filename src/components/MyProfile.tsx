@@ -21,6 +21,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const [newProfileImg, setNewProfileImg] = useState<string>('');
 	const [defaultProfileImg, setDefaultProfileImg] = useState<string>('');
 	const [isSaving, setIsSaving] = useState<boolean>(false);
+	const [isLimited, setIsLimited] = useState<boolean>(false);
 
 	const imgRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const mainRef = React.useRef() as React.MutableRefObject<HTMLElement>;
@@ -75,6 +76,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 				alert(err.message);
 			} finally {
 				setTimeout(function () {
+					setIsLimited(false);
 					setIsEdit(prev => !prev);
 					setIsSaving(false);
 				}, 200);
@@ -104,6 +106,9 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 			}
 		} else if (value === '편집') {
 			setIsEdit(prev => !prev);
+			if (userName !== null && userName.length === 8) {
+				setIsLimited(true);
+			}
 		}
 	};
 
@@ -111,7 +116,16 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		const {
 			target: { value },
 		} = e;
-		setUserName(value);
+		const length = value.length;
+		if (length <= 8) {
+			setUserName(value);
+			if (length <= 7) {
+				setIsLimited(false);
+			}
+			if (length === 8) {
+				setIsLimited(true);
+			}
+		}
 	};
 
 	const onLogOutClick = (): void => {
@@ -186,6 +200,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 								placeholder="Name"
 								value={userName && userName ? userName : ''}
 								onChange={onTextChange}
+								isLimited={isLimited}
 								autoFocus
 								required
 							/>
@@ -286,6 +301,7 @@ const ToggleBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-size: 0.6rem;
+	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	outline: none;
@@ -304,6 +320,7 @@ const SaveBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-size: 0.6rem;
+	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	outline: none;
@@ -334,15 +351,16 @@ const EditNameWrapper = styled.div`
 	height: 1rem;
 `;
 
-const EditName = styled.input`
+const EditName = styled.input<{ isLimited: boolean }>`
 	width: 5rem;
 	margin-right: 3px;
 	border: none;
-	border-bottom: 1px solid ${props => props.theme.light.yellowColor};
+	border-bottom: 1px solid
+		${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
 	background: none;
 	font-size: 0.8rem;
 	text-align: center;
-	color: ${props => props.theme.light.yellowColor};
+	color: ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
 	&:focus {
 		outline: none;
 	}
@@ -359,7 +377,7 @@ const NameWrapper = styled.div`
 
 const ShowingName = styled.span`
 	font-size: 0.8rem;
-	color: ${props => props.theme.light.yellowColor};
+	color: ${props => props.theme.light.whiteColor};
 `;
 
 /* ********************* Log Out Wrapper ********************* */
