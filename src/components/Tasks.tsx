@@ -24,15 +24,14 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		const {
 			target: { value },
 		} = e;
-		setInputValue(value);
-
 		const length = value.length;
-		setCount(30 - length);
 
-		if (length >= 30) {
-			setIsLimited(true);
-		} else {
-			setIsLimited(false);
+		if (length < 31) {
+			setInputValue(value);
+			setCount(30 - length);
+			if (length === 30) {
+				setIsLimited(true);
+			}
 		}
 	};
 
@@ -81,6 +80,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 				alert(err.message);
 			} finally {
 				setTaskList(copyedTaskList);
+				setIsLimited(false);
 				setCount(30);
 				setInputValue('');
 				setDate('날짜미정');
@@ -134,7 +134,6 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						type="text"
 						placeholder="Add Task"
 						value={inputValue}
-						maxLength={30}
 						onChange={onChangeInput}
 						required
 						autoFocus

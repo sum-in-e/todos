@@ -37,7 +37,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	setTaskList,
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
-	const [isLimited, setIsLimited] = useState<boolean>(false);
 	const [count, setCount] = useState<number>(remainingCount);
 	const submitRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
@@ -50,10 +49,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		const isInside = containerRef.current.contains(e.target as Node);
 		if (isInside) {
 			if (e.target === cancelRef.current) {
+				window.removeEventListener('click', handleOutsideClick);
 				setTimeout(function () {
 					handleExitEditing();
 				}, 100);
-				window.removeEventListener('click', handleOutsideClick);
 			}
 			if (e.target === saveRef.current) {
 				window.removeEventListener('click', handleOutsideClick);
@@ -83,15 +82,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		const {
 			target: { value },
 		} = e;
-		setInputValue(value);
-
 		const length = value.length;
-		setCount(30 - length);
-
-		if (length >= 30) {
-			setIsLimited(true);
-		} else {
-			setIsLimited(false);
+		if (length < 31) {
+			setInputValue(value);
+			setCount(30 - length);
 		}
 	};
 
@@ -210,12 +204,11 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						<EditTextInput
 							type="text"
 							value={inputValue}
-							maxLength={30}
 							onChange={onChangeInput}
 							placeholder="Edit Task"
 							required
 						/>
-						<Counter isLimited={isLimited}>{count}</Counter>
+						<Counter isLimited={count === 0}>{count}</Counter>
 					</TextWrapper>
 					<DateWrapper>
 						<DateTitle>Date</DateTitle>
