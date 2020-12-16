@@ -83,7 +83,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			target: { value },
 		} = e;
 		const length = value.length;
-		if (length < 31) {
+		if (length <= 30) {
 			setInputValue(value);
 			setCount(30 - length);
 		}

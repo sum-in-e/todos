@@ -26,9 +26,12 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		} = e;
 		const length = value.length;
 
-		if (length < 31) {
+		if (length <= 30) {
 			setInputValue(value);
 			setCount(30 - length);
+			if (length <= 29) {
+				setIsLimited(false);
+			}
 			if (length === 30) {
 				setIsLimited(true);
 			}
