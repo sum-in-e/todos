@@ -65,7 +65,9 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			}
 		} else {
 			window.removeEventListener('click', handleOutsideClick);
-			handleExitEditing();
+			setTimeout(function () {
+				handleExitEditing();
+			}, 100);
 		}
 	};
 
@@ -120,7 +122,9 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 				};
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
-			setTaskList(copyedTaskList);
+			setTimeout(function () {
+				setTaskList(copyedTaskList);
+			}, 100);
 			dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
 		}
 	};
@@ -187,11 +191,12 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			} catch (err) {
 				alert(err.message);
 			} finally {
-				setTaskList(copyedTaskList);
+				setTimeout(function () {
+					setTaskList(copyedTaskList);
+				}, 100);
 			}
 		}
 	};
-
 	return (
 		<>
 			<Background isEditing={isEditing} />
