@@ -45,6 +45,8 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const containerRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
 
+	console.log('EditTask 실행');
+
 	const handleOutsideClick = (e: any): void => {
 		const isInside = containerRef.current.contains(e.target as Node);
 		if (isInside) {
@@ -90,6 +92,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	};
 
 	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
+		console.log('onChangeDate 실행');
 		const {
 			target: { value },
 		} = e;
@@ -125,15 +128,18 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	const onSubmitEdit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
+		console.log('onSubmitEdit 실행');
 		if (userInfo.uid !== null) {
 			const copyedTaskList = taskList.slice();
 			try {
 				if (date === editedDate) {
+					console.log('onSubmitEdit 실행 날짜같음');
 					const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = inputValue;
 					dbService.doc(`${userInfo.uid}/${date}`).set(data);
 				} else {
+					console.log('onSubmitEdit 실행 날짜 다름');
 					const docList = copyedTaskList.map(doc => doc.date);
 					if (docList.includes(editedDate)) {
 						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === editedDate);
@@ -165,19 +171,18 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					}
 					const previousDocIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 					const data = copyedTaskList[previousDocIndex].tasks;
-					const dataLength = Object.keys(data).length;
-					if (dataLength <= 1) {
+					delete data[taskKey];
+					const values = Object.values(data);
+					values.forEach((value, index): void => {
+						temporaryStorage[index] = value;
+					});
+					const taskObj = {
+						date,
+						tasks: temporaryStorage,
+					};
+					if (Object.values(temporaryStorage).length === 0) {
 						copyedTaskList.splice(previousDocIndex, 1);
 					} else {
-						delete data[taskKey];
-						const values = Object.values(data);
-						values.forEach((value, index): void => {
-							temporaryStorage[index] = value;
-						});
-						const taskObj = {
-							date,
-							tasks: temporaryStorage,
-						};
 						copyedTaskList.splice(previousDocIndex, 1, taskObj);
 					}
 					dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
@@ -191,6 +196,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			}
 		}
 	};
+
 	return (
 		<>
 			<Background isEditing={isEditing} />

@@ -62,6 +62,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 
 	const onClickCheckbox = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		if (userInfo.uid !== null) {
+			console.log('onClickCheckbox 실행');
 			if (e.target.labels !== null) {
 				const {
 					target: {
@@ -101,19 +102,18 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 						}
 						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 						const data = copyedTaskList[docIndex].tasks;
-						const dataLength = Object.keys(data).length;
-						if (dataLength <= 1) {
+						delete data[taskKey];
+						const values = Object.values(data);
+						values.forEach((value, index): void => {
+							temporaryStorage[index] = value;
+						});
+						const taskObj = {
+							date,
+							tasks: temporaryStorage,
+						};
+						if (Object.values(temporaryStorage).length === 0) {
 							copyedTaskList.splice(docIndex, 1);
 						} else {
-							delete data[taskKey];
-							const values = Object.values(data);
-							values.forEach((value, index): void => {
-								temporaryStorage[index] = value;
-							});
-							const taskObj = {
-								date,
-								tasks: temporaryStorage,
-							};
 							copyedTaskList.splice(docIndex, 1, taskObj);
 						}
 						dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);

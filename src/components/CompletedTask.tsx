@@ -46,19 +46,18 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 			const copyedTaskList = taskList.slice();
 			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 			const data = copyedTaskList[docIndex].tasks;
-			const dataLength = Object.keys(data).length;
-			if (dataLength <= 1) {
+			delete data[taskKey];
+			const values = Object.values(data);
+			values.forEach((value, index): void => {
+				temporaryStorage[index] = value;
+			});
+			const taskObj = {
+				date,
+				tasks: temporaryStorage,
+			};
+			if (Object.values(temporaryStorage).length === 0) {
 				copyedTaskList.splice(docIndex, 1);
 			} else {
-				delete data[taskKey];
-				const values = Object.values(data);
-				values.forEach((value, index): void => {
-					temporaryStorage[index] = value;
-				});
-				const taskObj = {
-					date,
-					tasks: temporaryStorage,
-				};
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
 			setTaskList(copyedTaskList);
