@@ -30,19 +30,18 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 			const copyedTaskList = taskList.slice();
 			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 			const data = copyedTaskList[docIndex].tasks;
-			const dataLength = Object.keys(data).length;
-			if (dataLength <= 1) {
+			delete data[taskKey];
+			const values = Object.values(data);
+			values.forEach((value, index): void => {
+				temporaryStorage[index] = value;
+			});
+			const taskObj = {
+				date,
+				tasks: temporaryStorage,
+			};
+			if (Object.values(temporaryStorage).length === 0) {
 				copyedTaskList.splice(docIndex, 1);
 			} else {
-				delete data[taskKey];
-				const values = Object.values(data);
-				values.forEach((value, index): void => {
-					temporaryStorage[index] = value;
-				});
-				const taskObj = {
-					date,
-					tasks: temporaryStorage,
-				};
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
 			setTaskList(copyedTaskList);
@@ -169,23 +168,6 @@ const Container = styled.div`
 	display: flex;
 	justify-content: space-between;
 	margin-bottom: 0.5rem;
-`;
-
-/* ********************* Hidden Wrapper Top ********************* */
-const HiddenWrapper = styled.div<{ isSaving: boolean }>`
-	display: ${props => (props.isSaving ? 'flex' : 'none')};
-	justify-content: center;
-	align-items: center;
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 16;
-	width: 10rem;
-	height: 10rem;
-	border-radius: 15px;
-	background-color: rgba(17, 17, 17, 0.306);
-	font-size: 0.7rem;
 `;
 
 /* ********************* 편집 비활성화 ********************* */
