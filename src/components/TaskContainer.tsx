@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import Task from './Task';
 import CompletedTask from './CompletedTask';
+import { TriangleDown } from 'styled-icons/entypo';
 
 interface IProps {
 	date: string;
@@ -56,7 +57,10 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	return (
 		<Container>
 			<TitleWrapper>
-				<Dates isPast={isPast}>{date === todaysDate ? '오늘' : date}</Dates>
+				<TheLeft>
+					<Title>{date === todaysDate ? '오늘' : date}</Title>
+					{isPast ? <NotifyPastTask isPast={isPast}>[지나간 할 일]</NotifyPastTask> : ''}
+				</TheLeft>
 				{date === '완료' ? <ClearBtn onClick={onClickClear}>비우기</ClearBtn> : ''}
 			</TitleWrapper>
 			<TasksWrapper>
@@ -88,6 +92,8 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	);
 };
 const Container = styled.article`
+	display: flex;
+	flex-direction: column;
 	margin: 1rem 0;
 `;
 
@@ -99,9 +105,21 @@ const TitleWrapper = styled.div`
 	margin-bottom: 0.5rem;
 `;
 
-const Dates = styled.h4<{ isPast: boolean }>`
-	color: ${props => (props.isPast ? props.theme.light.blackColor : props.theme.light.whiteColor)};
+const TheLeft = styled.div`
+	display: flex;
+	align-items: center;
+`;
+
+const Title = styled.h4`
+	margin-right: 0.5rem;
+	color: ${props => props.theme.light.whiteColor};
 	font-weight: bold;
+`;
+
+const NotifyPastTask = styled.span<{ isPast: boolean }>`
+	font-weight: 700;
+	font-size: 0.6rem;
+	color: ${props => props.theme.light.yellowColor};
 `;
 
 const ClearBtn = styled.button`
