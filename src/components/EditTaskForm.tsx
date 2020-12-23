@@ -58,7 +58,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			}
 			if (e.target === saveRef.current) {
 				window.removeEventListener('click', handleOutsideClick);
-				submitRef.current.click();
+				handleSubmitClick();
 			}
 			if (e.target === deleteRef.current) {
 				window.removeEventListener('click', handleOutsideClick);
@@ -92,7 +92,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	};
 
 	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		console.log('onChangeDate 실행');
 		const {
 			target: { value },
 		} = e;
@@ -104,19 +103,18 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			const copyedTaskList = taskList.slice();
 			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 			const data = copyedTaskList[docIndex].tasks;
-			const dataLength = Object.keys(data).length;
-			if (dataLength <= 1) {
+			delete data[taskKey];
+			const values = Object.values(data);
+			values.forEach((value, index): void => {
+				temporaryStorage[index] = value;
+			});
+			const taskObj = {
+				date,
+				tasks: temporaryStorage,
+			};
+			if (Object.values(temporaryStorage).length === 0) {
 				copyedTaskList.splice(docIndex, 1);
 			} else {
-				delete data[taskKey];
-				const values = Object.values(data);
-				values.forEach((value, index): void => {
-					temporaryStorage[index] = value;
-				});
-				const taskObj = {
-					date,
-					tasks: temporaryStorage,
-				};
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
 			setTimeout(function () {
@@ -126,20 +124,16 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		}
 	};
 
-	const onSubmitEdit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-		e.preventDefault();
-		console.log('onSubmitEdit 실행');
+	const handleSubmitClick = (): void => {
 		if (userInfo.uid !== null) {
 			const copyedTaskList = taskList.slice();
 			try {
 				if (date === editedDate) {
-					console.log('onSubmitEdit 실행 날짜같음');
 					const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = inputValue;
 					dbService.doc(`${userInfo.uid}/${date}`).set(data);
 				} else {
-					console.log('onSubmitEdit 실행 날짜 다름');
 					const docList = copyedTaskList.map(doc => doc.date);
 					if (docList.includes(editedDate)) {
 						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === editedDate);
@@ -205,7 +199,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
 					<SaveBtn ref={saveRef}>{isCompleted ? '복구' : '저장'}</SaveBtn>
 				</SubmitWrapperTop>
-				<Form onSubmit={onSubmitEdit}>
+				<Form>
 					<TextWrapper>
 						<EditTextInput
 							type="text"
@@ -297,7 +291,7 @@ const ToggleBtn = styled.button`
 `;
 
 /* ********************* Form ********************* */
-const Form = styled.form`
+const Form = styled.div`
 	display: flex;
 	flex-direction: column;
 `;
