@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import theme from '../styles/theme';
 import { dbService } from '../fbase';
@@ -38,6 +38,8 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const [count, setCount] = useState<number>(remainingCount);
+	const textInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
+	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const submitRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const cancelRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
@@ -45,7 +47,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const containerRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
 
-	console.log('EditTask 실행');
+	console.log('EditTaskForm.tsx 실행');
 
 	const handleOutsideClick = (e: any): void => {
 		const isInside = containerRef.current.contains(e.target as Node);
@@ -85,6 +87,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			target: { value },
 		} = e;
 		const length = value.length;
+		console.log('inputChange 실행');
 		if (length <= 30) {
 			setInputValue(value);
 			setCount(30 - length);
@@ -98,10 +101,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		setEditedDate(value === '' ? '날짜미정' : value);
 	};
 
-	const handleDeleteClick = (): void => {
+	const handleDeleteClick = async (): Promise<void> => {
+		console.log('Edit 내부 delete 실행');
+
 		if (userInfo.uid !== null) {
-			const copyedTaskList = taskList.slice();
-			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const docIndex = copyedTaskList.findIndex(
+				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+			);
 			const data = copyedTaskList[docIndex].tasks;
 			delete data[taskKey];
 			const values = Object.values(data);
@@ -117,79 +124,137 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			} else {
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
-			setTimeout(function () {
-				setTaskList(copyedTaskList);
-			}, 100);
-			dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-		}
-	};
-
-	const handleSubmitClick = (): void => {
-		if (userInfo.uid !== null) {
-			const copyedTaskList = taskList.slice();
 			try {
-				if (date === editedDate) {
-					const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
-					const data = copyedTaskList[docIndex].tasks;
-					data[taskKey] = inputValue;
-					dbService.doc(`${userInfo.uid}/${date}`).set(data);
-				} else {
-					const docList = copyedTaskList.map(doc => doc.date);
-					if (docList.includes(editedDate)) {
-						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === editedDate);
-						const data = copyedTaskList[docIndex].tasks;
-						const dataLength = Object.keys(data).length;
-						const taskObj = {
-							date: editedDate,
-							tasks: {
-								...data,
-								[dataLength]: inputValue,
-							},
-						};
-						copyedTaskList.splice(docIndex, 1, taskObj);
-						dbService.doc(`${userInfo.uid}/${editedDate}`).update({ [dataLength]: inputValue });
-					} else {
-						const taskObj = {
-							date: editedDate,
-							tasks: {
-								0: inputValue,
-							},
-						};
-						copyedTaskList.push(taskObj);
-						copyedTaskList.sort(function (a, b) {
-							return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
-						});
-						dbService.collection(userInfo.uid).doc(editedDate).set({
-							0: inputValue,
-						});
-					}
-					const previousDocIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
-					const data = copyedTaskList[previousDocIndex].tasks;
-					delete data[taskKey];
-					const values = Object.values(data);
-					values.forEach((value, index): void => {
-						temporaryStorage[index] = value;
-					});
-					const taskObj = {
-						date,
-						tasks: temporaryStorage,
-					};
-					if (Object.values(temporaryStorage).length === 0) {
-						copyedTaskList.splice(previousDocIndex, 1);
-					} else {
-						copyedTaskList.splice(previousDocIndex, 1, taskObj);
-					}
-					dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-				}
+				await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+				// await 기다렸다가 작동하기 때문에 setTimeout으로 setTaskList를 콜스택에 나중에 넣어주게끔 안해도 됨
+				setTaskList(copyedTaskList);
 			} catch (err) {
-				alert(err.message);
-			} finally {
-				setTimeout(function () {
-					setTaskList(copyedTaskList);
-				}, 100);
+				alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+				handleExitEditing();
 			}
 		}
 	};
+
+	const handleSubmitClick = useCallback(async (): Promise<void> => {
+		if (userInfo.uid !== null) {
+			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			// input 두 개 값 가져오는 것을 state 참조에서 input.value에서 가져오는 걸로 바꿈 -> state 바뀔때마다 참조되는 거 아니고
+			// click 당시의 input value 최종값을 가져오는거라 최종값만 딱 저장 됨! 근데 렌더링 자체 문제 해결은 못함.
+			// state 참조안하니까 await 걸려도 빠르긴 함
+			const textInputValue = textInputRef.current.value;
+			const editedDateValue = dateInputRef.current.value == '' ? '날짜미정' : dateInputRef.current.value;
+			console.log('EditTaskForm.tsx내부 submit 실행');
+			try {
+				if (date === editedDateValue) {
+					const docIndex = copyedTaskList.findIndex(
+						(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+					);
+					const data = copyedTaskList[docIndex].tasks;
+					data[taskKey] = textInputValue;
+					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: textInputValue });
+					setTaskList(copyedTaskList);
+				} else {
+					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
+					if (docList.includes(editedDateValue)) {
+						const docIndex = copyedTaskList.findIndex(
+							(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === editedDateValue,
+						);
+						const data = copyedTaskList[docIndex].tasks;
+						const dataLength = Object.keys(data).length;
+						const taskObj = {
+							date: editedDateValue,
+							tasks: {
+								...data,
+								[dataLength]: textInputValue,
+							},
+						};
+
+						await dbService
+							.doc(`${userInfo.uid}/${editedDateValue}`)
+							.update({ [dataLength]: textInputValue });
+						copyedTaskList.splice(docIndex, 1, taskObj);
+						// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
+						const previousDocIndex = copyedTaskList.findIndex(
+							(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+						);
+						const previousData = copyedTaskList[previousDocIndex].tasks;
+						delete previousData[taskKey];
+						const values = Object.values(previousData);
+						values.forEach((value, index): void => {
+							temporaryStorage[index] = value;
+						});
+						const newTaskObj = {
+							date,
+							tasks: temporaryStorage,
+						};
+						if (Object.values(temporaryStorage).length === 0) {
+							copyedTaskList.splice(previousDocIndex, 1);
+						} else {
+							copyedTaskList.splice(previousDocIndex, 1, newTaskObj);
+						}
+						try {
+							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+							setTaskList(copyedTaskList);
+						} catch (err) {
+							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
+							dbService.doc(`${userInfo.uid}/${editedDateValue}`).set(data);
+							handleExitEditing();
+						}
+					} else {
+						const taskObj = {
+							date: editedDateValue,
+							tasks: {
+								0: textInputValue,
+							},
+						};
+
+						await dbService.collection(userInfo.uid).doc(editedDateValue).set({
+							0: textInputValue,
+						});
+						copyedTaskList.push(taskObj);
+						copyedTaskList.sort(function (
+							a: { date: string; tasks: { task: string } },
+							b: { date: string; tasks: { task: string } },
+						) {
+							return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+						});
+						// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
+						const previousDocIndex = copyedTaskList.findIndex(
+							(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+						);
+						const previousData = copyedTaskList[previousDocIndex].tasks;
+						delete previousData[taskKey];
+						const values = Object.values(previousData);
+						values.forEach((value, index): void => {
+							temporaryStorage[index] = value;
+						});
+						const newTaskObj = {
+							date,
+							tasks: temporaryStorage,
+						};
+						if (Object.values(temporaryStorage).length === 0) {
+							copyedTaskList.splice(previousDocIndex, 1);
+						} else {
+							copyedTaskList.splice(previousDocIndex, 1, newTaskObj);
+						}
+						try {
+							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+							setTaskList(copyedTaskList);
+						} catch (err) {
+							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
+							dbService.doc(`${userInfo.uid}/${editedDateValue}`).delete();
+							handleExitEditing();
+						}
+					}
+				}
+			} catch (err) {
+				alert('오류로 인해 저장에 실패하였습니다. 재시도 해주세요.');
+				setTimeout(function () {
+					handleExitEditing();
+				}, 100);
+			}
+		}
+	}, []);
 
 	return (
 		<>
@@ -202,6 +267,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 				<Form>
 					<TextWrapper>
 						<EditTextInput
+							ref={textInputRef}
 							type="text"
 							value={inputValue}
 							onChange={onChangeInput}
@@ -213,6 +279,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					<DateWrapper>
 						<DateTitle>Date</DateTitle>
 						<DateInput
+							ref={dateInputRef}
 							type="date"
 							value={editedDate === '날짜미정' ? '' : editedDate}
 							onChange={onChangeDate}

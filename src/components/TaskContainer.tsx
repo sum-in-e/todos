@@ -26,13 +26,21 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	const yyyy = today.getFullYear();
 	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
 
+	console.log('TaskContainer.tsx 실행');
+
 	const onClickClear = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = taskList.slice();
-			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const docIndex = copyedTaskList.findIndex(
+				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+			);
 			copyedTaskList.splice(docIndex, 1);
-			setTaskList(copyedTaskList);
-			dbService.doc(`${userInfo.uid}/완료`).delete();
+			try {
+				await dbService.doc(`${userInfo.uid}/완료`).delete();
+				setTaskList(copyedTaskList);
+			} catch (err) {
+				alert('오류로 인해 비우기에 실패하였습니다. 재시도 해주세요.');
+			}
 		}
 	};
 
@@ -59,7 +67,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 			<TitleWrapper>
 				<TheLeft>
 					<Title>{date === todaysDate ? '오늘' : date}</Title>
-					{isPast ? <NotifyPastTask isPast={isPast}>[지나간 할 일]</NotifyPastTask> : ''}
+					{isPast ? <NotifyPastTask isPast={isPast}>[지연된 할 일]</NotifyPastTask> : ''}
 				</TheLeft>
 				{date === '완료' ? <ClearBtn onClick={onClickClear}>비우기</ClearBtn> : ''}
 			</TitleWrapper>
@@ -91,6 +99,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 		</Container>
 	);
 };
+
 const Container = styled.article`
 	display: flex;
 	flex-direction: column;
@@ -134,4 +143,4 @@ const ClearBtn = styled.button`
 
 const TasksWrapper = styled.div``;
 
-export default TaskContainer;
+export default React.memo(TaskContainer);

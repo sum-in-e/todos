@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { dbService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import TaskContainer from './TaskContainer';
+import { TempCold } from 'styled-icons/remix-line';
 
 interface IProps {
 	userInfo: {
@@ -19,6 +20,9 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [date, setDate] = useState<string>('날짜미정');
 	const [taskList, setTaskList] = useState<any[]>([]);
 	const temporaryStorage: any[] = [];
+
+	console.log('Tasks.tsx taskList', taskList);
+	console.log('Tasks.tsx 실행');
 
 	const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
@@ -46,15 +50,19 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	};
 
 	const onSubmitTask = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+		console.log('Tasks.tsx내부 submit 실행');
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			const copyedTaskList = taskList.slice();
-			const docList = copyedTaskList.map(doc => doc.date);
+			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
 			try {
 				if (docList.includes(date)) {
-					const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+					const docIndex = copyedTaskList.findIndex(
+						(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+					);
 					const data = copyedTaskList[docIndex].tasks;
 					const dataLength = Object.keys(data).length;
+					await dbService.doc(`${userInfo.uid}/${date}`).update({ [dataLength]: inputValue });
 					const taskObj = {
 						date,
 						tasks: {
@@ -63,8 +71,10 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						},
 					};
 					copyedTaskList.splice(docIndex, 1, taskObj);
-					dbService.doc(`${userInfo.uid}/${date}`).update({ [dataLength]: inputValue });
 				} else {
+					await dbService.collection(userInfo.uid).doc(date).set({
+						0: inputValue,
+					});
 					const taskObj = {
 						date: date,
 						tasks: {
@@ -72,20 +82,20 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						},
 					};
 					copyedTaskList.push(taskObj);
-					copyedTaskList.sort(function (a, b) {
+					copyedTaskList.sort(function (
+						a: { date: string; tasks: { task: string } },
+						b: { date: string; tasks: { task: string } },
+					) {
 						return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
-					});
-					dbService.collection(userInfo.uid).doc(date).set({
-						0: inputValue,
 					});
 				}
 			} catch (err) {
-				alert(err.message);
+				alert('오류로 인해 저장에 실패하였습니다. 재시도 해주세요.');
 			} finally {
 				setTaskList(copyedTaskList);
-				setIsLimited(false);
-				setCount(30);
 				setInputValue('');
+				setCount(30);
+				setIsLimited(false);
 				setDate('날짜미정');
 			}
 		}
@@ -96,6 +106,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			if (userInfo.uid !== null) {
 				const userCollection = await dbService.collection(userInfo.uid).get();
 				if (!userCollection.empty) {
+					// 유저 데이터 있음
 					userCollection.forEach(
 						async (
 							doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
@@ -114,17 +125,20 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 									doc.ref.delete();
 								}
 							} catch (err) {
-								alert(err.message);
+								alert('오류로 인해 불러오기에 실패하였습니다. 페이지를 새로고침 합니다.');
+								temporaryStorage.length = 0;
+								window.location.reload();
 							}
 						},
 					);
 					setTaskList(temporaryStorage);
 				} else {
+					// 유저 데이터 없음 -> 새로운 유저 / 데이터 하나도 없는 유저
 					setTaskList([]);
 				}
-				console.log('getTask 실행');
 			}
 		};
+
 		getTasks();
 	}, []);
 
@@ -243,4 +257,5 @@ const TaskListWrapper = styled.section`
 	z-index: -1;
 	padding: 0 1rem;
 `;
-export default Tasks;
+
+export default React.memo(Tasks);

@@ -31,6 +31,8 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
+	console.log('CompletedTask.tsx 실행');
+
 	const onClickEdit = () => {
 		setIsEditing(true);
 		setEditedDate('날짜미정');
@@ -41,10 +43,12 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 		setIsEditing(false);
 	};
 
-	const onClickDelete = (): void => {
+	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = taskList.slice();
-			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const docIndex = copyedTaskList.findIndex(
+				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+			);
 			const data = copyedTaskList[docIndex].tasks;
 			delete data[taskKey];
 			const values = Object.values(data);
@@ -60,8 +64,12 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 			} else {
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
-			setTaskList(copyedTaskList);
-			dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+			try {
+				await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+				setTaskList(copyedTaskList);
+			} catch (err) {
+				alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+			}
 		}
 	};
 
@@ -119,4 +127,4 @@ const DeleteI = styled(DeleteBin)`
 	color: ${props => props.theme.light.grayColor};
 `;
 
-export default CompletedTask;
+export default React.memo(CompletedTask);

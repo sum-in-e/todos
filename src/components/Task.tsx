@@ -25,10 +25,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
-	const onClickDelete = (): void => {
+	console.log('Task.tsx 실행');
+
+	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = taskList.slice();
-			const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
+			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const docIndex = copyedTaskList.findIndex(
+				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+			);
 			const data = copyedTaskList[docIndex].tasks;
 			delete data[taskKey];
 			const values = Object.values(data);
@@ -44,8 +48,12 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 			} else {
 				copyedTaskList.splice(docIndex, 1, taskObj);
 			}
-			setTaskList(copyedTaskList);
-			dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+			try {
+				await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+				setTaskList(copyedTaskList);
+			} catch (err) {
+				alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+			}
 		}
 	};
 
@@ -59,7 +67,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		setIsEditing(false);
 	};
 
-	const onClickCheckbox = (e: React.ChangeEvent<HTMLInputElement>): void => {
+	const onClickCheckbox = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
 		if (userInfo.uid !== null) {
 			console.log('onClickCheckbox 실행');
 			if (e.target.labels !== null) {
@@ -71,11 +79,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					},
 				} = e;
 				if (e.target.checked) {
-					const copyedTaskList = taskList.slice();
-					const docList = copyedTaskList.map(doc => doc.date);
+					const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
 					try {
+						// 완료했으니 완료 doc에 추가하고 firebase에도 업데이트하는 코드
 						if (docList.includes('완료')) {
-							const completedDocIndex = copyedTaskList.findIndex(Sequence => Sequence.date === '완료');
+							const completedDocIndex = copyedTaskList.findIndex(
+								(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === '완료',
+							);
 							const completedData = copyedTaskList[completedDocIndex].tasks;
 							const completedDataLength = Object.keys(completedData).length;
 							const taskObj = {
@@ -85,8 +96,36 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 									[completedDataLength]: text,
 								},
 							};
+							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: text });
 							copyedTaskList.splice(completedDocIndex, 1, taskObj);
-							dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: text });
+							// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
+							const docIndex = copyedTaskList.findIndex(
+								(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+							);
+							const data = copyedTaskList[docIndex].tasks;
+							delete data[taskKey];
+							const values = Object.values(data);
+							values.forEach((value, index): void => {
+								temporaryStorage[index] = value;
+							});
+							const newTaskObj = {
+								date,
+								tasks: temporaryStorage,
+							};
+							if (Object.values(temporaryStorage).length === 0) {
+								copyedTaskList.splice(docIndex, 1);
+							} else {
+								copyedTaskList.splice(docIndex, 1, newTaskObj);
+							}
+							try {
+								// 여기서 삑나면 완료 firebase만 추가하기 전 상태로 다시 만들면 됨
+								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+								setTaskList(copyedTaskList);
+							} catch (err) {
+								// 여기 에러 찍히면 바깥에 있는 alert 있는 에러는 안뜸
+								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
+								dbService.doc(`${userInfo.uid}/완료`).set(completedData);
+							}
 						} else {
 							const taskObj = {
 								date: '완료',
@@ -94,39 +133,48 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 									0: text,
 								},
 							};
-							copyedTaskList.push(taskObj);
-							dbService.collection(userInfo.uid).doc('완료').set({
+							await dbService.collection(userInfo.uid).doc('완료').set({
 								0: text,
 							});
+							copyedTaskList.push(taskObj);
+							// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
+							const docIndex = copyedTaskList.findIndex(
+								(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+							);
+							const data = copyedTaskList[docIndex].tasks;
+							delete data[taskKey];
+							const values = Object.values(data);
+							values.forEach((value, index): void => {
+								temporaryStorage[index] = value;
+							});
+							const newTaskObj = {
+								date,
+								tasks: temporaryStorage,
+							};
+							if (Object.values(temporaryStorage).length === 0) {
+								copyedTaskList.splice(docIndex, 1);
+							} else {
+								copyedTaskList.splice(docIndex, 1, newTaskObj);
+							}
+							try {
+								// 여기서 삑나면 완료 firebase만 추가하기 전 상태로 다시 만들면 됨
+								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+								setTaskList(copyedTaskList);
+							} catch (err) {
+								// 여기 에러 찍히면 바깥에 있는 alert 있는 에러는 안뜸
+								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
+								dbService.doc(`${userInfo.uid}/완료`).delete();
+							}
 						}
-						const docIndex = copyedTaskList.findIndex(Sequence => Sequence.date === date);
-						const data = copyedTaskList[docIndex].tasks;
-						delete data[taskKey];
-						const values = Object.values(data);
-						values.forEach((value, index): void => {
-							temporaryStorage[index] = value;
-						});
-						const taskObj = {
-							date,
-							tasks: temporaryStorage,
-						};
-						if (Object.values(temporaryStorage).length === 0) {
-							copyedTaskList.splice(docIndex, 1);
-						} else {
-							copyedTaskList.splice(docIndex, 1, taskObj);
-						}
-						dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
 					} catch (err) {
-						alert(err.message);
+						alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 					} finally {
-						setTaskList(copyedTaskList);
 						e.target.checked = false;
 					}
 				}
 			}
 		}
 	};
-
 	return (
 		<>
 			{isEditing ? (
@@ -245,4 +293,4 @@ const DeleteI = styled(DeleteBin)`
 	color: ${props => props.theme.light.grayColor};
 `;
 
-export default Task;
+export default React.memo(Task);
