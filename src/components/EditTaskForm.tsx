@@ -17,7 +17,6 @@ interface IProps {
 	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
 	handleExitEditing: () => void;
 	isCompleted: boolean;
-	remainingCount: number;
 	taskList: any[];
 	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
 }
@@ -32,12 +31,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	setEditedDate,
 	handleExitEditing,
 	isCompleted,
-	remainingCount,
 	taskList,
 	setTaskList,
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
-	const [count, setCount] = useState<number>(remainingCount);
 	const textInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const submitRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -88,10 +85,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		} = e;
 		const length = value.length;
 		console.log('inputChange 실행');
-		if (length <= 30) {
-			setInputValue(value);
-			setCount(30 - length);
-		}
+		setInputValue(value);
 	};
 
 	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -265,17 +259,15 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					<SaveBtn ref={saveRef}>{isCompleted ? '복구' : '저장'}</SaveBtn>
 				</SubmitWrapperTop>
 				<Form>
-					<TextWrapper>
-						<EditTextInput
-							ref={textInputRef}
-							type="text"
-							value={inputValue}
-							onChange={onChangeInput}
-							placeholder="Edit Task"
-							required
-						/>
-						<Counter isLimited={count === 0}>{count}</Counter>
-					</TextWrapper>
+					<EditTextInput
+						ref={textInputRef}
+						type="text"
+						maxLength={50}
+						value={inputValue}
+						onChange={onChangeInput}
+						placeholder="Edit Task"
+						required
+					/>
 					<DateWrapper>
 						<DateTitle>Date</DateTitle>
 						<DateInput
@@ -363,15 +355,10 @@ const Form = styled.div`
 	flex-direction: column;
 `;
 
-const TextWrapper = styled.div`
-	display: flex;
-	align-items: center;
-	margin-bottom: 1rem;
-`;
-
 const EditTextInput = styled.input`
 	height: 1.5rem;
-	width: 85%;
+	width: 100%;
+	margin-bottom: 1rem;
 	border: none;
 	border-radius: 5px 5px 0 0;
 	border-bottom: solid 2px ${props => props.theme.light.grayColor};
@@ -386,19 +373,6 @@ const EditTextInput = styled.input`
 	&::placeholder {
 		color: ${props => props.theme.light.grayColor};
 	}
-`;
-
-const Counter = styled.div<{ isLimited: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 1.5rem;
-	width: 15%;
-	margin-left: 0.3rem;
-	padding: 0 0.3rem;
-	border-bottom: 2px solid ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.grayColor)};
-	font-size: 0.7rem;
-	color: ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
 `;
 
 const DateWrapper = styled.div`

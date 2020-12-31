@@ -21,7 +21,6 @@ interface IProps {
 
 const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, taskList, setTaskList }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
-	const [remainingCount, setRemainingCount] = useState<number>(0);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
@@ -60,7 +59,6 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 	const onClickEdit = () => {
 		setIsEditing(true);
 		setEditedDate(date);
-		setRemainingCount(30 - taskValue.length);
 	};
 
 	const handleExitEditing = () => {
@@ -188,7 +186,6 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 					setEditedDate={setEditedDate}
 					handleExitEditing={handleExitEditing}
 					isCompleted={false}
-					remainingCount={remainingCount}
 					taskList={taskList}
 					setTaskList={setTaskList}
 				/>

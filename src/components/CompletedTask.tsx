@@ -27,7 +27,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 	setTaskList,
 }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
-	const [remainingCount, setRemainingCount] = useState<number>(0);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
@@ -36,7 +35,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 	const onClickEdit = () => {
 		setIsEditing(true);
 		setEditedDate('날짜미정');
-		setRemainingCount(30 - taskValue.length);
 	};
 
 	const handleExitEditing = () => {
@@ -86,7 +84,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 					setEditedDate={setEditedDate}
 					handleExitEditing={handleExitEditing}
 					isCompleted={true}
-					remainingCount={remainingCount}
 					taskList={taskList}
 					setTaskList={setTaskList}
 				/>

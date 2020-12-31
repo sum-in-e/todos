@@ -15,8 +15,6 @@ interface IProps {
 
 const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [inputValue, setInputValue] = useState<string>('');
-	const [isLimited, setIsLimited] = useState<boolean>(false);
-	const [count, setCount] = useState<number>(30);
 	const [date, setDate] = useState<string>('날짜미정');
 	const [taskList, setTaskList] = useState<any[]>([]);
 	const temporaryStorage: any[] = [];
@@ -28,18 +26,7 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 		const {
 			target: { value },
 		} = e;
-		const length = value.length;
-
-		if (length <= 30) {
-			setInputValue(value);
-			setCount(30 - length);
-			if (length <= 29) {
-				setIsLimited(false);
-			}
-			if (length === 30) {
-				setIsLimited(true);
-			}
-		}
+		setInputValue(value);
 	};
 
 	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -94,8 +81,6 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 			} finally {
 				setTaskList(copyedTaskList);
 				setInputValue('');
-				setCount(30);
-				setIsLimited(false);
 				setDate('날짜미정');
 			}
 		}
@@ -152,10 +137,10 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 						placeholder="Add Task"
 						value={inputValue}
 						onChange={onChangeInput}
+						maxLength={50}
 						required
 						autoFocus
 					/>
-					<Counter isLimited={isLimited}>{count}</Counter>
 					<TaskDate type="date" value={date === '날짜미정' ? '' : date} onChange={onChangeDate} />
 					<SubmitTask type="submit" value="추가" />
 				</TaskForm>
@@ -213,16 +198,6 @@ const TaskForm = styled.form`
 	justify-content: space-between;
 	align-items: center;
 	width: 95%;
-`;
-
-const Counter = styled.div<{ isLimited: boolean }>`
-	height: inherit;
-	padding: 0 0.3rem;
-	margin: 0 0.5rem;
-	border: 1px solid ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
-	border-radius: 5px;
-	font-size: 0.7rem;
-	color: ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
 `;
 
 const WriteTask = styled.input`
