@@ -32,7 +32,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 			const docIndex = copyedTaskList.findIndex(
-				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+				(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 			);
 			copyedTaskList.splice(docIndex, 1);
 			try {
@@ -45,14 +45,20 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	};
 
 	const identifyPast = (): void => {
-		const todayArr = todaysDate.split('-');
-		const changeToday = new Date(parseInt(todayArr[0]), parseInt(todayArr[1]) - 1, parseInt(todayArr[2]));
-		const changedToday = changeToday.setDate(changeToday.getDate());
 		if (date !== '과거' && date !== '완료' && date !== '날짜미정') {
-			const dateArr = date.split('-');
-			const changeDate = new Date(parseInt(dateArr[0]), parseInt(dateArr[1]) - 1, parseInt(dateArr[2]));
-			const changedDate = changeDate.setDate(changeDate.getDate());
-			if (changedDate < changedToday) {
+			// 오늘 날짜
+			const todayArr = todaysDate.split('-');
+			const changeToday = new Date(parseInt(todayArr[0]), parseInt(todayArr[1]) - 1, parseInt(todayArr[2]));
+			const changedToday = changeToday.setDate(changeToday.getDate());
+			// 비교하려는 날짜 (Task Date)
+			const taskDateArr = date.split('-');
+			const changeTaskDate = new Date(
+				parseInt(taskDateArr[0]),
+				parseInt(taskDateArr[1]) - 1,
+				parseInt(taskDateArr[2]),
+			);
+			const changedTaskDate = changeTaskDate.setDate(changeTaskDate.getDate());
+			if (changedTaskDate < changedToday) {
 				setIsPast(true);
 			}
 		}
@@ -64,13 +70,13 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 
 	return (
 		<Container>
-			<TitleWrapper>
-				<TheLeft>
+			<Header>
+				<TitleWrapper>
 					<Title>{date === todaysDate ? '오늘' : date}</Title>
 					{isPast ? <NotifyPastTask isPast={isPast}>[지연된 할 일]</NotifyPastTask> : ''}
-				</TheLeft>
+				</TitleWrapper>
 				{date === '완료' ? <ClearBtn onClick={onClickClear}>비우기</ClearBtn> : ''}
-			</TitleWrapper>
+			</Header>
 			<TasksWrapper>
 				{date === '완료'
 					? Object.entries(tasks).map(([taskKey, taskValue]) => (
@@ -106,7 +112,8 @@ const Container = styled.article`
 	margin: 1rem 0;
 `;
 
-const TitleWrapper = styled.div`
+/* ********************* Title Wrapper ********************* */
+const Header = styled.header`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -114,13 +121,13 @@ const TitleWrapper = styled.div`
 	margin-bottom: 0.5rem;
 `;
 
-const TheLeft = styled.div`
+const TitleWrapper = styled.div`
 	display: flex;
 	align-items: center;
 `;
 
 const Title = styled.h4`
-	margin-right: 0.5rem;
+	margin: 0 0.5rem 0 0;
 	color: ${props => props.theme.light.whiteColor};
 	font-weight: bold;
 `;
@@ -132,15 +139,17 @@ const NotifyPastTask = styled.span<{ isPast: boolean }>`
 `;
 
 const ClearBtn = styled.button`
-	outline: none;
+	padding: 0 10px;
 	border: 2px solid ${props => props.theme.light.grayColor};
 	border-radius: 15px;
 	background-color: transparent;
 	font-weight: 700;
 	font-size: 0.7rem;
 	color: ${props => props.theme.light.grayColor};
+	outline: none;
 `;
 
+/* ********************* Tasks Wrapper ********************* */
 const TasksWrapper = styled.div``;
 
 export default React.memo(TaskContainer);

@@ -45,8 +45,8 @@ const Container = styled.header`
 const AppTitle = styled.h1`
 	margin: 0;
 	text-align: center;
-	cursor: pointer;
 	font-size: 1rem;
+	cursor: pointer;
 `;
 
 export default Header;

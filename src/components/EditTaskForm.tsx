@@ -41,13 +41,13 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const cancelRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const deleteRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
-	const containerRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
+	const EditWrapperRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
 
 	console.log('EditTaskForm.tsx 실행');
 
 	const handleOutsideClick = (e: any): void => {
-		const isInside = containerRef.current.contains(e.target as Node);
+		const isInside = EditWrapperRef.current.contains(e.target as Node);
 		if (isInside) {
 			if (e.target === cancelRef.current) {
 				window.removeEventListener('click', handleOutsideClick);
@@ -83,7 +83,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		const {
 			target: { value },
 		} = e;
-		const length = value.length;
 		console.log('inputChange 실행');
 		setInputValue(value);
 	};
@@ -101,7 +100,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 			const docIndex = copyedTaskList.findIndex(
-				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+				(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 			);
 			const data = copyedTaskList[docIndex].tasks;
 			delete data[taskKey];
@@ -120,7 +119,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			}
 			try {
 				await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-				// await 기다렸다가 작동하기 때문에 setTimeout으로 setTaskList를 콜스택에 나중에 넣어주게끔 안해도 됨
 				setTaskList(copyedTaskList);
 			} catch (err) {
 				alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
@@ -129,7 +127,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		}
 	};
 
-	const handleSubmitClick = useCallback(async (): Promise<void> => {
+	const handleSubmitClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 			// input 두 개 값 가져오는 것을 state 참조에서 input.value에서 가져오는 걸로 바꿈 -> state 바뀔때마다 참조되는 거 아니고
@@ -141,7 +139,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			try {
 				if (date === editedDateValue) {
 					const docIndex = copyedTaskList.findIndex(
-						(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+						(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 					);
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = textInputValue;
@@ -151,7 +149,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
 					if (docList.includes(editedDateValue)) {
 						const docIndex = copyedTaskList.findIndex(
-							(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === editedDateValue,
+							(doc: { date: string; tasks: { task: string } }) => doc.date === editedDateValue,
 						);
 						const data = copyedTaskList[docIndex].tasks;
 						const dataLength = Object.keys(data).length;
@@ -169,7 +167,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						copyedTaskList.splice(docIndex, 1, taskObj);
 						// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 						const previousDocIndex = copyedTaskList.findIndex(
-							(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 						);
 						const previousData = copyedTaskList[previousDocIndex].tasks;
 						delete previousData[taskKey];
@@ -214,7 +212,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						});
 						// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 						const previousDocIndex = copyedTaskList.findIndex(
-							(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 						);
 						const previousData = copyedTaskList[previousDocIndex].tasks;
 						delete previousData[taskKey];
@@ -243,23 +241,21 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 				}
 			} catch (err) {
 				alert('오류로 인해 저장에 실패하였습니다. 재시도 해주세요.');
-				setTimeout(function () {
-					handleExitEditing();
-				}, 100);
+				handleExitEditing();
 			}
 		}
-	}, []);
+	};
 
 	return (
-		<>
+		<Container>
 			<Background isEditing={isEditing} />
-			<Container ref={containerRef}>
-				<SubmitWrapperTop>
+			<EditWrapper ref={EditWrapperRef}>
+				<BtnWrapperTop>
 					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
 					<SaveBtn ref={saveRef}>{isCompleted ? '복구' : '저장'}</SaveBtn>
-				</SubmitWrapperTop>
-				<Form>
-					<EditTextInput
+				</BtnWrapperTop>
+				<InputWrapper>
+					<TaskInput
 						ref={textInputRef}
 						type="text"
 						maxLength={50}
@@ -278,14 +274,16 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						/>
 					</DateWrapper>
 					<SaveInput type="submit" ref={submitRef} />
-				</Form>
-				<SubmitWrapperBottom>
+				</InputWrapper>
+				<BtnWrapperBottom>
 					<DeleteBtn ref={deleteRef}>삭제</DeleteBtn>
-				</SubmitWrapperBottom>
-			</Container>
-		</>
+				</BtnWrapperBottom>
+			</EditWrapper>
+		</Container>
 	);
 };
+
+const Container = styled.div``;
 
 /* ********************* Background ********************* */
 const Background = styled.div<{ isEditing: boolean }>`
@@ -299,27 +297,26 @@ const Background = styled.div<{ isEditing: boolean }>`
 	opacity: ${props => (props.isEditing ? 1 : 0)};
 `;
 
-/* ********************* Container ********************* */
-const Container = styled.div`
+/* ********************* Edit Task Wrapper ********************* */
+const EditWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	position: fixed;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%, -50%);
 	z-index: 25;
-	width: 10rem;
-	height: 10rem;
+	transform: translate(-50%, -50%);
+	width: 90vw;
+	height: 12rem;
 	padding: 0.7rem 1rem;
 	border: none;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
-	box-shadow: 0px 0px 5px 0px rgba(255, 255, 255, 0.84);
 `;
 
-/* ********************* Submit Wrapper Top ********************* */
-const SubmitWrapperTop = styled.div`
+/* ********************* Btn Wrapper Top ********************* */
+const BtnWrapperTop = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
@@ -330,7 +327,6 @@ const SaveBtn = styled.button`
 	border: none;
 	border-radius: 10px;
 	background: none;
-	font-size: 0.6rem;
 	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
@@ -342,28 +338,27 @@ const ToggleBtn = styled.button`
 	border: none;
 	border-radius: 10px;
 	background: none;
-	font-size: 0.6rem;
 	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
 	outline: none;
+	cursor: pointer;
 `;
 
-/* ********************* Form ********************* */
-const Form = styled.div`
+/* ********************* Input Wrapper ********************* */
+const InputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 `;
 
-const EditTextInput = styled.input`
-	height: 1.5rem;
+const TaskInput = styled.input`
+	height: 2rem;
 	width: 100%;
 	margin-bottom: 1rem;
 	border: none;
 	border-radius: 5px 5px 0 0;
 	border-bottom: solid 2px ${props => props.theme.light.grayColor};
 	background-color: ${props => props.theme.light.greenColor};
-	font-size: 0.8rem;
+	font-size: 1rem;
 	color: ${props => props.theme.light.whiteColor};
 
 	&:focus {
@@ -381,23 +376,20 @@ const DateWrapper = styled.div`
 `;
 
 const DateTitle = styled.span`
-	font-size: 0.5rem;
 	font-weight: 700;
 	color: ${props => props.theme.light.grayColor};
 `;
 
 const DateInput = styled.input`
-	height: 1.5rem;
+	height: 2rem;
 	width: 100%;
 	padding: 5px;
 	margin-top: 0.3rem;
 	border: solid 2px ${props => props.theme.light.grayColor};
 	border-radius: 5px;
-	font-size: 0.7rem;
+	font-size: 0.9rem;
 	background-color: ${props => props.theme.light.greenColor};
-
 	color: ${props => props.theme.light.whiteColor};
-
 	&:focus {
 		outline: none;
 		border: solid 2px ${props => props.theme.light.yellowColor};
@@ -408,8 +400,8 @@ const SaveInput = styled.input`
 	display: none;
 `;
 
-/* ********************* Submit Wrapper Bottom ********************* */
-const SubmitWrapperBottom = styled.div`
+/* ********************* Btn Wrapper Bottom ********************* */
+const BtnWrapperBottom = styled.div`
 	display: flex;
 	justify-content: flex-end;
 	width: 100%;
@@ -419,11 +411,10 @@ const DeleteBtn = styled.button`
 	border: none;
 	border-radius: 10px;
 	background: none;
-	font-size: 0.6rem;
 	font-weight: 700;
 	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
 	outline: none;
+	cursor: pointer;
 `;
 
 export default EditTaskForm;

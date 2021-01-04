@@ -19,7 +19,7 @@ interface IProps {
 	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userInfo, taskList, setTaskList }) => {
+const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskValue, taskList, setTaskList }) => {
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
@@ -30,7 +30,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 			const docIndex = copyedTaskList.findIndex(
-				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+				(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 			);
 			const data = copyedTaskList[docIndex].tasks;
 			delete data[taskKey];
@@ -69,13 +69,6 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 		if (userInfo.uid !== null) {
 			console.log('onClickCheckbox 실행');
 			if (e.target.labels !== null) {
-				const {
-					target: {
-						labels: {
-							0: { innerText: text },
-						},
-					},
-				} = e;
 				if (e.target.checked) {
 					const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
@@ -83,7 +76,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 						// 완료했으니 완료 doc에 추가하고 firebase에도 업데이트하는 코드
 						if (docList.includes('완료')) {
 							const completedDocIndex = copyedTaskList.findIndex(
-								(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === '완료',
+								(doc: { date: string; tasks: { task: string } }) => doc.date === '완료',
 							);
 							const completedData = copyedTaskList[completedDocIndex].tasks;
 							const completedDataLength = Object.keys(completedData).length;
@@ -91,14 +84,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 								date: '완료',
 								tasks: {
 									...completedData,
-									[completedDataLength]: text,
+									[completedDataLength]: taskValue,
 								},
 							};
-							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: text });
+							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: taskValue });
 							copyedTaskList.splice(completedDocIndex, 1, taskObj);
 							// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 							const docIndex = copyedTaskList.findIndex(
-								(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+								(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 							);
 							const data = copyedTaskList[docIndex].tasks;
 							delete data[taskKey];
@@ -128,16 +121,16 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 							const taskObj = {
 								date: '완료',
 								tasks: {
-									0: text,
+									0: taskValue,
 								},
 							};
 							await dbService.collection(userInfo.uid).doc('완료').set({
-								0: text,
+								0: taskValue,
 							});
 							copyedTaskList.push(taskObj);
 							// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 							const docIndex = copyedTaskList.findIndex(
-								(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+								(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 							);
 							const data = copyedTaskList[docIndex].tasks;
 							delete data[taskKey];
@@ -193,17 +186,15 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 				''
 			)}
 			<Container>
-				<div>
-					<Label>
-						<CheckInput type="checkbox" onChange={onClickCheckbox} />
-						<CheckSpan />
-						{taskValue}
-					</Label>
-				</div>
-				<div>
+				<Label>
+					<CheckInputHidden type="checkbox" onChange={onClickCheckbox} />
+					<CheckSpanShowing />
+					<OutputTask>{taskValue}</OutputTask>
+				</Label>
+				<IconWrapper>
 					<EditI onClick={onClickEdit} />
 					<DeleteI onClick={onClickDelete} />
-				</div>
+				</IconWrapper>
 			</Container>
 		</>
 	);
@@ -212,22 +203,26 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, userI
 const Container = styled.div`
 	display: flex;
 	justify-content: space-between;
-	margin-bottom: 0.5rem;
+	align-items: center;
+	margin-bottom: 0.7rem;
 `;
 
-/* ********************* 편집 비활성화 ********************* */
+/* ********************* Label ********************* */
 const Label = styled.label`
 	position: relative;
-	margin-right: 0.5rem;
+	display: flex;
+	align-items: center;
+	width: 82%;
+	padding-right: 0.3rem;
 	color: ${props => props.theme.light.whiteColor};
 `;
 
-const CheckInput = styled.input`
+const CheckInputHidden = styled.input`
 	margin-right: 0.8rem;
 	opacity: 0;
 `;
 
-const CheckSpan = styled.span`
+const CheckSpanShowing = styled.span`
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -279,6 +274,17 @@ const CheckSpan = styled.span`
 	}
 `;
 
+const OutputTask = styled.span`
+	width: 90%;
+`;
+
+/* ********************* Icon Wrapper ********************* */
+const IconWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	width: 18%;
+`;
+
 const EditI = styled(EditAlt)`
 	width: 1rem;
 	margin-right: 0.2rem;
@@ -290,4 +296,4 @@ const DeleteI = styled(DeleteBin)`
 	color: ${props => props.theme.light.grayColor};
 `;
 
-export default React.memo(Task);
+export default Task;

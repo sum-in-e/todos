@@ -45,7 +45,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 			const docIndex = copyedTaskList.findIndex(
-				(Sequence: { date: string; tasks: { task: string } }) => Sequence.date === date,
+				(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 			);
 			const data = copyedTaskList[docIndex].tasks;
 			delete data[taskKey];
@@ -91,11 +91,11 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 				''
 			)}
 			<Container>
-				<Task>{taskValue}</Task>
-				<BtnWrapper>
+				<OutputTask>{taskValue}</OutputTask>
+				<IconWrapper>
 					<EditI onClick={onClickEdit} />
 					<DeleteI onClick={onClickDelete} />
-				</BtnWrapper>
+				</IconWrapper>
 			</Container>
 		</>
 	);
@@ -104,14 +104,23 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 const Container = styled.div`
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	margin-bottom: 0.5rem;
 `;
-const Task = styled.span`
+
+/* ********************* Output Task ********************* */
+const OutputTask = styled.span`
+	width: 82%;
 	color: ${props => props.theme.light.whiteColor};
 	text-decoration: line-through;
 `;
 
-const BtnWrapper = styled.div``;
+/* ********************* Icon Wrapper ********************* */
+const IconWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	width: 18%;
+`;
 
 const EditI = styled(EditAlt)`
 	width: 1rem;
@@ -124,4 +133,4 @@ const DeleteI = styled(DeleteBin)`
 	color: ${props => props.theme.light.grayColor};
 `;
 
-export default React.memo(CompletedTask);
+export default CompletedTask;
