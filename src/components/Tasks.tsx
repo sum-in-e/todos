@@ -119,10 +119,10 @@ const AddTaskWrapper = styled.section`
 /* ********************* TaskList Wrapper ********************* */
 const TaskListWrapper = styled.section`
 	z-index: -1;
-	padding: 0.1rem 1rem 0 1rem;
+	padding: 0 1rem 1rem 1rem;
 	margin-top: 5rem;
 	${({ theme }) => theme.media.landscapeMobile`
-		padding: 0 0.5rem;
+		padding: 0 0.5rem 1rem 0.5rem;
 		margin-top: 2.5rem;
 	`}
 `;
