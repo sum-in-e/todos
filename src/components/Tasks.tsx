@@ -135,6 +135,9 @@ const TaskListWrapper = styled.section`
 	${({ theme }) => theme.media.portraitTablet`
 		margin-top: 2.5rem;
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		margin-top: 2.5rem;
+	`}
 `;
 
 export default React.memo(Tasks);

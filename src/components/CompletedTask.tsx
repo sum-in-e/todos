@@ -110,7 +110,7 @@ const Container = styled.div`
 
 /* ********************* Output Task ********************* */
 const OutputTask = styled.span`
-	width: 82%;
+	width: 85%;
 	color: ${props => props.theme.light.whiteColor};
 	text-decoration: line-through;
 `;

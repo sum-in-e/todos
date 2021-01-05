@@ -16,7 +16,9 @@ export const GlobalStyle = createGlobalStyle`
     font-family: 'Eoe_Zno_L';
     overflow: hidden;
 		font-size : 25px;
-
+    ${({ theme }) => theme.media.landscapeTablet`
+				font-size : 27px;
+	`}
   }
 
   * {

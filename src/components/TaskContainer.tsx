@@ -139,14 +139,15 @@ const NotifyPastTask = styled.span<{ isPast: boolean }>`
 `;
 
 const ClearBtn = styled.button`
-	padding: 0 10px;
+	padding: 0.1rem 0.5rem;
 	border: 2px solid ${props => props.theme.light.grayColor};
 	border-radius: 15px;
 	background-color: transparent;
 	font-weight: 700;
-	font-size: 0.7rem;
+	font-size: 0.6rem;
 	color: ${props => props.theme.light.grayColor};
 	outline: none;
+}
 `;
 
 /* ********************* Tasks Wrapper ********************* */

@@ -120,6 +120,10 @@ const TaskForm = styled.form`
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		flex-direction : row;
+		`}
+	${({ theme }) => theme.media.landscapeTablet`
+		flex-direction : row;
+		
 	`}
 `;
 
@@ -134,6 +138,9 @@ const TaskWrapper = styled.div`
         height : 1.5rem;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
+        height : 1.5rem;
+	`}
+	${({ theme }) => theme.media.landscapeTablet`
         height : 1.5rem;
 	`}
 `;
@@ -152,6 +159,16 @@ const TaskInput = styled.input`
 	border: none;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		padding-right : 0.5rem;
+	`}
+	${({ theme }) => theme.media.portraitTablet`
+		padding-right : 0.5rem;
+	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		width : 95%;
+		padding-right : 0.5rem;
+	`}
 `;
 
 /* ********************* Except Write Task ********************* */
@@ -174,6 +191,12 @@ const ExceptTaskInput = styled.div`
         border : none;
         padding : 0;
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		height : 1.5rem;
+        width : auto;
+        border : none;
+        padding : 0;
+	`}
 `;
 
 const DateInput = styled.input`
@@ -189,6 +212,9 @@ const DateInput = styled.input`
 	${({ theme }) => theme.media.portraitTablet`
 		border-left: 2px solid ${theme.light.grayColor};
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		border-left: 2px solid ${theme.light.grayColor};
+	`}
 `;
 
 const SubmitInput = styled.input`
@@ -202,5 +228,8 @@ const SubmitInput = styled.input`
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		padding : 0 0.2rem;
+	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		padding : 0 0.2rem 0 0.8rem;
 	`}
 `;

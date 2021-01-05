@@ -212,7 +212,7 @@ const Label = styled.label`
 	position: relative;
 	display: flex;
 	align-items: center;
-	width: 82%;
+	width: 90%;
 	padding-right: 0.3rem;
 	color: ${props => props.theme.light.whiteColor};
 `;
