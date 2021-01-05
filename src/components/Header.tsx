@@ -32,11 +32,12 @@ const Container = styled.header`
 	width: 100vw;
 	height: 12vh;
 	background-color: ${props => props.theme.light.greenColor};
-	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 21vh;
-		border-bottom : none;
+	`}
+	${({ theme }) => theme.media.portraitTablet`		
+		height : 10vh;
 	`}
 `;
 
@@ -46,12 +47,12 @@ const ContentWrapper = styled.div`
 	justify-content: space-between;
 	height: 100%;
 	padding: 2rem 1rem 1rem 1rem;
+	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		padding: 2rem 0.5rem 1rem 0.5rem;
 		margin : 0 2rem;
 		border-left : 1px solid ${theme.light.grayColor};
 		border-right : 1px solid ${theme.light.grayColor};
-		border-bottom : 1px solid ${theme.light.grayColor};
 	`}
 `;
 
