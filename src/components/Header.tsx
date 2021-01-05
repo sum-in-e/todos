@@ -16,29 +16,42 @@ const Header: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const history = useHistory();
 	return (
 		<Container>
-			<AppTitle onClick={() => history.push('/')}>To Dos</AppTitle>
-			<MyProfile userInfo={userInfo} reRender={reRender} />
+			<ContentWrapper>
+				<AppTitle onClick={() => history.push('/')}>To Dos</AppTitle>
+				<MyProfile userInfo={userInfo} reRender={reRender} />
+			</ContentWrapper>
 		</Container>
 	);
 };
 
 const Container = styled.header`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
 	position: fixed;
 	z-index: 10;
 	top: 0;
+	left: 0;
 	width: 100vw;
 	height: 12vh;
-	padding: 2rem 1rem 1rem 1rem;
 	background-color: ${props => props.theme.light.greenColor};
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
-		height : 18vh;
-		padding: 2rem 2rem 1rem 2rem;
+		height : 21vh;
+		border-bottom : none;
+	`}
+`;
 
+const ContentWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 100%;
+	padding: 2rem 1rem 1rem 1rem;
+	${({ theme }) => theme.media.landscapeMobile`
+		padding: 2rem 0.5rem 1rem 0.5rem;
+		margin : 0 2rem;
+		border-left : 1px solid ${theme.light.grayColor};
+		border-right : 1px solid ${theme.light.grayColor};
+		border-bottom : 1px solid ${theme.light.grayColor};
 	`}
 `;
 

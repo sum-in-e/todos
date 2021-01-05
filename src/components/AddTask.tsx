@@ -109,6 +109,15 @@ const TaskForm = styled.form`
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid ${props => props.theme.light.grayColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		flex-direction : row;
+		margin : 0 2rem;
+		padding : 0.5rem;
+		border-left : 1px solid #caccd1;
+		border-right : 1px solid #caccd1;
+	`}
 `;
 
 /* ********************* Write Task Wrapper ********************* */
@@ -118,6 +127,9 @@ const TaskWrapper = styled.div`
 	align-items: center;
 	height: 2rem;
 	width: 100%;
+	${({ theme }) => theme.media.landscapeMobile`
+        height : 1.5rem;
+	`}
 `;
 
 const Shape = styled.div`
@@ -144,6 +156,12 @@ const ExceptTaskInput = styled.div`
 	height: 2rem;
 	padding-top: 0.5rem;
 	border-top: 2px solid ${props => props.theme.light.grayColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		height : 1.5rem;
+        width : auto;
+        border : none;
+        padding : 0;
+	`}
 `;
 
 const DateInput = styled.input`
@@ -153,8 +171,11 @@ const DateInput = styled.input`
 	border-right: 2px solid ${props => props.theme.light.grayColor};
 	background-color: transparent;
 	color: white;
-	${({ theme }) => theme.media.portraitTablet`
+	${({ theme }) => theme.media.landscapeMobile`
 		border-left: 2px solid ${theme.light.grayColor};
+		
+	`}
+	${({ theme }) => theme.media.portraitTablet`
 	`}
 `;
 
@@ -164,4 +185,7 @@ const SubmitInput = styled.input`
 	border: none;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		padding : 0 0.2rem;
+	`}
 `;

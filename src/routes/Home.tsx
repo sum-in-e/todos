@@ -22,9 +22,10 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 };
 
 const Container = styled.div`
-	height: 100vh;
-	width: 100vw;
 	background-color: ${props => props.theme.light.greenColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		padding: 0 2rem;
+	`}
 `;
 
 export default Home;

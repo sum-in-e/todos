@@ -109,7 +109,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 const Container = styled.article`
 	display: flex;
 	flex-direction: column;
-	margin: 1rem 0;
+	padding-top: 1rem;
 `;
 
 /* ********************* Title Wrapper ********************* */

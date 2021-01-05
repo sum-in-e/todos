@@ -119,7 +119,7 @@ const OutputTask = styled.span`
 const IconWrapper = styled.div`
 	display: flex;
 	align-items: center;
-	width: 18%;
+	width: auto;
 `;
 
 const EditI = styled(EditAlt)`

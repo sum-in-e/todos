@@ -313,6 +313,9 @@ const EditWrapper = styled.div`
 	border: none;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		width : 50vw;
+	`}
 `;
 
 /* ********************* Btn Wrapper Top ********************* */

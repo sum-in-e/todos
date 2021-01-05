@@ -82,16 +82,22 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 };
 
 const Container = styled.main`
+	position: relative;
 	overflow: scroll;
-	height: 80vh;
+	height: 88vh;
 	margin-top: 12vh;
-	margin-bottom: 8vh;
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 	&::-webkit-scrollbar {
 		display: none;
 	}
 	font-size: 0.8rem;
+	${({ theme }) => theme.media.landscapeMobile`
+		height : 79vh;
+		margin-top : 21vh;
+		border-left : 1px solid  #caccd1;
+		border-right : 1px solid #caccd1;
+	`}
 `;
 
 /* ********************* Add Task Wrapper ********************* */
@@ -99,14 +105,26 @@ const AddTaskWrapper = styled.section`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 0.5rem 1rem;
-	border-bottom: 1px solid ${props => props.theme.light.grayColor};
+	position: fixed;
+	top: 12vh;
+	left: 0;
+	width: 100%;
+	z-index: 1;
+	background-color: ${props => props.theme.light.greenColor};
+	${({ theme }) => theme.media.landscapeMobile`		
+		top : 21vh;
+	`}
 `;
 
 /* ********************* TaskList Wrapper ********************* */
 const TaskListWrapper = styled.section`
 	z-index: -1;
-	padding: 0 1rem;
+	padding: 0.1rem 1rem 0 1rem;
+	margin-top: 5rem;
+	${({ theme }) => theme.media.landscapeMobile`
+		padding: 0 0.5rem;
+		margin-top: 2.5rem;
+	`}
 `;
 
 export default React.memo(Tasks);
