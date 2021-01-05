@@ -328,6 +328,7 @@ const SaveBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-weight: 700;
+	font-size: 0.7rem;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	outline: none;
@@ -339,6 +340,7 @@ const ToggleBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-weight: 700;
+	font-size: 0.7rem;
 	color: ${props => props.theme.light.yellowColor};
 	outline: none;
 	cursor: pointer;
@@ -358,7 +360,6 @@ const TaskInput = styled.input`
 	border-radius: 5px 5px 0 0;
 	border-bottom: solid 2px ${props => props.theme.light.grayColor};
 	background-color: ${props => props.theme.light.greenColor};
-	font-size: 1rem;
 	color: ${props => props.theme.light.whiteColor};
 
 	&:focus {
@@ -376,6 +377,7 @@ const DateWrapper = styled.div`
 `;
 
 const DateTitle = styled.span`
+	font-size: 0.6rem;
 	font-weight: 700;
 	color: ${props => props.theme.light.grayColor};
 `;
@@ -387,7 +389,6 @@ const DateInput = styled.input`
 	margin-top: 0.3rem;
 	border: solid 2px ${props => props.theme.light.grayColor};
 	border-radius: 5px;
-	font-size: 0.9rem;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
 	&:focus {
@@ -412,8 +413,9 @@ const DeleteBtn = styled.button`
 	border-radius: 10px;
 	background: none;
 	font-weight: 700;
-	color: ${props => props.theme.light.yellowColor};
+	font-size: 0.7rem;
 	outline: none;
+	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 `;
 
