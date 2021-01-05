@@ -221,6 +221,8 @@ const DateInput = styled.input`
 	border-right: 2px solid ${props => props.theme.light.grayColor};
 	background-color: transparent;
 	color: white;
+	outline: none;
+	cursor: pointer;
 	${({ theme }) => theme.media.landscapeMobile`
 		border-left: 2px solid ${theme.light.grayColor};
 		`}
@@ -241,6 +243,7 @@ const SubmitInput = styled.input`
 	border: none;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	cursor: pointer;
 	${({ theme }) => theme.media.landscapeMobile`
 		padding : 0 0.2rem;
 	`}

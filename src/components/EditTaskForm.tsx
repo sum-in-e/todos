@@ -403,6 +403,7 @@ const DateInput = styled.input`
 	border-radius: 5px;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	cursor: pointer;
 	&:focus {
 		outline: none;
 		border: solid 2px ${props => props.theme.light.yellowColor};

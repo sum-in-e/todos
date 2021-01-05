@@ -231,7 +231,7 @@ const CheckSpanShowing = styled.span`
 	background-color: transparent;
 	border-radius: 5px;
 	border: 2px solid ${props => props.theme.light.whiteColor};
-
+	cursor: pointer;
 	&::after {
 		position: absolute;
 		content: '';
@@ -289,11 +289,13 @@ const EditI = styled(EditAlt)`
 	width: 1rem;
 	margin-right: 0.2rem;
 	color: ${props => props.theme.light.grayColor};
+	cursor: pointer;
 `;
 
 const DeleteI = styled(DeleteBin)`
 	width: 1rem;
 	color: ${props => props.theme.light.grayColor};
+	cursor: pointer;
 `;
 
 export default Task;

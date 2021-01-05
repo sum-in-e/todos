@@ -147,7 +147,7 @@ const ClearBtn = styled.button`
 	font-size: 0.6rem;
 	color: ${props => props.theme.light.grayColor};
 	outline: none;
-}
+	cursor: pointer;
 `;
 
 /* ********************* Tasks Wrapper ********************* */

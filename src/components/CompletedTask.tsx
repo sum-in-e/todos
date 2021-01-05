@@ -126,11 +126,13 @@ const EditI = styled(EditAlt)`
 	width: 1rem;
 	margin-right: 0.2rem;
 	color: ${props => props.theme.light.grayColor};
+	cursor: pointer;
 `;
 
 const DeleteI = styled(DeleteBin)`
 	width: 1rem;
 	color: ${props => props.theme.light.grayColor};
+	cursor: pointer;
 `;
 
 export default CompletedTask;

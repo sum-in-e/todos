@@ -1,5 +1,4 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import MyProfile from './MyProfile';
 
@@ -13,11 +12,10 @@ interface IProps {
 }
 
 const Header: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
-	const history = useHistory();
 	return (
 		<Container>
 			<ContentWrapper>
-				<AppTitle onClick={() => history.push('/')}>To Dos</AppTitle>
+				<AppTitle>To Dos</AppTitle>
 				<MyProfile userInfo={userInfo} reRender={reRender} />
 			</ContentWrapper>
 		</Container>
@@ -63,7 +61,6 @@ const AppTitle = styled.h1`
 	margin: 0;
 	text-align: center;
 	font-size: 1rem;
-	cursor: pointer;
 `;
 
 export default Header;
