@@ -39,6 +39,9 @@ const Container = styled.header`
 	${({ theme }) => theme.media.portraitTablet`		
 		height : 10vh;
 	`}
+	${({ theme }) => theme.media.desktop`		
+		height : 15vh;
+	`}
 `;
 
 const ContentWrapper = styled.div`

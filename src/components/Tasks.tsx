@@ -102,6 +102,10 @@ const Container = styled.main`
 		heigth : 90vh;
 		margin-top : 10vh;
 	`}
+	${({ theme }) => theme.media.desktop`		
+		heigth : 85vh;
+		margin-top : 15vh;
+	`}
 `;
 
 /* ********************* Add Task Wrapper ********************* */
@@ -121,6 +125,9 @@ const AddTaskWrapper = styled.section`
 	${({ theme }) => theme.media.portraitTablet`		
 		top : 10vh;
 	`}
+	${({ theme }) => theme.media.desktop`		
+		top : 15vh;
+	`}
 `;
 
 /* ********************* TaskList Wrapper ********************* */
@@ -136,6 +143,9 @@ const TaskListWrapper = styled.section`
 		margin-top: 2.5rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
+		margin-top: 2.5rem;
+	`}
+	${({ theme }) => theme.media.desktop`
 		margin-top: 2.5rem;
 	`}
 `;

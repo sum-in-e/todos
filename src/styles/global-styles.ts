@@ -19,6 +19,9 @@ export const GlobalStyle = createGlobalStyle`
     ${({ theme }) => theme.media.landscapeTablet`
 				font-size : 27px;
 	`}
+    ${({ theme }) => theme.media.desktop`
+				font-size : 27px;
+	`}
   }
 
   * {

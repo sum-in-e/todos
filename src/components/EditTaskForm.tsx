@@ -322,6 +322,9 @@ const EditWrapper = styled.div`
 	${({ theme }) => theme.media.landscapeTablet`		
 		width : 40vw;
 	`}
+	${({ theme }) => theme.media.desktop`		
+		width : 30vw;
+	`}
 `;
 
 /* ********************* Btn Wrapper Top ********************* */
