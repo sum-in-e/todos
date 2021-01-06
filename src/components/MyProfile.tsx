@@ -303,7 +303,7 @@ const ProfileWrapper = styled.div`
 		position : absolute;
 		top : 3rem;
 		left : unset;
-		width: 15rem;
+		width: 13rem;
 		transform : none;
 	`}
 `;
