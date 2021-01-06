@@ -296,6 +296,7 @@ const ProfileWrapper = styled.div`
 		width: 45vw;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
+		top: 13rem;
 		left : 77%;
 		width: 40vw;
 	`}
