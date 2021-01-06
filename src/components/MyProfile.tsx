@@ -422,6 +422,14 @@ const LogOutWrapper = styled.div`
 	&:active span {
 		transform: scale(0.9, 0.9);
 	}
+	${({ theme }) => theme.media.portraitMobile`
+		bottom : 1rem;
+		width : 33%;
+		height: 1.3rem;
+		padding : 0 0.2rem;
+		border-radius: 15px;
+		${{ border: `1px solid ${theme.light.yellowColor}` }};
+	`}
 	${({ theme }) => theme.media.landscapeMobile`
 		bottom : 0.5rem;
 		width : 33%;
