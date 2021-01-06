@@ -286,6 +286,11 @@ const ProfileWrapper = styled.div`
 		height: 12rem;
 		width: 40vw;
 	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		left : 65%;
+		width: 60vw;
+
+	`}
 	${({ theme }) => theme.media.portraitTablet`
 		top : 4rem;
 	`}
