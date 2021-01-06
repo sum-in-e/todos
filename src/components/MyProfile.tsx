@@ -289,7 +289,6 @@ const ProfileWrapper = styled.div`
 	${({ theme }) => theme.media.portraitTabletS`
 		left : 65%;
 		width: 60vw;
-
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		left : 74%;
@@ -299,6 +298,13 @@ const ProfileWrapper = styled.div`
 		top: 13rem;
 		left : 77%;
 		width: 40vw;
+	`}
+	${({ theme }) => theme.media.desktop`
+		position : absolute;
+		top : 3rem;
+		left : unset;
+		width: 15rem;
+		transform : none;
 	`}
 `;
 
