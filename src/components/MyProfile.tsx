@@ -295,6 +295,10 @@ const ProfileWrapper = styled.div`
 		left : 74%;
 		width: 45vw;
 	`}
+	${({ theme }) => theme.media.landscapeTablet`
+		left : 77%;
+		width: 40vw;
+	`}
 `;
 
 /* ********************* Hidden Wrapper ********************* */
