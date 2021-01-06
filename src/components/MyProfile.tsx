@@ -24,7 +24,8 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const [isLimited, setIsLimited] = useState<boolean>(false);
 
 	const imgRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
-	const mainRef = React.useRef() as React.MutableRefObject<HTMLElement>;
+	const backgroundRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
+	const mainRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const editRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const logOutRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
@@ -134,6 +135,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 
 	const onProfileClick = (): void => {
 		mainRef.current.classList.add('showing');
+		backgroundRef.current.classList.add('showing');
 		window.addEventListener('click', onOutsideClick);
 	};
 
@@ -150,6 +152,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 			return;
 		} else {
 			window.removeEventListener('click', onOutsideClick);
+			backgroundRef.current.classList.remove('showing');
 			mainRef.current.classList.remove('showing');
 		}
 	};
@@ -159,7 +162,8 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 			<ImgWrapper>
 				<ShowingProfileImg ref={imgRef} onClick={onProfileClick} imgUrl={headerProfileImg} />
 			</ImgWrapper>
-			<Main ref={mainRef}>
+			<Background ref={backgroundRef} />
+			<ProfileWrapper ref={mainRef}>
 				<HiddenWrapper isSaving={isSaving}>
 					<span>저장중...</span>
 				</HiddenWrapper>
@@ -210,7 +214,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 				<LogOutWrapper ref={logOutRef}>
 					<span>LOG OUT</span>
 				</LogOutWrapper>
-			</Main>
+			</ProfileWrapper>
 		</Container>
 	);
 };
@@ -223,9 +227,25 @@ const Container = styled.div`
 	z-index: 10;
 `;
 
+const Background = styled.div`
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.6);
+	&.showing {
+		display: block;
+	}
+`;
+
 /* ********************* Img Wrapper ********************* */
 
-const ImgWrapper = styled.div``;
+const ImgWrapper = styled.div`
+	z-index: 15;
+`;
 
 const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	width: 2rem;
@@ -247,7 +267,7 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 
 /* ********************* Main ********************* */
 
-const Main = styled.main`
+const ProfileWrapper = styled.div`
 	display: none;
 	flex-direction: column;
 	align-items: center;
