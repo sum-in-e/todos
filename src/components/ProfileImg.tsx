@@ -154,7 +154,7 @@ const EditIcon = styled(Edit3)`
 			transform: scale(0.9, 0.9);
 		}
 	`}
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		&:active {
 			transform: scale(0.9, 0.9);
 		}
@@ -197,7 +197,7 @@ const ImgDelBtn = styled.button`
 			transform: scale(0.9, 0.9);
 		}
 	`}
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		&:active {
 			transform: scale(0.9, 0.9);
 		}

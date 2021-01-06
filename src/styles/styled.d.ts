@@ -13,6 +13,7 @@ declare module 'styled-components' {
 		media: {
 			portraitMobile: (...args: BackQuoteArgs) => CSSProp | undefined;
 			landscapeMobile: (...args: BackQuoteArgs) => CSSProp | undefined;
+			portraitTabletS: (...args: BackQuoteArgs) => CSSProp | undefined;
 			portraitTablet: (...args: BackQuoteArgs) => CSSProp | undefined;
 			landscapeTablet: (...args: BackQuoteArgs) => CSSProp | undefined;
 			desktop: (...args: BackQuoteArgs) => CSSProp | undefined;

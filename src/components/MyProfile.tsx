@@ -141,18 +141,14 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		const isInside = mainRef.current.contains(e.target as Node);
 
 		if (isInside) {
-			console.log('내부 클릭');
 			if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
-				console.log('로그아웃 클릭');
 				window.removeEventListener('click', onOutsideClick);
 				onLogOutClick();
 			}
 			return;
 		} else if (imgRef.current === e.target) {
-			console.log('showing profile 클릭');
 			return;
 		} else {
-			console.log('바깥 클릭');
 			window.removeEventListener('click', onOutsideClick);
 			mainRef.current.classList.remove('showing');
 		}
@@ -219,7 +215,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	);
 };
 
-const Container = styled.section`
+const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
@@ -401,7 +397,7 @@ const LogOutWrapper = styled.div`
 			transform: scale(0.9, 0.9);
 		}
 		`}
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		&:active span {
 			transform: scale(0.9, 0.9);
 		}

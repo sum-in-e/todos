@@ -14,6 +14,7 @@ const theme: DefaultTheme = {
 	media: {
 		portraitMobile: (...args: BackQuoteArgs): undefined => undefined,
 		landscapeMobile: (...args: BackQuoteArgs): undefined => undefined,
+		portraitTabletS: (...args: BackQuoteArgs): undefined => undefined,
 		portraitTablet: (...args: BackQuoteArgs): undefined => undefined,
 		landscapeTablet: (...args: BackQuoteArgs): undefined => undefined,
 		desktop: (...args: BackQuoteArgs): undefined => undefined,
@@ -21,11 +22,13 @@ const theme: DefaultTheme = {
 };
 
 const sizes: { [key: string]: number } = {
-	/*  Smartphones in portrait mode -> max-width : 420 */
-	portraitMobile: 420,
-	/*  Smartphones in landscape mode -> 421x767 */
-	landscapeMobile: 767,
-	/*  Tablets in portrait mode, large display smartphones landscape mode -> 768X1023 */
+	/*  Smartphones in portrait mode -> max-width : 428 */
+	portraitMobile: 428,
+	/*  Smartphones in landscape mode -> 429x927 */
+	landscapeMobile: 927,
+	/*  Tablets in portrait mode (Size S) -> 429x767 */
+	portraitTabletS: 767,
+	/*  Tablets in portrait mode -> 768X1023 */
 	portraitTablet: 1023,
 	/*  Tablets in landscape mode, older desktop monitors -> 1024X1365 */
 	landscapeTablet: 1365,
@@ -40,7 +43,7 @@ Object.keys(sizes).reduce((media: DefaultTheme['media'], label: string) => {
 		case 'portraitMobile':
 			media.portraitMobile = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.portraitMobile}px) {
+					@media only screen and (max-width: ${sizes.portraitMobile}px) and (orientation: portrait) {
 						${args}
 					}
 				`;
@@ -49,7 +52,16 @@ Object.keys(sizes).reduce((media: DefaultTheme['media'], label: string) => {
 			media.landscapeMobile = (...args: BackQuoteArgs) =>
 				css`
 					@media only screen and (max-width: ${sizes.landscapeMobile}px) and (min-width: ${sizes.portraitMobile +
-						1}px) {
+						1}px) and (orientation: landscape) {
+						${args}
+					}
+				`;
+			break;
+		case 'portraitTabletS':
+			media.portraitTabletS = (...args: BackQuoteArgs) =>
+				css`
+					@media only screen and (max-width: ${sizes.portraitTabletS}px) and (min-width: ${sizes.portraitMobile +
+						1}px) and (orientation: portrait) {
 						${args}
 					}
 				`;
@@ -57,8 +69,8 @@ Object.keys(sizes).reduce((media: DefaultTheme['media'], label: string) => {
 		case 'portraitTablet':
 			media.portraitTablet = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.portraitTablet}px) and (min-width: ${sizes.landscapeMobile +
-						1}px) {
+					@media only screen and (max-width: ${sizes.portraitTablet}px) and (min-width: ${sizes.portraitTabletS +
+						1}px) and (orientation: portrait) {
 						${args}
 					}
 				`;

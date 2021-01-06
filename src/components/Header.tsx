@@ -31,7 +31,7 @@ const Container = styled.header`
 	height: 12vh;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		height : 21vh;
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
@@ -49,7 +49,7 @@ const ContentWrapper = styled.div`
 	height: 100%;
 	padding: 2rem 1rem 1rem 1rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		padding: 2rem 0.5rem 1rem 0.5rem;
 		margin : 0 2rem;
 		border-left : 1px solid ${theme.light.grayColor};

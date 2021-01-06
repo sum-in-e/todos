@@ -313,7 +313,7 @@ const EditWrapper = styled.div`
 	border: none;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		width : 50vw;
 	`}
 	${({ theme }) => theme.media.portraitTablet`		

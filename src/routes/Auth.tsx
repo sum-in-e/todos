@@ -89,7 +89,7 @@ const Header = styled.header`
 	background-color: ${props => props.theme.light.greenColor};
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		padding : 1rem 2.5rem;
 	`}
 `;
@@ -110,7 +110,7 @@ const Main = styled.main`
 	height: 78vh;
 	width: 100vw;
 	padding: 1.5rem;
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		height : 88vh;
 		width : 60vw;
 		padding : 1rem;
@@ -134,9 +134,6 @@ const Title = styled.h1`
 	font-weight: 400;
 	margin: 0;
 	margin-bottom: 2rem;
-	${({ theme }) => theme.media.landscapeMobile`
-		
-	`}
 `;
 
 const Form = styled.form`
@@ -144,7 +141,7 @@ const Form = styled.form`
 	flex-direction: column;
 	justify-content: space-between;
 	margin-bottom: 3rem;
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		margin-bottom: 1.5rem;
 	`}
 `;
@@ -156,9 +153,6 @@ const TextInputWrapper = styled.div`
 	height: 4rem;
 	margin-bottom: 1.5rem;
 	font-size: 1rem;
-	${({ theme }) => theme.media.landscapeMobile`
-		
-	`}
 `;
 
 const TextInput = styled.input`
@@ -213,7 +207,7 @@ const Footer = styled.footer`
 	border-top: 1px solid ${props => props.theme.light.grayColor};
 	height: 10vh;
 	width: 100vw;
-	${({ theme }) => theme.media.landscapeMobile`
+	${({ theme }) => theme.media.portraitTabletS`
 		display : none;
 	`}
 `;
