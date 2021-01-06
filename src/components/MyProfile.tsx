@@ -292,7 +292,8 @@ const ProfileWrapper = styled.div`
 
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		top : 4rem;
+		left : 74%;
+		width: 45vw;
 	`}
 `;
 
