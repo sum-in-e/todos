@@ -121,6 +121,9 @@ const Container = styled.div<{ isEdit: boolean }>`
 	flex-direction: column;
 	align-items: center;
 	margin-bottom: ${props => (props.isEdit ? '1rem' : '1.5rem')};
+	${({ theme }) => theme.media.landscapeMobile`
+		margin-bottom : 1rem;
+	`}
 `;
 
 const ImgWrapper = styled.div`
@@ -136,6 +139,10 @@ const UserImg = styled.div<{ imgUrl: string }>`
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
+	${({ theme }) => theme.media.landscapeMobile`
+		width: 4rem;
+		height: 4rem;
+	`}
 `;
 
 const HiddenIconWrapper = styled.div<{ isEdit: boolean }>`
@@ -150,6 +157,10 @@ const HiddenIconWrapper = styled.div<{ isEdit: boolean }>`
 	position: absolute;
 	top: 0;
 	opacity: ${props => (props.isEdit ? 1 : 0)};
+	${({ theme }) => theme.media.landscapeMobile`
+		width: 4rem;
+		height: 4rem;
+	`}
 `;
 
 const EditIcon = styled(Edit3)`

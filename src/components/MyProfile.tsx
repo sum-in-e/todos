@@ -281,6 +281,11 @@ const ProfileWrapper = styled.div`
 	&.showing {
 		display: flex;
 	}
+	${({ theme }) => theme.media.landscapeMobile`
+		top : 50%;
+		height: 12rem;
+		width: 40vw;
+	`}
 	${({ theme }) => theme.media.portraitTablet`
 		top : 4rem;
 	`}
@@ -340,6 +345,9 @@ const EditWrapper = styled.div<{ isEdit: boolean }>`
 	align-items: center;
 	width: 100%;
 	padding: ${props => (props.isEdit ? '1rem 1rem 0.5rem 1rem' : '1.5rem 1rem')};
+	${({ theme, isEdit }) => theme.media.landscapeMobile`
+		${isEdit ? { padding: 0 } : { padding: '1rem' }};
+	`}
 `;
 
 const EditNameWrapper = styled.div`
@@ -397,6 +405,14 @@ const LogOutWrapper = styled.div`
 	&:active span {
 		transform: scale(0.9, 0.9);
 	}
+	${({ theme }) => theme.media.landscapeMobile`
+		bottom : 0.5rem;
+		width : 33%;
+		height: 1.3rem;
+		padding : 0 0.2rem;
+		border-radius: 15px;
+		${{ border: `1px solid ${theme.light.yellowColor}` }};
+	`}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
 			background-color: rgb(14, 59, 51);
