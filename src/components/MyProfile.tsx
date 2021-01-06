@@ -167,7 +167,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 				<HiddenWrapper isSaving={isSaving}>
 					<span>저장중...</span>
 				</HiddenWrapper>
-				<SubmitWrapper>
+				<BtnWrapper>
 					{isEdit ? (
 						<>
 							<ToggleBtn onClick={onToggleClick} value="취소">
@@ -182,8 +182,8 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 							편집
 						</ToggleBtn>
 					)}
-				</SubmitWrapper>
-				<EditWrapper ref={editRef}>
+				</BtnWrapper>
+				<EditWrapper ref={editRef} isEdit={isEdit}>
 					<ProfileImg
 						userInfo={userInfo}
 						profileImg={profileImg}
@@ -227,6 +227,7 @@ const Container = styled.div`
 	z-index: 10;
 `;
 
+/* ********************* Background ********************* */
 const Background = styled.div`
 	display: none;
 	position: fixed;
@@ -242,7 +243,6 @@ const Background = styled.div`
 `;
 
 /* ********************* Img Wrapper ********************* */
-
 const ImgWrapper = styled.div`
 	z-index: 15;
 `;
@@ -250,7 +250,6 @@ const ImgWrapper = styled.div`
 const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	width: 2rem;
 	height: 2rem;
-	margin-bottom: 1rem;
 	border: 2px solid ${props => props.theme.light.whiteColor};
 	border-radius: 50%;
 	background-image: url(${props => props.imgUrl});
@@ -265,20 +264,20 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	`}
 `;
 
-/* ********************* Main ********************* */
-
+/* ********************* ProfileWrapper ********************* */
 const ProfileWrapper = styled.div`
 	display: none;
 	flex-direction: column;
 	align-items: center;
-	position: absolute;
-	top: 3rem;
+	position: fixed;
+	top: 12rem;
+	left: 50%;
 	z-index: 15;
-	height: 12rem;
-	width: 9rem;
+	transform: translate(-50%, -50%);
+	height: 15rem;
+	width: 80vw;
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
-	box-shadow: 0px 0px 5px 0px rgba(255, 255, 255, 0.84);
 	&.showing {
 		display: flex;
 	}
@@ -304,60 +303,43 @@ const HiddenWrapper = styled.div<{ isSaving: boolean }>`
 
 /* ********************* Submit Wrapper ********************* */
 
-const SubmitWrapper = styled.div`
+const BtnWrapper = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
-	padding: 0.4rem;
-`;
-
-const ToggleBtn = styled.button`
-	margin-left: 5px;
-	border: none;
-	border-radius: 10px;
-	background: none;
-	font-size: 0.6rem;
-	font-weight: 700;
-	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
-	outline: none;
-	transition: all 0.3s;
-	${({ theme }) => theme.media.desktop`
+	padding: 0.5rem;
+	& > * {
+		border: none;
+		border-radius: 10px;
+		background: none;
+		outline: none;
+		font-size: 0.7rem;
+		font-weight: 700;
+		color: ${props => props.theme.light.yellowColor};
+		cursor: pointer;
+		transition: all 0.3s;
+		${({ theme }) => theme.media.desktop`
 		&:hover {
 			color: rgb(199, 149, 55);
 			transition: color ease-in-out 0.3s;
 		}
 	`}
+	}
 `;
 
-const SaveBtn = styled.button`
-	margin-left: 5px;
-	border: none;
-	border-radius: 10px;
-	background: none;
-	font-size: 0.6rem;
-	font-weight: 700;
-	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
-	outline: none;
-	transition: all 0.3s;
-	${({ theme }) => theme.media.desktop`
-		&:hover {
-			color: rgb(199, 149, 55);
-			transition: color ease-in-out 0.3s;
-		}
-	`}
-`;
+const ToggleBtn = styled.button``;
+
+const SaveBtn = styled.button``;
 
 /* ********************* Edit Wrapper ********************* */
 
-const EditWrapper = styled.div`
+const EditWrapper = styled.div<{ isEdit: boolean }>`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	width: 100%;
-	padding: 0.5rem 1rem;
+	padding: ${props => (props.isEdit ? '1rem 1rem 0.5rem 1rem' : '1.5rem 1rem')};
 `;
 
 const EditNameWrapper = styled.div`
@@ -403,7 +385,7 @@ const LogOutWrapper = styled.div`
 	align-items: center;
 	position: absolute;
 	bottom: 0px;
-	height: 2rem;
+	height: 2.5rem;
 	width: 100%;
 	border-top: 1px solid ${props => props.theme.light.yellowColor};
 	border-radius: 0 0 15px 15px;
@@ -412,26 +394,9 @@ const LogOutWrapper = styled.div`
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
 	transition: all 0.3s;
-	${({ theme }) => theme.media.portraitMobile`
-		&:active span {
-			transform: scale(0.9, 0.9);
-		}
-		`}
-	${({ theme }) => theme.media.portraitTabletS`
-		&:active span {
-			transform: scale(0.9, 0.9);
-		}
-		`}
-	${({ theme }) => theme.media.portraitTablet`
-		&:active span {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.landscapeTablet`
-		&:active span {
-			transform: scale(0.9, 0.9);
-		}
-	`}
+	&:active span {
+		transform: scale(0.9, 0.9);
+	}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
 			background-color: rgb(14, 59, 51);

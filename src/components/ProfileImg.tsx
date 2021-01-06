@@ -103,12 +103,12 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 	}, []);
 
 	return (
-		<Container>
+		<Container isEdit={isEdit}>
 			<ImgWrapper onClick={onImgClick}>
 				<UserImg imgUrl={profileImg} />
-				<Hidden isEdit={isEdit}>
+				<HiddenIconWrapper isEdit={isEdit}>
 					<EditIcon />
-				</Hidden>
+				</HiddenIconWrapper>
 			</ImgWrapper>
 			<FileInput type="file" ref={fileRef} onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
 			{isEdit ? <ImgDelBtn onClick={onDefaultImgClick}>기본 이미지로 변경</ImgDelBtn> : ''}
@@ -116,11 +116,11 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 	);
 };
 
-const Container = styled.div`
+const Container = styled.div<{ isEdit: boolean }>`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-bottom: 1rem;
+	margin-bottom: ${props => (props.isEdit ? '1rem' : '1.5rem')};
 `;
 
 const ImgWrapper = styled.div`
@@ -128,16 +128,22 @@ const ImgWrapper = styled.div`
 	cursor: pointer;
 `;
 
-const FileInput = styled.input`
-	display: none;
+const UserImg = styled.div<{ imgUrl: string }>`
+	width: 5rem;
+	height: 5rem;
+	border-radius: 50%;
+	background-image: url(${props => props.imgUrl});
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
 `;
 
-const Hidden = styled.div<{ isEdit: boolean }>`
+const HiddenIconWrapper = styled.div<{ isEdit: boolean }>`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 4rem;
-	height: 4rem;
+	width: 5rem;
+	height: 5rem;
 	border-radius: 50%;
 	background-color: rgba(0, 0, 0, 0.3);
 	z-index: 2;
@@ -149,36 +155,13 @@ const Hidden = styled.div<{ isEdit: boolean }>`
 const EditIcon = styled(Edit3)`
 	height: 1.5rem;
 	color: ${props => props.theme.light.grayColor};
-	${({ theme }) => theme.media.portraitMobile`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.portraitTabletS`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.portraitTablet`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.landscapeTablet`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
+	&:active {
+		transform: scale(0.9, 0.9);
+	}
 `;
 
-const UserImg = styled.div<{ imgUrl: string }>`
-	width: 4rem;
-	height: 4rem;
-	border-radius: 50%;
-	background-image: url(${props => props.imgUrl});
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: cover;
+const FileInput = styled.input`
+	display: none;
 `;
 
 const ImgDelBtn = styled.button`
@@ -192,26 +175,9 @@ const ImgDelBtn = styled.button`
 	outline: none;
 	cursor: pointer;
 	transition: all 0.3s;
-	${({ theme }) => theme.media.portraitMobile`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.portraitTabletS`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.portraitTablet`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
-	${({ theme }) => theme.media.landscapeTablet`
-		&:active {
-			transform: scale(0.9, 0.9);
-		}
-	`}
+	&:active {
+		transform: scale(0.9, 0.9);
+	}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
 			background-color: rgb(14, 59, 51);
