@@ -24,11 +24,8 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 const Container = styled.div`
 	height: 100vh;
 	background-color: ${props => props.theme.light.greenColor};
-	${({ theme }) => theme.media.portraitTabletS`
-		padding: 0 2rem;
-		`}
 	${({ theme }) => theme.media.landscapeMobile`
-			background-color : red;
+		padding: 0 2rem;
 		`}
 `;
 

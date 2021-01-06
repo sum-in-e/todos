@@ -92,7 +92,7 @@ const Container = styled.main`
 		display: none;
 	}
 	font-size: 0.8rem;
-	${({ theme }) => theme.media.portraitTabletS`
+	${({ theme }) => theme.media.landscapeMobile`
 		height : 79vh;
 		margin-top : 21vh;
 		border-left : 1px solid  #caccd1;
@@ -119,7 +119,7 @@ const AddTaskWrapper = styled.section`
 	width: 100%;
 	z-index: 1;
 	background-color: ${props => props.theme.light.greenColor};
-	${({ theme }) => theme.media.portraitTabletS`		
+	${({ theme }) => theme.media.landscapeMobile`		
 		top : 21vh;
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
@@ -135,7 +135,7 @@ const TaskListWrapper = styled.section`
 	z-index: -1;
 	padding: 0 1rem 1rem 1rem;
 	margin-top: 5rem;
-	${({ theme }) => theme.media.portraitTabletS`
+	${({ theme }) => theme.media.landscapeMobile`
 		padding: 0 0.5rem 1rem 0.5rem;
 		margin-top: 2.5rem;
 	`}
