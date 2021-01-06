@@ -316,6 +316,9 @@ const EditWrapper = styled.div`
 	${({ theme }) => theme.media.landscapeMobile`
 		width : 50vw;
 	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		width : 60vw;
+	`}
 	${({ theme }) => theme.media.portraitTablet`		
 		width : 50vw;
 	`}

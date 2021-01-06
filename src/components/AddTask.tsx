@@ -118,9 +118,12 @@ const TaskForm = styled.form`
 		border-left : 1px solid #caccd1;
 		border-right : 1px solid #caccd1;
 	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		padding: 0.5rem 1.5rem;
+	`}
 	${({ theme }) => theme.media.portraitTablet`
 		flex-direction : row;
-		`}
+	`}
 	${({ theme }) => theme.media.landscapeTablet`
 		flex-direction : row;	
 	`}
@@ -166,6 +169,9 @@ const TaskInput = styled.input`
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		padding-right : 0.5rem;
+	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		width : 93%;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		padding-right : 0.5rem;

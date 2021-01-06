@@ -139,6 +139,9 @@ const TaskListWrapper = styled.section`
 		padding: 0 0.5rem 1rem 0.5rem;
 		margin-top: 2.5rem;
 	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		padding: 0 1.5rem 1rem 1.5rem;
+	`}
 	${({ theme }) => theme.media.portraitTablet`
 		margin-top: 2.5rem;
 	`}
