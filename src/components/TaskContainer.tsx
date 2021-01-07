@@ -30,16 +30,21 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 
 	const onClickClear = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
-			const docIndex = copyedTaskList.findIndex(
-				(doc: { date: string; tasks: { task: string } }) => doc.date === date,
-			);
-			copyedTaskList.splice(docIndex, 1);
-			try {
-				await dbService.doc(`${userInfo.uid}/완료`).delete();
-				setTaskList(copyedTaskList);
-			} catch (err) {
-				alert('오류로 인해 비우기에 실패하였습니다. 재시도 해주세요.');
+			const warning = confirm('완료 탭의 모든 할일을 삭제합니다.');
+			if (warning === true) {
+				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+				const docIndex = copyedTaskList.findIndex(
+					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+				);
+				copyedTaskList.splice(docIndex, 1);
+				try {
+					await dbService.doc(`${userInfo.uid}/완료`).delete();
+					setTaskList(copyedTaskList);
+				} catch (err) {
+					alert('오류로 인해 비우기에 실패하였습니다. 재시도 해주세요.');
+				}
+			} else {
+				return;
 			}
 		}
 	};

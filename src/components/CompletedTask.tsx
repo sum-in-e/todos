@@ -43,30 +43,35 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
-			const docIndex = copyedTaskList.findIndex(
-				(doc: { date: string; tasks: { task: string } }) => doc.date === date,
-			);
-			const data = copyedTaskList[docIndex].tasks;
-			delete data[taskKey];
-			const values = Object.values(data);
-			values.forEach((value, index): void => {
-				temporaryStorage[index] = value;
-			});
-			const taskObj = {
-				date,
-				tasks: temporaryStorage,
-			};
-			if (Object.values(temporaryStorage).length === 0) {
-				copyedTaskList.splice(docIndex, 1);
+			const warning = confirm('삭제하시겠습니까?');
+			if (warning === true) {
+				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+				const docIndex = copyedTaskList.findIndex(
+					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+				);
+				const data = copyedTaskList[docIndex].tasks;
+				delete data[taskKey];
+				const values = Object.values(data);
+				values.forEach((value, index): void => {
+					temporaryStorage[index] = value;
+				});
+				const taskObj = {
+					date,
+					tasks: temporaryStorage,
+				};
+				if (Object.values(temporaryStorage).length === 0) {
+					copyedTaskList.splice(docIndex, 1);
+				} else {
+					copyedTaskList.splice(docIndex, 1, taskObj);
+				}
+				try {
+					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					setTaskList(copyedTaskList);
+				} catch (err) {
+					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+				}
 			} else {
-				copyedTaskList.splice(docIndex, 1, taskObj);
-			}
-			try {
-				await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-				setTaskList(copyedTaskList);
-			} catch (err) {
-				alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+				return;
 			}
 		}
 	};
