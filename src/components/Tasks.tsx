@@ -84,8 +84,8 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 const Container = styled.main`
 	position: relative;
 	overflow: scroll;
-	height: 86vh;
-	margin-top: 14vh;
+	height: 88vh;
+	margin-top: 12vh;
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 	&::-webkit-scrollbar {
@@ -114,7 +114,7 @@ const AddTaskWrapper = styled.section`
 	justify-content: space-between;
 	align-items: center;
 	position: fixed;
-	top: 14vh;
+	top: 12vh;
 	left: 0;
 	width: 100%;
 	z-index: 1;

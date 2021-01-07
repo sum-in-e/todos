@@ -28,7 +28,7 @@ const Container = styled.header`
 	top: 0;
 	left: 0;
 	width: 100vw;
-	height: 14vh;
+	height: 12vh;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
@@ -47,7 +47,7 @@ const ContentWrapper = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	height: 100%;
-	padding: 2rem 1rem 1rem 1rem;
+	padding: 1rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		padding: 0.5rem;
