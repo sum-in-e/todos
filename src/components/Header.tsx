@@ -28,7 +28,7 @@ const Container = styled.header`
 	top: 0;
 	left: 0;
 	width: 100vw;
-	height: 12vh;
+	height: 14vh;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
@@ -52,8 +52,8 @@ const ContentWrapper = styled.div`
 	${({ theme }) => theme.media.landscapeMobile`
 		padding: 2rem 0.5rem 1rem 0.5rem;
 		margin : 0 2rem;
-		border-left : 1px solid ${theme.light.grayColor};
-		border-right : 1px solid ${theme.light.grayColor};
+		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTabletS`
 		padding: 2rem 1.5rem 1rem 1.5rem;

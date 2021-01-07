@@ -84,8 +84,8 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 const Container = styled.main`
 	position: relative;
 	overflow: scroll;
-	height: 88vh;
-	margin-top: 12vh;
+	height: 86vh;
+	margin-top: 14vh;
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 	&::-webkit-scrollbar {
@@ -95,8 +95,8 @@ const Container = styled.main`
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 79vh;
 		margin-top : 21vh;
-		border-left : 1px solid  #caccd1;
-		border-right : 1px solid #caccd1;
+		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
 		heigth : 90vh;
@@ -114,7 +114,7 @@ const AddTaskWrapper = styled.section`
 	justify-content: space-between;
 	align-items: center;
 	position: fixed;
-	top: 12vh;
+	top: 14vh;
 	left: 0;
 	width: 100%;
 	z-index: 1;
