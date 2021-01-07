@@ -130,7 +130,13 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	};
 
 	const onLogOutClick = (): void => {
-		authService.signOut();
+		const warning = confirm('로그아웃 하시겠습니까?');
+		if (warning === true) {
+			authService.signOut();
+		} else {
+			window.addEventListener('click', onOutsideClick);
+			return;
+		}
 	};
 
 	const onProfileClick = (): void => {
