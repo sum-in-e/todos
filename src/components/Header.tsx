@@ -50,7 +50,7 @@ const ContentWrapper = styled.div`
 	padding: 2rem 1rem 1rem 1rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	${({ theme }) => theme.media.landscapeMobile`
-		padding: 2rem 0.5rem 1rem 0.5rem;
+		padding: 0.5rem;
 		margin : 0 2rem;
 		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
 		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
