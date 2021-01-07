@@ -56,7 +56,7 @@ const ContentWrapper = styled.div`
 		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTabletS`
-		padding: 2rem 1.5rem 1rem 1.5rem;
+		padding: 0.5rem 1.5rem;
 	`}
 `;
 
