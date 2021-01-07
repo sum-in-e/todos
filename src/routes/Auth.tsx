@@ -96,6 +96,9 @@ const Header = styled.header`
 	${({ theme }) => theme.media.portraitTablet`
 		height : 10vh;
 	`}
+	${({ theme }) => theme.media.desktop`
+		height : 15vh;
+	`}
 `;
 
 const AppTitle = styled.h1`
@@ -129,7 +132,8 @@ const Main = styled.main`
 		width : 17rem;
     `}
 	 ${({ theme }) => theme.media.desktop`
-		width : 40vw;
+	    height: 75vh;
+		width : 20rem;
     `}
 `;
 
@@ -144,6 +148,10 @@ const Title = styled.h1`
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		margin-bottom : 4rem;
+		font-size : 0.9rem;
+	`}
+	${({ theme }) => theme.media.desktop`
+		margin-bottom : 3rem;
 		font-size : 0.9rem;
 	`}
 `;
