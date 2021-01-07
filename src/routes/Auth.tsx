@@ -126,7 +126,7 @@ const Main = styled.main`
 		width : 17rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
-		width : 40vw;
+		width : 17rem;
     `}
 	 ${({ theme }) => theme.media.desktop`
 		width : 40vw;
