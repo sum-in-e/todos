@@ -115,6 +115,9 @@ const Main = styled.main`
 		width : 17rem;
 		height : 79vh;
 	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		width : 15rem;
+	`}
 	${({ theme }) => theme.media.portraitTablet`
 		width : 50vw;
 	`}
