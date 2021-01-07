@@ -93,6 +93,9 @@ const Header = styled.header`
 		height : 21vh;
 		padding : 0 2.5rem;
 	`}
+	${({ theme }) => theme.media.portraitTablet`
+		height : 10vh;
+	`}
 `;
 
 const AppTitle = styled.h1`
@@ -117,9 +120,10 @@ const Main = styled.main`
 	`}
 	${({ theme }) => theme.media.portraitTabletS`
 		width : 15rem;
-	`}
+		`}
 	${({ theme }) => theme.media.portraitTablet`
-		width : 50vw;
+		height: 80vh;
+		width : 17rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
 		width : 40vw;
@@ -137,6 +141,10 @@ const Title = styled.h1`
 	margin-bottom: 2rem;
 	${({ theme }) => theme.media.landscapeMobile`
 		margin-bottom : 1rem;
+	`}
+	${({ theme }) => theme.media.portraitTablet`
+		margin-bottom : 4rem;
+		font-size : 0.9rem;
 	`}
 `;
 
@@ -159,6 +167,9 @@ const TextInputWrapper = styled.div`
 	font-size: 1rem;
 	${({ theme }) => theme.media.landscapeMobile`
 		font-size : 0.8rem;
+	`}
+	${({ theme }) => theme.media.portraitTablet`
+		margin-bottom: 2.5rem;
 	`}
 `;
 
