@@ -85,7 +85,7 @@ const Header = styled.header`
 	align-items: center;
 	width: 100vw;
 	height: 12vh;
-	padding: 2rem 1.5rem 1rem 1.5rem;
+	padding: 1rem;
 	background-color: ${props => props.theme.light.greenColor};
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
@@ -109,7 +109,7 @@ const Main = styled.main`
 	justify-content: center;
 	height: 78vh;
 	width: 100vw;
-	padding: 1.5rem;
+	padding: 1rem;
 	${({ theme }) => theme.media.portraitTabletS`
 		height : 88vh;
 		width : 60vw;
