@@ -260,7 +260,6 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	${({ theme }) => theme.media.portraitTablet`
 		width: 2.5rem;
 		height: 2.5rem;
-		margin-bottom : 1rem;
 	`}
 `;
 
