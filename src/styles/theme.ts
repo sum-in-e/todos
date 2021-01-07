@@ -78,7 +78,7 @@ Object.keys(sizes).reduce((media: DefaultTheme['media'], label: string) => {
 		case 'landscapeTablet':
 			media.landscapeTablet = (...args: BackQuoteArgs) =>
 				css`
-					@media only screen and (max-width: ${sizes.landscapeTablet}px) and (min-width: ${sizes.portraitTablet +
+					@media only screen and (max-width: ${sizes.landscapeTablet}px) and (min-width: ${sizes.landscapeMobile +
 						1}px) {
 						${args}
 					}
