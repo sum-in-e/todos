@@ -11,14 +11,18 @@ const Auth: React.FunctionComponent = () => {
 		e.preventDefault();
 		const form = e.target as HTMLFormElement;
 		const value = (form.children[1] as HTMLInputElement).value;
-		try {
-			if (value === 'SIGN UP') {
+		if (value === 'SIGN UP') {
+			try {
 				await authService.createUserWithEmailAndPassword(email, password);
-			} else if (value === 'LOGIN') {
-				await authService.signInWithEmailAndPassword(email, password);
+			} catch (err) {
+				alert('이미 사용되고 있는 이메일 입니다.\n다른 이메일로 가입해 주세요.');
 			}
-		} catch (error) {
-			alert(error.message);
+		} else if (value === 'LOGIN') {
+			try {
+				await authService.signInWithEmailAndPassword(email, password);
+			} catch (err) {
+				alert('존재하지 않는 이메일 이거나, 비밀번호를 잘못 입력하였습니다.\n다시 시도해 주세요.');
+			}
 		}
 	};
 
