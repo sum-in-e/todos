@@ -30,51 +30,84 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const editRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const logOutRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 
-	const onSave = async (): Promise<void> => {
+	const handleOutsideClick = (e: any): void => {
+		const isInside = mainRef.current.contains(e.target as Node);
+		if (isInside) {
+			if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
+				window.removeEventListener('click', handleOutsideClick);
+				handleLogOutClick();
+			}
+			return;
+		} else if (imgRef.current === e.target) {
+			return;
+		} else {
+			window.removeEventListener('click', handleOutsideClick);
+			backgroundRef.current.classList.remove('showing');
+			mainRef.current.classList.remove('showing');
+		}
+	};
+
+	const onClickSave = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			try {
 				setIsSaving(true);
+				// 이름 변경
+				if (userName !== userInfo.displayName) {
+					try {
+						await userInfo.updateProfile({
+							displayName: userName,
+						});
+					} catch (err) {
+						alert('유저명 변경에 실패하였습니다. 재시도해주세요.');
+						setUserName(userInfo.displayName);
+					} finally {
+						await reRender();
+					}
+				}
 
 				// 새 이미지 업로드
 				if (newProfileImg !== '') {
-					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
-					if (items.length > 0) {
-						items[0].delete();
-					}
 					const imageRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
 					const response = await imageRef.putString(newProfileImg, 'data_url');
 					const downLoadUrl = await response.ref.getDownloadURL();
+					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+					const previousImageIndex = items.findIndex(item => item.name !== imageRef.name);
+					if (previousImageIndex > -1) {
+						items[previousImageIndex].delete();
+					}
 					setProfileImg(downLoadUrl);
 					setHeaderProfileImg(downLoadUrl);
 					setNewProfileImg('');
-					dbService.collection('profile').doc(userInfo.uid).update({
+					await dbService.collection('profile').doc(userInfo.uid).update({
 						image: downLoadUrl,
 					});
 				}
 
 				// 기본 이미지로 변경
 				if (defaultProfileImg !== '') {
+					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
 					setProfileImg(defaultProfileImg);
 					setHeaderProfileImg(defaultProfileImg);
 					dbService.collection('profile').doc(userInfo.uid).update({
 						image: defaultProfileImg,
 					});
-
-					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
 					if (items.length > 0) {
-						await items[0].delete();
+						items.forEach(item => item.delete());
 					}
 				}
-
-				// 이름 변경
-				if (userName !== userInfo.displayName) {
-					await userInfo.updateProfile({
-						displayName: userName,
-					});
-					await reRender();
-				}
 			} catch (err) {
-				alert(err.message);
+				alert('이미지 변경에 실패하였습니다. 재시도해주세요.');
+				const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+				const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+				setProfileImg(defaultImg);
+				setHeaderProfileImg(defaultImg);
+				setNewProfileImg('');
+				if (items.length > 0) {
+					items.forEach(item => item.delete());
+				}
+				dbService.collection('profile').doc(userInfo.uid).update({
+					image: defaultImg,
+				});
 			} finally {
 				setTimeout(function () {
 					setIsLimited(false);
@@ -85,24 +118,26 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		}
 	};
 
-	const onToggleClick = async (e: any): Promise<void> => {
+	const onClickToggle = async (e: any): Promise<void> => {
 		const value = e.target.value;
 		if (value === '취소' && userInfo.uid !== null) {
 			try {
-				// 이미지 기존걸로 보이게 하기
 				const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
 				const data = profileDoc.data();
 				if (data !== undefined) {
 					const userProfileImg = data.image;
-					await setProfileImg(userProfileImg);
+					setProfileImg(userProfileImg);
+					setUserName(userInfo.displayName);
 				}
-				// 이름 기존걸로 보이게 하기
-				setUserName(userInfo.displayName);
 			} catch (err) {
-				alert(err.message);
+				alert('알 수 없는 오류가 발생하였습니다. 프로필 이미지를 초기화합니다.');
+				const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+				setProfileImg(defaultImg);
+				setUserName(userInfo.displayName);
 			} finally {
 				setNewProfileImg('');
 				setDefaultProfileImg('');
+				setIsLimited(false);
 				setIsEdit(prev => !prev);
 			}
 		} else if (value === '편집') {
@@ -113,7 +148,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		}
 	};
 
-	const onTextChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+	const onChangeText = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
 			target: { value },
 		} = e;
@@ -129,44 +164,26 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		}
 	};
 
-	const onLogOutClick = (): void => {
+	const handleLogOutClick = (): void => {
 		const warning = confirm('로그아웃 하시겠습니까?');
 		if (warning === true) {
 			authService.signOut();
 		} else {
-			window.addEventListener('click', onOutsideClick);
+			window.addEventListener('click', handleOutsideClick);
 			return;
 		}
 	};
 
-	const onProfileClick = (): void => {
+	const onClickProfile = (): void => {
 		mainRef.current.classList.add('showing');
 		backgroundRef.current.classList.add('showing');
-		window.addEventListener('click', onOutsideClick);
-	};
-
-	const onOutsideClick = (e: any): void => {
-		const isInside = mainRef.current.contains(e.target as Node);
-
-		if (isInside) {
-			if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
-				window.removeEventListener('click', onOutsideClick);
-				onLogOutClick();
-			}
-			return;
-		} else if (imgRef.current === e.target) {
-			return;
-		} else {
-			window.removeEventListener('click', onOutsideClick);
-			backgroundRef.current.classList.remove('showing');
-			mainRef.current.classList.remove('showing');
-		}
+		window.addEventListener('click', handleOutsideClick);
 	};
 
 	return (
 		<Container>
 			<ImgWrapper>
-				<ShowingProfileImg ref={imgRef} onClick={onProfileClick} imgUrl={headerProfileImg} />
+				<ShowingProfileImg ref={imgRef} onClick={onClickProfile} imgUrl={headerProfileImg} />
 			</ImgWrapper>
 			<Background ref={backgroundRef} />
 			<ProfileWrapper ref={mainRef}>
@@ -176,15 +193,15 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 				<BtnWrapper>
 					{isEdit ? (
 						<>
-							<ToggleBtn onClick={onToggleClick} value="취소">
+							<ToggleBtn onClick={onClickToggle} value="취소">
 								취소
 							</ToggleBtn>
-							<SaveBtn onClick={onSave} ref={saveRef}>
+							<SaveBtn onClick={onClickSave} ref={saveRef}>
 								저장
 							</SaveBtn>
 						</>
 					) : (
-						<ToggleBtn onClick={onToggleClick} value="편집">
+						<ToggleBtn onClick={onClickToggle} value="편집">
 							편집
 						</ToggleBtn>
 					)}
@@ -205,7 +222,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 								type="text"
 								placeholder="Name"
 								value={userName && userName ? userName : ''}
-								onChange={onTextChange}
+								onChange={onChangeText}
 								isLimited={isLimited}
 								autoFocus
 								required

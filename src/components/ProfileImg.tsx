@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { dbService, storageService } from '../fbase';
-import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import { Edit3 } from 'styled-icons/feather';
 
@@ -29,7 +28,7 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 }) => {
 	const fileRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 
-	const onImgClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+	const onClickImg = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		const img = e.currentTarget as HTMLDivElement;
 		if (isEdit) {
 			(img.nextSibling as HTMLInputElement).click();
@@ -42,60 +41,61 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 		} = e;
 
 		if (files !== null) {
-			const theFile = files[0];
-			const reader = new FileReader();
-			reader.readAsDataURL(theFile);
-			reader.onload = async (): Promise<void> => {
-				const result = reader.result;
-				try {
+			try {
+				const theFile = files[0];
+				const reader = new FileReader();
+				reader.readAsDataURL(theFile);
+				reader.onload = (): void => {
+					const result = reader.result;
 					if (result !== null) {
 						const dataUrl = result.toString();
 						setNewProfileImg(dataUrl);
 						setProfileImg(dataUrl);
 						setDefaultProfileImg('');
-						fileRef.current.value = '';
 					}
-				} catch (err) {
-					alert(err.message);
-				}
-			};
+				};
+			} catch (err) {
+				alert('이미지 불러오기에 실패하였습니다. 재시도해주세요.');
+			} finally {
+				fileRef.current.value = '';
+			}
 		}
 	};
 
-	const onDefaultImgClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
-		const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
-		setProfileImg(defaultImg);
-		setDefaultProfileImg(defaultImg);
-		setNewProfileImg('');
-		fileRef.current.value = '';
+	const onClickDefaultImg = async (): Promise<void> => {
+		try {
+			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+			setProfileImg(defaultImg);
+			setDefaultProfileImg(defaultImg);
+			setNewProfileImg('');
+		} catch (err) {
+			alert('기본 이미지 불러오기에 실패하였습니다. 재시도해주세요.');
+		}
 	};
 
 	useEffect(() => {
 		const getProfileImg = async (): Promise<void> => {
 			if (userInfo.uid !== null) {
-				const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
-				if (profileDoc.exists) {
-					try {
+				try {
+					const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
+					if (profileDoc.exists) {
 						const data = profileDoc.data();
 						if (data !== undefined) {
 							const userProfileImg = data.image;
 							setProfileImg(userProfileImg);
 							setHeaderProfileImg(userProfileImg);
 						}
-					} catch (err) {
-						alert(err.message);
-					}
-				} else {
-					try {
+					} else {
 						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 						setProfileImg(defaultImg);
 						setHeaderProfileImg(defaultImg);
 						dbService.collection('profile').doc(userInfo.uid).set({
 							image: defaultImg,
 						});
-					} catch (err) {
-						alert(err.message);
 					}
+				} catch (err) {
+					alert('프로필 구성에 실패하였습니다. 페이지를 새로고침합니다.');
+					window.location.reload();
 				}
 			}
 		};
@@ -104,14 +104,14 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 
 	return (
 		<Container isEdit={isEdit}>
-			<ImgWrapper onClick={onImgClick}>
+			<ImgWrapper onClick={onClickImg}>
 				<UserImg imgUrl={profileImg} />
 				<HiddenIconWrapper isEdit={isEdit}>
 					<EditIcon />
 				</HiddenIconWrapper>
 			</ImgWrapper>
 			<FileInput type="file" ref={fileRef} onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
-			{isEdit ? <ImgDelBtn onClick={onDefaultImgClick}>기본 이미지로 변경</ImgDelBtn> : ''}
+			{isEdit ? <ImgDelBtn onClick={onClickDefaultImg}>기본 이미지로 변경</ImgDelBtn> : ''}
 		</Container>
 	);
 };
