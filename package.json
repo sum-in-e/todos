@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -51,6 +52,7 @@
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "fork-ts-checker-webpack-plugin": "^6.0.4",
     "prettier": "^2.1.2",
     "typescript": "^3.9.7"
   }
