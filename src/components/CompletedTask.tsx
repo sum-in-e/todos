@@ -30,8 +30,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
-	console.log('CompletedTask.tsx 실행');
-
 	const onClickEdit = () => {
 		setIsEditing(true);
 		setEditedDate('날짜미정');

@@ -1,24 +1,24 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import theme from '../styles/theme';
 import { dbService } from '../fbase';
 
 interface IProps {
-	date: string;
-	taskKey: string;
-	taskValue: string;
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	isEditing: boolean;
-	editedDate: string;
-	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
-	handleExitEditing: () => void;
-	isCompleted: boolean;
 	taskList: any[];
 	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
+	date: string;
+	taskKey: string;
+	taskValue: string;
+	editedDate: string;
+	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
+	isEditing: boolean;
+	isCompleted: boolean;
+	handleExitEditing: () => void;
 }
 
 const EditTaskForm: React.FunctionComponent<IProps> = ({
@@ -43,8 +43,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const deleteRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
 	const EditWrapperRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
-
-	console.log('EditTaskForm.tsx 실행');
 
 	const handleOutsideClick = (e: any): void => {
 		const isInside = EditWrapperRef.current.contains(e.target as Node);
@@ -83,7 +81,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		const {
 			target: { value },
 		} = e;
-		console.log('inputChange 실행');
 		setInputValue(value);
 	};
 
@@ -95,7 +92,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	};
 
 	const handleDeleteClick = async (): Promise<void> => {
-		console.log('Edit 내부 delete 실행');
 		if (userInfo.uid !== null) {
 			const warning = confirm('삭제하시겠습니까?');
 			if (warning === true) {
@@ -140,7 +136,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			// state 참조안하니까 await 걸려도 빠르긴 함
 			const textInputValue = textInputRef.current.value;
 			const editedDateValue = dateInputRef.current.value == '' ? '날짜미정' : dateInputRef.current.value;
-			console.log('EditTaskForm.tsx내부 submit 실행');
 			try {
 				if (date === editedDateValue) {
 					const docIndex = copyedTaskList.findIndex(

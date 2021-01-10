@@ -24,8 +24,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
 
-	console.log('Task.tsx 실행');
-
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const warning = confirm('삭제하시겠습니까?');
@@ -72,7 +70,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 
 	const onClickCheckbox = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
 		if (userInfo.uid !== null) {
-			console.log('onClickCheckbox 실행');
 			if (e.target.labels !== null) {
 				if (e.target.checked) {
 					const copyedTaskList = JSON.parse(JSON.stringify(taskList));

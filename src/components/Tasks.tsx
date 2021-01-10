@@ -16,10 +16,9 @@ const Tasks: React.FunctionComponent<IProps> = ({ userInfo }) => {
 	const [taskList, setTaskList] = useState<any[]>([]);
 	const temporaryStorage: any[] = [];
 
-	console.log('Tasks.tsx 렌더링, taskList :', taskList);
-
 	useEffect(() => {
 		const getTasks = async (): Promise<void> => {
+			('');
 			if (userInfo.uid !== null) {
 				const userCollection = await dbService.collection(userInfo.uid).get();
 				if (!userCollection.empty) {

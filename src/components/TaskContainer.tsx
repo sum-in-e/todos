@@ -26,8 +26,6 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 	const yyyy = today.getFullYear();
 	const todaysDate = `${yyyy}-${mm < 10 ? `0${mm}` : mm}-${dd < 10 ? `0${dd}` : dd}`;
 
-	console.log('TaskContainer.tsx 실행');
-
 	const onClickClear = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const warning = confirm('완료 탭의 모든 할일을 삭제합니다.');
