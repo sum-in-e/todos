@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import theme from '../styles/theme';
 import { dbService } from '../fbase';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/themes/airbnb.css';
 
 interface IProps {
 	userInfo: {
@@ -84,13 +86,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		setInputValue(value);
 	};
 
-	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const {
-			target: { value },
-		} = e;
-		setEditedDate(value === '' ? '날짜미정' : value);
-	};
-
 	const handleDeleteClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const warning = confirm('삭제하시겠습니까?');
@@ -131,9 +126,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const handleSubmitClick = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
-			// input 두 개 값 가져오는 것을 state 참조에서 input.value에서 가져오는 걸로 바꿈 -> state 바뀔때마다 참조되는 거 아니고
-			// click 당시의 input value 최종값을 가져오는거라 최종값만 딱 저장 됨! 근데 렌더링 자체 문제 해결은 못함.
-			// state 참조안하니까 await 걸려도 빠르긴 함
 			const textInputValue = textInputRef.current.value;
 			const editedDateValue = dateInputRef.current.value == '' ? '날짜미정' : dateInputRef.current.value;
 			try {
@@ -165,7 +157,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							.doc(`${userInfo.uid}/${editedDateValue}`)
 							.update({ [dataLength]: textInputValue });
 						copyedTaskList.splice(docIndex, 1, taskObj);
-						// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 						const previousDocIndex = copyedTaskList.findIndex(
 							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 						);
@@ -210,7 +201,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						) {
 							return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
 						});
-						// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 						const previousDocIndex = copyedTaskList.findIndex(
 							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 						);
@@ -246,6 +236,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		}
 	};
 
+	useEffect(() => {
+		flatpickr('#DatePickr', {
+			onChange: function (selectedDates: any, dateStr: any, instance: any) {
+				setEditedDate(dateStr === '' ? '날짜미정' : dateStr);
+			},
+		});
+	}, []);
+
 	return (
 		<Container>
 			<Background isEditing={isEditing} />
@@ -267,10 +265,11 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					<DateWrapper>
 						<DateTitle>Date</DateTitle>
 						<DateInput
-							ref={dateInputRef}
-							type="date"
+							id="DatePickr"
+							placeholder="Date"
 							value={editedDate === '날짜미정' ? '' : editedDate}
-							onChange={onChangeDate}
+							readOnly
+							ref={dateInputRef}
 						/>
 					</DateWrapper>
 					<SaveInput type="submit" ref={submitRef} />
@@ -376,7 +375,6 @@ const TaskInput = styled.input`
 	border-bottom: solid 2px ${props => props.theme.light.grayColor};
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
-
 	&:focus {
 		outline: none;
 		border-bottom: solid 2px ${props => props.theme.light.yellowColor};
@@ -400,16 +398,20 @@ const DateTitle = styled.span`
 const DateInput = styled.input`
 	height: 2rem;
 	width: 100%;
-	padding: 5px;
 	margin-top: 0.3rem;
+	padding: 5px;
 	border: solid 2px ${props => props.theme.light.grayColor};
 	border-radius: 5px;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
 	cursor: pointer;
+	outline: none;
 	&:focus {
 		outline: none;
 		border: solid 2px ${props => props.theme.light.yellowColor};
+	}
+	&::placeholder {
+		color: ${props => props.theme.light.whiteColor};
 	}
 `;
 

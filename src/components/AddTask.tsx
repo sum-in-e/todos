@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/themes/airbnb.css';
 
 interface IProps {
 	userInfo: {
@@ -21,13 +23,6 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 			target: { value },
 		} = e;
 		setInputValue(value);
-	};
-
-	const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const {
-			target: { value },
-		} = e;
-		setDate(value === '' ? '날짜미정' : value);
 	};
 
 	const onSubmitTask = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -79,6 +74,12 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 		}
 	};
 
+	flatpickr('#DatePicker', {
+		onChange: function (selectedDates: any, dateStr: any, instance: any) {
+			setDate(dateStr === '' ? '날짜미정' : dateStr);
+		},
+	});
+
 	return (
 		<>
 			<TaskForm onSubmit={onSubmitTask}>
@@ -95,7 +96,14 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 					/>
 				</TaskWrapper>
 				<ExceptTaskInput>
-					<DateInput type="date" value={date === '날짜미정' ? '' : date} onChange={onChangeDate} />
+					<DateWrapper>
+						<DateInput
+							id="DatePicker"
+							placeholder="Date"
+							value={date === '날짜미정' ? '' : date}
+							readOnly
+						/>
+					</DateWrapper>
 					<SubmitInput type="submit" value="추가" />
 				</ExceptTaskInput>
 			</TaskForm>
@@ -219,28 +227,40 @@ const ExceptTaskInput = styled.div`
         padding : 0;
 	`}
 `;
-
-const DateInput = styled.input`
+const DateWrapper = styled.div`
+	display: flex;
+	align-items: center;
 	width: 80%;
 	padding: 0 0.5rem;
 	border: none;
 	border-right: 2px solid ${props => props.theme.light.grayColor};
 	background-color: transparent;
-	color: white;
-	outline: none;
-	cursor: pointer;
 	${({ theme }) => theme.media.landscapeMobile`
-		border-left: 2px solid ${theme.light.grayColor};
+		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};		
 		`}
 	${({ theme }) => theme.media.portraitTablet`
-		border-left: 2px solid ${theme.light.grayColor};
-	`}
+		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
+		`}
 	${({ theme }) => theme.media.landscapeTablet`
-		border-left: 2px solid ${theme.light.grayColor};
-	`}
+		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
+		`}
 	${({ theme }) => theme.media.desktop`
-		border-left: 2px solid ${theme.light.grayColor};
-	`}
+		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
+		`}
+`;
+
+const DateInput = styled.input`
+	width: 100%;
+	padding: 0.2rem;
+	border: 1px solid ${props => props.theme.light.whiteColor};
+	border-radius: 5px;
+	background-color: transparent;
+	color: ${props => props.theme.light.whiteColor};
+	cursor: pointer;
+	outline: none;
+	&::placeholder {
+		color: ${props => props.theme.light.whiteColor};
+	}
 `;
 
 const SubmitInput = styled.input`
