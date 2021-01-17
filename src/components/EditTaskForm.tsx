@@ -268,8 +268,8 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							id="DatePickr"
 							placeholder="Date"
 							value={editedDate === '날짜미정' ? '' : editedDate}
-							readOnly
 							ref={dateInputRef}
+							readOnly
 						/>
 					</DateWrapper>
 					<SaveInput type="submit" ref={submitRef} />
@@ -334,36 +334,27 @@ const BtnWrapperTop = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
+	& > * {
+		padding: 0;
+		border: none;
+		background-color: transparent;
+		font-weight: 700;
+		font-size: 0.7rem;
+		color: ${props => props.theme.light.yellowColor};
+		cursor: pointer;
+		outline: none;
+	}
 `;
 
-const SaveBtn = styled.button`
-	padding: 0;
-	border: none;
-	border-radius: 10px;
-	background: none;
-	font-weight: 700;
-	font-size: 0.7rem;
-	color: ${props => props.theme.light.yellowColor};
-	cursor: pointer;
-	outline: none;
-`;
+const SaveBtn = styled.button``;
 
-const ToggleBtn = styled.button`
-	padding: 0;
-	border: none;
-	border-radius: 10px;
-	background: none;
-	font-weight: 700;
-	font-size: 0.7rem;
-	color: ${props => props.theme.light.yellowColor};
-	outline: none;
-	cursor: pointer;
-`;
+const ToggleBtn = styled.button``;
 
 /* ********************* Input Wrapper ********************* */
 const InputWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
+	width: 100%;
 `;
 
 const TaskInput = styled.input`
@@ -387,6 +378,7 @@ const TaskInput = styled.input`
 const DateWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
+	width: 100%;
 `;
 
 const DateTitle = styled.span`
@@ -396,13 +388,13 @@ const DateTitle = styled.span`
 `;
 
 const DateInput = styled.input`
-	height: 2rem;
 	width: 100%;
+	height: 2rem;
 	margin-top: 0.3rem;
 	padding: 5px;
 	border: solid 2px ${props => props.theme.light.grayColor};
 	border-radius: 5px;
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: transparent;
 	color: ${props => props.theme.light.whiteColor};
 	cursor: pointer;
 	outline: none;
@@ -428,13 +420,12 @@ const BtnWrapperBottom = styled.div`
 const DeleteBtn = styled.button`
 	padding: 0;
 	border: none;
-	border-radius: 10px;
-	background: none;
+	background-color: transparent;
 	font-weight: 700;
 	font-size: 0.7rem;
-	outline: none;
 	color: ${props => props.theme.light.yellowColor};
 	cursor: pointer;
+	outline: none;
 `;
 
 export default EditTaskForm;

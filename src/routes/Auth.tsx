@@ -108,6 +108,7 @@ const Header = styled.header`
 const AppTitle = styled.h1`
 	margin: 0;
 	text-align: center;
+	font-weight: 400;
 	font-size: 1rem;
 	cursor: pointer;
 `;
@@ -188,15 +189,14 @@ const TextInputWrapper = styled.div`
 const TextInput = styled.input`
 	height: 50%;
 	border: none;
-	border-bottom: 2px solid ${props => props.theme.light.whiteColor};
+	border-bottom: 1px solid ${props => props.theme.light.whiteColor};
+	border-radius: 0;
 	background: none;
-	font-weight: 900;
 	color: ${props => props.theme.light.whiteColor};
 	&:focus {
 		outline: none;
 	}
 	&::placeholder {
-		font-weight: 900;
 		color: ${props => props.theme.light.whiteColor};
 	}
 `;

@@ -132,7 +132,7 @@ const TitleWrapper = styled.div`
 const Title = styled.h4`
 	margin: 0 0.5rem 0 0;
 	color: ${props => props.theme.light.whiteColor};
-	font-weight: bold;
+	font-weight: 700;
 `;
 
 const NotifyPastTask = styled.span<{ isPast: boolean }>`

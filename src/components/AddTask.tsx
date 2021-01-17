@@ -251,8 +251,9 @@ const DateWrapper = styled.div`
 
 const DateInput = styled.input`
 	width: 100%;
+	height: 100%;
 	padding: 0.2rem;
-	border: 1px solid ${props => props.theme.light.whiteColor};
+	border: 1px solid ${props => props.theme.light.grayColor};
 	border-radius: 5px;
 	background-color: transparent;
 	color: ${props => props.theme.light.whiteColor};

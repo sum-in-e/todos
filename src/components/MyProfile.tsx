@@ -295,6 +295,7 @@ const ProfileWrapper = styled.div`
 	top: 12rem;
 	left: 50%;
 	z-index: 15;
+	padding: 0.7rem 1rem;
 	transform: translate(-50%, -50%);
 	height: 15rem;
 	width: 80vw;
@@ -351,11 +352,10 @@ const BtnWrapper = styled.div`
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
-	padding: 0.5rem;
 	& > * {
+		padding: 0;
 		border: none;
-		border-radius: 10px;
-		background: none;
+		background-color: transparent;
 		outline: none;
 		font-size: 0.7rem;
 		font-weight: 700;
@@ -367,7 +367,7 @@ const BtnWrapper = styled.div`
 			color: rgb(199, 149, 55);
 			transition: color ease-in-out 0.3s;
 		}
-	`}
+		`}
 	}
 `;
 
@@ -400,6 +400,7 @@ const EditName = styled.input<{ isLimited: boolean }>`
 	width: 5rem;
 	margin-right: 3px;
 	border: none;
+	border-radius: 0;
 	border-bottom: 1px solid
 		${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
 	background: none;

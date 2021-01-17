@@ -64,6 +64,7 @@ const AppTitle = styled.h1`
 	margin: 0;
 	text-align: center;
 	font-size: 1rem;
+	font-weight: 400;
 `;
 
 export default Header;
