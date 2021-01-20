@@ -82,6 +82,10 @@ const Container = styled.section`
 	width: 100vw;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	${({ theme }) => theme.media.landscapeMobile`
+		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
+	`}
 `;
 
 /* ************** Header ************** */
@@ -95,8 +99,10 @@ const Header = styled.header`
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
-		height : 21vh;
+		height : 15vh;
 		padding : 0 2.5rem;
+		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		height : 10vh;

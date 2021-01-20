@@ -224,7 +224,6 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 								value={userName && userName ? userName : ''}
 								onChange={onChangeText}
 								isLimited={isLimited}
-								autoFocus
 								required
 							/>
 						</EditNameWrapper>

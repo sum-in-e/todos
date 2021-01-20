@@ -121,7 +121,6 @@ const TaskForm = styled.form`
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		flex-direction : row;
-		margin : 0 2rem;
 		padding : 0.5rem;
 		border-left : 1px solid #caccd1;
 		border-right : 1px solid #caccd1;
@@ -204,13 +203,13 @@ const ExceptTaskInput = styled.div`
 	border-top: 2px solid ${props => props.theme.light.grayColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 1.5rem;
-        width : auto;
+        width : 60%;
         border : none;
         padding : 0;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		height : 1.5rem;
-        width : auto;
+        width : 50%;
         border : none;
         padding : 0;
 	`}
@@ -231,20 +230,24 @@ const DateWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	width: 80%;
-	padding: 0 0.5rem;
+	padding: 0px 0.5rem 0 0;
 	border: none;
 	border-right: 2px solid ${props => props.theme.light.grayColor};
 	background-color: transparent;
 	${({ theme }) => theme.media.landscapeMobile`
+		padding: 0px 0.5rem;
 		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};		
 		`}
 	${({ theme }) => theme.media.portraitTablet`
+		padding: 0px 0.5rem;
 		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
 		`}
 	${({ theme }) => theme.media.landscapeTablet`
+			padding: 0px 0.5rem;
 		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
 		`}
 	${({ theme }) => theme.media.desktop`
+		padding: 0px 0.5rem;
 		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
 		`}
 `;
@@ -272,10 +275,10 @@ const SubmitInput = styled.input`
 	color: ${props => props.theme.light.whiteColor};
 	cursor: pointer;
 	${({ theme }) => theme.media.landscapeMobile`
-		padding : 0 0.2rem;
+		padding : 0 0.5rem;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		padding : 0 0.2rem;
+		padding : 0 0.5rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
 		padding : 0 0.2rem 0 0.8rem;
