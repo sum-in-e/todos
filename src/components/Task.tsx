@@ -214,7 +214,7 @@ const Label = styled.label`
 	position: relative;
 	display: flex;
 	align-items: center;
-	width: 90%;
+	width: 80%;
 	padding-right: 0.3rem;
 	color: ${props => props.theme.light.whiteColor};
 `;
@@ -277,7 +277,11 @@ const CheckSpanShowing = styled.span`
 `;
 
 const OutputTask = styled.span`
-	width: 90%;
+	width: 80%;
+	word-wrap: break-word;
+	${({ theme }) => theme.media.landscapeMobile`
+		width : 90%;
+	`}
 `;
 
 /* ********************* Icon Wrapper ********************* */
