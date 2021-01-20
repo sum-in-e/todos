@@ -18,6 +18,14 @@ const App: React.FunctionComponent = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [init, setInit] = useState<boolean>(false);
 
+	const vh = window.innerHeight * 0.01;
+	document.documentElement.style.setProperty('--vh', `${vh}px`);
+	console.log(window.innerHeight, vh);
+	window.addEventListener('resize', () => {
+		const vh = window.innerHeight * 0.01;
+		document.documentElement.style.setProperty('--vh', `${vh}px`);
+	});
+
 	useEffect(() => {
 		authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
 			if (loggedUser) {

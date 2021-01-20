@@ -84,22 +84,28 @@ const Container = styled.main`
 	position: relative;
 	overflow: scroll;
 	height: 88vh;
+	height: calc(var(--vh, 1vh) * 88);
 	margin-top: 12vh;
-	-ms-overflow-style: none;
+	margin-top: calc(var(--vh, 1vh) * 12);
 	scrollbar-width: none;
+	-ms-overflow-style: none;
 	&::-webkit-scrollbar {
 		display: none;
 	}
 	font-size: 0.8rem;
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 79vh;
+		height: calc(var(--vh, 1vh) * 79);
 		margin-top : 21vh;
+		margin-top: calc(var(--vh, 1vh) * 21);
 		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
 		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
 		heigth : 90vh;
+		height: calc(var(--vh, 1vh) * 90);
 		margin-top : 10vh;
+		margin-top: calc(var(--vh, 1vh) * 10);
 	`}
 	${({ theme }) => theme.media.desktop`		
 		heigth : 85vh;
@@ -114,15 +120,19 @@ const AddTaskWrapper = styled.section`
 	align-items: center;
 	position: fixed;
 	top: 12vh;
+	top: calc(var(--vh, 1vh) * 12);
 	left: 0;
 	width: 100%;
 	z-index: 1;
 	background-color: ${props => props.theme.light.greenColor};
 	${({ theme }) => theme.media.landscapeMobile`		
 		top : 21vh;
+		top: calc(var(--vh, 1vh) * 21);
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
 		top : 10vh;
+		top: calc(var(--vh, 1vh) * 10);
+
 	`}
 	${({ theme }) => theme.media.desktop`		
 		top : 15vh;
@@ -133,22 +143,24 @@ const AddTaskWrapper = styled.section`
 const TaskListWrapper = styled.section`
 	z-index: -1;
 	padding: 0 1rem 1rem 1rem;
-	margin-top: 5rem;
+	margin-top: calc(var(--vh, 1vh) * 20);
 	${({ theme }) => theme.media.landscapeMobile`
 		padding: 0 0.5rem 1rem 0.5rem;
-		margin-top: 2.5rem;
+		margin-top: calc(var(--vh, 1vh) * 17);
 	`}
 	${({ theme }) => theme.media.portraitTabletS`
 		padding: 0 1.5rem 1rem 1.5rem;
+		margin-top: calc(var(--vh, 1vh) * 17);
+
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		margin-top: 2.5rem;
+		margin-top: calc(var(--vh, 1vh) * 5);
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
-		margin-top: 2.5rem;
+		margin-top: calc(var(--vh, 1vh) * 7);
 	`}
 	${({ theme }) => theme.media.desktop`
-		margin-top: 2.5rem;
+		margin-top: calc(var(--vh, 1vh) * 7);
 	`}
 `;
 

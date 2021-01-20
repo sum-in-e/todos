@@ -29,13 +29,16 @@ const Container = styled.header`
 	left: 0;
 	width: 100vw;
 	height: 12vh;
+	height: calc(var(--vh, 1vh) * 12);
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 21vh;
+		height: calc(var(--vh, 1vh) * 21);
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
 		height : 10vh;
+		height: calc(var(--vh, 1vh) * 10);
 	`}
 	${({ theme }) => theme.media.desktop`		
 		height : 15vh;

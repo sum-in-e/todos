@@ -78,6 +78,7 @@ const Container = styled.section`
 	flex-direction: column;
 	align-items: center;
 	height: 100vh;
+	height: calc(var(--vh, 1vh) * 100);
 	width: 100vw;
 	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
