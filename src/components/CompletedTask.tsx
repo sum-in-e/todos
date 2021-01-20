@@ -113,9 +113,10 @@ const Container = styled.div`
 
 /* ********************* Output Task ********************* */
 const OutputTask = styled.span`
-	width: 85%;
+	width: 75%;
 	color: ${props => props.theme.light.whiteColor};
 	text-decoration: line-through;
+	word-wrap: break-word;
 `;
 
 /* ********************* Icon Wrapper ********************* */
