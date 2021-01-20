@@ -181,6 +181,7 @@ const TaskInput = styled.input`
 		width : 93%;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
+		width : 95%;
 		padding-right : 0.5rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
@@ -278,7 +279,7 @@ const SubmitInput = styled.input`
 		padding : 0 0.5rem;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		padding : 0 0.5rem;
+		padding : 0 0 0 0.5rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
 		padding : 0 0.2rem 0 0.8rem;
