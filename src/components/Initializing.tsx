@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Loader } from 'styled-icons/boxicons-regular';
+import { LoaderAlt } from 'styled-icons/boxicons-regular';
 
 const Initializing: React.FunctionComponent = () => {
 	return (
 		<Container>
 			<LoaderI />
-			<Text>Initializing...</Text>
+			<Text>Loading...</Text>
 		</Container>
 	);
 };
@@ -18,14 +18,16 @@ const Container = styled.div`
 	align-items: center;
 	width: 100vw;
 	height: 100vh;
-	background-color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.greenColor};
 `;
 
-const LoaderI = styled(Loader)`
+const LoaderI = styled(LoaderAlt)`
 	width: 4rem;
-	color: ${props => props.theme.light.greenColor};
+	color: ${props => props.theme.light.whiteColor};
 `;
 
-const Text = styled.h4``;
+const Text = styled.h4`
+	color: ${props => props.theme.light.whiteColor};
+`;
 
 export default Initializing;
