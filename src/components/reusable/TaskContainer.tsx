@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { dbService } from '../fbase';
+import { dbService } from '../../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import Task from './Task';
 import CompletedTask from './CompletedTask';

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import theme from '../styles/theme';
-import { dbService } from '../fbase';
+import theme from '../../styles/theme';
+import { dbService } from '../../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 

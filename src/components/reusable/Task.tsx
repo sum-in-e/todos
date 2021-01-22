@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { dbService } from '../fbase';
-import theme from '../styles/theme';
+import { dbService } from '../../fbase';
+import theme from '../../styles/theme';
 import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 import EditTaskForm from './EditTaskForm';

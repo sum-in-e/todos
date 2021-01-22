@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
-import TaskContainer from './TaskContainer';
+import TaskContainer from './reusable/TaskContainer';
 import AddTask from './AddTask';
 
 interface IProps {
