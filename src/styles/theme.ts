@@ -10,7 +10,7 @@ const theme: DefaultTheme = {
 		grayColor: '#caccd1',
 		blackColor: '#1C1C1C',
 		whiteColor: '#FFFFFF',
-		redColor: '#ed1c16',
+		redColor: '#e74635',
 	},
 	media: {
 		portraitMobile: (...args: BackQuoteArgs): undefined => undefined,

@@ -204,7 +204,7 @@ const TextInput = styled.input`
 		outline: none;
 	}
 	&::placeholder {
-		color: ${props => props.theme.light.whiteColor};
+		color: ${props => props.theme.light.grayColor};
 	}
 `;
 

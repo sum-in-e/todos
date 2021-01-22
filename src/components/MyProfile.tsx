@@ -295,9 +295,9 @@ const ProfileWrapper = styled.div`
 	left: 50%;
 	z-index: 15;
 	padding: 0.7rem 1rem;
-	transform: translate(-50%, -50%);
 	height: 15rem;
 	width: 80vw;
+	transform: translate(-50%, -50%);
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
 	&.showing {
@@ -313,13 +313,18 @@ const ProfileWrapper = styled.div`
 		width: 60vw;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
-		left : 74%;
+		position : absolute;
+		top: 3rem;
+		left : unset;
 		width: 45vw;
+		transform : none;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
-		top: 13rem;
-		left : 80%;
+		position : absolute;
+		top: 3rem;
+		left : unset;
 		width: 35vw;
+		transform : none;
 	`}
 	${({ theme }) => theme.media.desktop`
 		position : absolute;
@@ -361,12 +366,6 @@ const BtnWrapper = styled.div`
 		color: ${props => props.theme.light.yellowColor};
 		cursor: pointer;
 		transition: all 0.3s;
-		${({ theme }) => theme.media.desktop`
-		&:hover {
-			color: rgb(199, 149, 55);
-			transition: color ease-in-out 0.3s;
-		}
-		`}
 	}
 `;
 
