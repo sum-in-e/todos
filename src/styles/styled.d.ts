@@ -9,6 +9,7 @@ declare module 'styled-components' {
 			grayColor: string;
 			blackColor: string;
 			whiteColor: string;
+			redColor: string;
 		};
 		media: {
 			portraitMobile: (...args: BackQuoteArgs) => CSSProp | undefined;

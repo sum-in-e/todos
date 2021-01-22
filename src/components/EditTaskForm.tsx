@@ -423,7 +423,7 @@ const DeleteBtn = styled.button`
 	background-color: transparent;
 	font-weight: 700;
 	font-size: 0.7rem;
-	color: ${props => props.theme.light.yellowColor};
+	color: ${props => props.theme.light.redColor};
 	cursor: pointer;
 	outline: none;
 `;
