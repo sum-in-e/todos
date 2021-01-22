@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { dbService } from '../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
+import { Clear } from 'styled-icons/material-outlined';
 
 interface IProps {
 	userInfo: {
@@ -74,7 +75,12 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 		}
 	};
 
+	const onClickClear = (): void => {
+		setDate('날짜미정');
+	};
+
 	flatpickr('#DatePicker', {
+		disableMobile: true,
 		onChange: function (selectedDates: any, dateStr: any, instance: any) {
 			setDate(dateStr === '' ? '날짜미정' : dateStr);
 		},
@@ -99,10 +105,15 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 					<DateWrapper>
 						<DateInput
 							id="DatePicker"
-							placeholder="Date"
+							type="text"
+							placeholder="Select Date"
 							value={date === '날짜미정' ? '' : date}
+							data-input
 							readOnly
 						/>
+						<ClearBtn onClick={onClickClear}>
+							<ClearI />
+						</ClearBtn>
 					</DateWrapper>
 					<SubmitInput type="submit" value="추가" />
 				</ExceptTaskInput>
@@ -113,11 +124,33 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 
 export default AddTask;
 
+const ClearBtn = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 20%;
+	height: 100%;
+	border: 1px solid ${props => props.theme.light.grayColor};
+	border-radius: 5px;
+	cursor: pointer;
+	${({ theme }) => theme.media.landscapeMobile`
+		width : 18%;
+	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		width : 12%;
+	`}
+`;
+
+const ClearI = styled(Clear)`
+	width: 25px;
+	color: ${props => props.theme.light.redColor};
+`;
+
 const TaskForm = styled.form`
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 1rem 0.8rem 1rem;
 	border-bottom: 1px solid ${props => props.theme.light.grayColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		flex-direction : row;
@@ -126,16 +159,19 @@ const TaskForm = styled.form`
 		border-right : 1px solid #caccd1;
 	`}
 	${({ theme }) => theme.media.portraitTabletS`
-		padding: 0.5rem 1.5rem;
+		padding: 0.5rem 1.5rem 0.8rem 1.5rem;
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		flex-direction : row;
+		padding: 0.5rem 1rem;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
 		flex-direction : row;	
+		padding: 0.5rem 1rem;
 	`}
 	${({ theme }) => theme.media.desktop`
-		flex-direction : row;	
+		flex-direction : row;
+		padding: 0.5rem 1rem;
 	`}
 `;
 
@@ -210,19 +246,19 @@ const ExceptTaskInput = styled.div`
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		height : 1.5rem;
-        width : 50%;
+        width : 60%;
         border : none;
         padding : 0;
 	`}
 	${({ theme }) => theme.media.landscapeTablet`
 		height : 1.5rem;
-        width : 40%;
+        width : 45%;
         border : none;
         padding : 0;
 	`}
 	${({ theme }) => theme.media.desktop`
 		height : 1.5rem;
-        width : 30%;
+        width : 35%;
         border : none;
         padding : 0;
 	`}
@@ -244,7 +280,7 @@ const DateWrapper = styled.div`
 		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
 		`}
 	${({ theme }) => theme.media.landscapeTablet`
-			padding: 0px 0.5rem;
+		padding: 0px 0.5rem;
 		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
 		`}
 	${({ theme }) => theme.media.desktop`
@@ -254,18 +290,25 @@ const DateWrapper = styled.div`
 `;
 
 const DateInput = styled.input`
-	width: 100%;
+	width: 80%;
 	height: 100%;
 	padding: 0.2rem;
 	border: 1px solid ${props => props.theme.light.grayColor};
 	border-radius: 5px;
-	background-color: transparent;
+	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	box-shadow: none;
 	cursor: pointer;
 	outline: none;
 	&::placeholder {
 		color: ${props => props.theme.light.whiteColor};
 	}
+	${({ theme }) => theme.media.landscapeMobile`
+		width : 82%;
+	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		width : 88%;
+	`}
 `;
 
 const SubmitInput = styled.input`

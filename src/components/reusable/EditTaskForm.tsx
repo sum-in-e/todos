@@ -4,6 +4,7 @@ import theme from '../../styles/theme';
 import { dbService } from '../../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
+import { Clear } from 'styled-icons/material-outlined';
 
 interface IProps {
 	userInfo: {
@@ -78,6 +79,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	} else {
 		window.removeEventListener('click', handleOutsideClick);
 	}
+
+	const onClickClear = () => {
+		setEditedDate('날짜미정');
+	};
 
 	const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const {
@@ -238,6 +243,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	useEffect(() => {
 		flatpickr('#DatePickr', {
+			disableMobile: true,
 			onChange: function (selectedDates: any, dateStr: any, instance: any) {
 				setEditedDate(dateStr === '' ? '날짜미정' : dateStr);
 			},
@@ -264,13 +270,20 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					/>
 					<DateWrapper>
 						<DateTitle>Date</DateTitle>
-						<DateInput
-							id="DatePickr"
-							placeholder="Date"
-							value={editedDate === '날짜미정' ? '' : editedDate}
-							ref={dateInputRef}
-							readOnly
-						/>
+						<DateInputWrapper>
+							<DateInput
+								id="DatePickr"
+								type="text"
+								placeholder="Select Date"
+								ref={dateInputRef}
+								value={editedDate === '날짜미정' ? '' : editedDate}
+								data-input
+								readOnly
+							/>
+							<ClearBtn onClick={onClickClear}>
+								<ClearI />
+							</ClearBtn>
+						</DateInputWrapper>
 					</DateWrapper>
 					<SaveInput type="submit" ref={submitRef} />
 				</InputWrapper>
@@ -387,15 +400,21 @@ const DateTitle = styled.span`
 	color: ${props => props.theme.light.grayColor};
 `;
 
-const DateInput = styled.input`
+const DateInputWrapper = styled.div`
+	display: flex;
 	width: 100%;
+`;
+
+const DateInput = styled.input`
+	width: 85%;
 	height: 2rem;
 	margin-top: 0.3rem;
 	padding: 5px;
 	border: solid 2px ${props => props.theme.light.grayColor};
 	border-radius: 5px;
-	background-color: transparent;
+	background-color: ${props => props.theme.light.greenColor};
 	color: ${props => props.theme.light.whiteColor};
+	box-shadow: none;
 	cursor: pointer;
 	outline: none;
 	&:focus {
@@ -407,6 +426,23 @@ const DateInput = styled.input`
 	}
 `;
 
+const ClearBtn = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 15%;
+	height: 2rem;
+	margin-top: 0.3rem;
+	border: solid 2px ${props => props.theme.light.grayColor};
+	border-radius: 5px;
+	background-color: transparent;
+	cursor: pointer;
+`;
+
+const ClearI = styled(Clear)`
+	width: 25px;
+	color: ${props => props.theme.light.redColor};
+`;
 const SaveInput = styled.input`
 	display: none;
 `;
