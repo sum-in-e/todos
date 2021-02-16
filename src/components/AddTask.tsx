@@ -124,28 +124,6 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 
 export default AddTask;
 
-const ClearBtn = styled.div`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 20%;
-	height: 100%;
-	border: 1px solid ${props => props.theme.light.grayColor};
-	border-radius: 5px;
-	cursor: pointer;
-	${({ theme }) => theme.media.landscapeMobile`
-		width : 18%;
-	`}
-	${({ theme }) => theme.media.portraitTabletS`
-		width : 12%;
-	`}
-`;
-
-const ClearI = styled(Clear)`
-	width: 25px;
-	color: ${props => props.theme.light.redColor};
-`;
-
 const TaskForm = styled.form`
 	display: flex;
 	flex-direction: column;
@@ -266,6 +244,7 @@ const ExceptTaskInput = styled.div`
 const DateWrapper = styled.div`
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	width: 80%;
 	padding: 0px 0.5rem 0 0;
 	border: none;
@@ -309,6 +288,28 @@ const DateInput = styled.input`
 	${({ theme }) => theme.media.portraitTabletS`
 		width : 88%;
 	`}
+`;
+
+const ClearBtn = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 15%;
+	height: 100%;
+	border: 1px solid ${props => props.theme.light.grayColor};
+	border-radius: 5px;
+	cursor: pointer;
+	${({ theme }) => theme.media.landscapeMobile`
+		width : 18%;
+	`}
+	${({ theme }) => theme.media.portraitTabletS`
+		width : 12%;
+	`}
+`;
+
+const ClearI = styled(Clear)`
+	width: 25px;
+	color: ${props => props.theme.light.redColor};
 `;
 
 const SubmitInput = styled.input`
