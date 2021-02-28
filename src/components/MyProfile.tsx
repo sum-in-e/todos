@@ -15,7 +15,7 @@ interface IProps {
 
 const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
-	const [isEdit, setIsEdit] = useState<boolean>(false);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [headerProfileImg, setHeaderProfileImg] = useState<string>('');
 	const [profileImg, setProfileImg] = useState<string>('');
 	const [newProfileImg, setNewProfileImg] = useState<string>('');
@@ -26,25 +26,11 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const imgRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const backgroundRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const mainRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
-	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
-	const editRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
-	const logOutRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 
-	const handleOutsideClick = (e: any): void => {
-		const isInside = mainRef.current.contains(e.target as Node);
-		if (isInside) {
-			if (logOutRef.current === e.target || logOutRef.current === e.target.parentNode) {
-				window.removeEventListener('click', handleOutsideClick);
-				handleLogOutClick();
-			}
-			return;
-		} else if (imgRef.current === e.target) {
-			return;
-		} else {
-			window.removeEventListener('click', handleOutsideClick);
-			backgroundRef.current.classList.remove('showing');
-			mainRef.current.classList.remove('showing');
-		}
+	const onClickBg = () => {
+		console.log('click bg');
+		backgroundRef.current.classList.remove('showing');
+		mainRef.current.classList.remove('showing');
 	};
 
 	const onClickSave = async (): Promise<void> => {
@@ -111,7 +97,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 			} finally {
 				setTimeout(function () {
 					setIsLimited(false);
-					setIsEdit(prev => !prev);
+					setIsEditing(prev => !prev);
 					setIsSaving(false);
 				}, 200);
 			}
@@ -138,10 +124,10 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 				setNewProfileImg('');
 				setDefaultProfileImg('');
 				setIsLimited(false);
-				setIsEdit(prev => !prev);
+				setIsEditing(prev => !prev);
 			}
 		} else if (value === '편집') {
-			setIsEdit(prev => !prev);
+			setIsEditing(prev => !prev);
 			if (userName !== null && userName.length === 8) {
 				setIsLimited(true);
 			}
@@ -164,12 +150,11 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 		}
 	};
 
-	const handleLogOutClick = (): void => {
+	const onClickLogOut = (): void => {
 		const warning = confirm('로그아웃 하시겠습니까?');
 		if (warning === true) {
 			authService.signOut();
 		} else {
-			window.addEventListener('click', handleOutsideClick);
 			return;
 		}
 	};
@@ -177,7 +162,6 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const onClickProfile = (): void => {
 		mainRef.current.classList.add('showing');
 		backgroundRef.current.classList.add('showing');
-		window.addEventListener('click', handleOutsideClick);
 	};
 
 	return (
@@ -185,20 +169,18 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 			<ImgWrapper>
 				<ShowingProfileImg ref={imgRef} onClick={onClickProfile} imgUrl={headerProfileImg} />
 			</ImgWrapper>
-			<Background ref={backgroundRef} />
+			<Background ref={backgroundRef} onClick={onClickBg} />
 			<ProfileWrapper ref={mainRef}>
 				<HiddenWrapper isSaving={isSaving}>
 					<span>저장중...</span>
 				</HiddenWrapper>
 				<BtnWrapper>
-					{isEdit ? (
+					{isEditing ? (
 						<>
 							<ToggleBtn onClick={onClickToggle} value="취소">
 								취소
 							</ToggleBtn>
-							<SaveBtn onClick={onClickSave} ref={saveRef}>
-								저장
-							</SaveBtn>
+							<SaveBtn onClick={onClickSave}>저장</SaveBtn>
 						</>
 					) : (
 						<ToggleBtn onClick={onClickToggle} value="편집">
@@ -206,7 +188,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 						</ToggleBtn>
 					)}
 				</BtnWrapper>
-				<EditWrapper ref={editRef} isEdit={isEdit}>
+				<EditWrapper isEditing={isEditing}>
 					<ProfileImg
 						userInfo={userInfo}
 						profileImg={profileImg}
@@ -214,9 +196,9 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 						setHeaderProfileImg={setHeaderProfileImg}
 						setNewProfileImg={setNewProfileImg}
 						setDefaultProfileImg={setDefaultProfileImg}
-						isEdit={isEdit}
+						isEditing={isEditing}
 					/>
-					{isEdit ? (
+					{isEditing ? (
 						<EditNameWrapper>
 							<EditName
 								type="text"
@@ -233,7 +215,7 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 						</NameWrapper>
 					)}
 				</EditWrapper>
-				<LogOutWrapper ref={logOutRef}>
+				<LogOutWrapper onClick={onClickLogOut}>
 					<span>LOG OUT</span>
 				</LogOutWrapper>
 			</ProfileWrapper>
@@ -375,15 +357,15 @@ const SaveBtn = styled.button``;
 
 /* ********************* Edit Wrapper ********************* */
 
-const EditWrapper = styled.div<{ isEdit: boolean }>`
+const EditWrapper = styled.div<{ isEditing: boolean }>`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	width: 100%;
-	padding: ${props => (props.isEdit ? '1rem 1rem 0.5rem 1rem' : '1.5rem 1rem')};
-	${({ theme, isEdit }) => theme.media.landscapeMobile`
-		${isEdit ? { padding: 0 } : { padding: '1rem' }};
+	padding: ${props => (props.isEditing ? '1rem 1rem 0.5rem 1rem' : '1.5rem 1rem')};
+	${({ theme, isEditing }) => theme.media.landscapeMobile`
+		${isEditing ? { padding: 0 } : { padding: '1rem' }};
 	`}
 `;
 

@@ -14,7 +14,7 @@ interface IProps {
 	setHeaderProfileImg: React.Dispatch<React.SetStateAction<string>>;
 	setNewProfileImg: React.Dispatch<React.SetStateAction<string>>;
 	setDefaultProfileImg: React.Dispatch<React.SetStateAction<string>>;
-	isEdit: boolean;
+	isEditing: boolean;
 }
 
 const ProfileImg: React.FunctionComponent<IProps> = ({
@@ -24,13 +24,13 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 	setHeaderProfileImg,
 	setNewProfileImg,
 	setDefaultProfileImg,
-	isEdit,
+	isEditing,
 }) => {
 	const fileRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 
 	const onClickImg = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		const img = e.currentTarget as HTMLDivElement;
-		if (isEdit) {
+		if (isEditing) {
 			(img.nextSibling as HTMLInputElement).click();
 		}
 	};
@@ -103,24 +103,24 @@ const ProfileImg: React.FunctionComponent<IProps> = ({
 	}, []);
 
 	return (
-		<Container isEdit={isEdit}>
+		<Container isEditing={isEditing}>
 			<ImgWrapper onClick={onClickImg}>
 				<UserImg imgUrl={profileImg} />
-				<HiddenIconWrapper isEdit={isEdit}>
+				<HiddenIconWrapper isEditing={isEditing}>
 					<EditIcon />
 				</HiddenIconWrapper>
 			</ImgWrapper>
 			<FileInput type="file" ref={fileRef} onChange={onFileUpload} accept="image/x-png,image/gif,image/jpeg" />
-			{isEdit ? <ImgDelBtn onClick={onClickDefaultImg}>기본 이미지로 변경</ImgDelBtn> : ''}
+			{isEditing ? <ImgDelBtn onClick={onClickDefaultImg}>기본 이미지로 변경</ImgDelBtn> : ''}
 		</Container>
 	);
 };
 
-const Container = styled.div<{ isEdit: boolean }>`
+const Container = styled.div<{ isEditing: boolean }>`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-bottom: ${props => (props.isEdit ? '1rem' : '1.5rem')};
+	margin-bottom: ${props => (props.isEditing ? '1rem' : '1.5rem')};
 	${({ theme }) => theme.media.landscapeMobile`
 		margin-bottom : 1rem;
 	`}
@@ -145,7 +145,7 @@ const UserImg = styled.div<{ imgUrl: string }>`
 	`}
 `;
 
-const HiddenIconWrapper = styled.div<{ isEdit: boolean }>`
+const HiddenIconWrapper = styled.div<{ isEditing: boolean }>`
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -156,7 +156,7 @@ const HiddenIconWrapper = styled.div<{ isEdit: boolean }>`
 	z-index: 2;
 	position: absolute;
 	top: 0;
-	opacity: ${props => (props.isEdit ? 1 : 0)};
+	opacity: ${props => (props.isEditing ? 1 : 0)};
 	${({ theme }) => theme.media.landscapeMobile`
 		width: 4rem;
 		height: 4rem;
