@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { dbService, authService, storageService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
-import ProfileImg from './ProfileImg';
+import { Edit3 } from 'styled-icons/feather';
 
 interface IProps {
 	userInfo: {
@@ -22,15 +22,53 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	const [defaultProfileImg, setDefaultProfileImg] = useState<string>('');
 	const [isSaving, setIsSaving] = useState<boolean>(false);
 	const [isLimited, setIsLimited] = useState<boolean>(false);
+	const [isShowing, setIsShowing] = useState<boolean>(false);
 
-	const imgRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
-	const backgroundRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
-	const mainRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
+	const fileRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 
-	const onClickBg = () => {
-		console.log('click bg');
-		backgroundRef.current.classList.remove('showing');
-		mainRef.current.classList.remove('showing');
+	const onClickImg = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+		const img = e.currentTarget as HTMLDivElement;
+		if (isEditing) {
+			(img.nextSibling as HTMLInputElement).click();
+		}
+	};
+
+	const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+		const {
+			target: { files },
+		} = e;
+
+		if (files !== null) {
+			try {
+				const theFile = files[0];
+				const reader = new FileReader();
+				reader.readAsDataURL(theFile);
+				reader.onload = (): void => {
+					const result = reader.result;
+					if (result !== null) {
+						const dataUrl = result.toString();
+						setNewProfileImg(dataUrl);
+						setProfileImg(dataUrl);
+						setDefaultProfileImg('');
+					}
+				};
+			} catch (err) {
+				alert('이미지 불러오기에 실패하였습니다. 재시도해주세요.');
+			} finally {
+				fileRef.current.value = '';
+			}
+		}
+	};
+
+	const onClickDefaultImg = async (): Promise<void> => {
+		try {
+			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+			setProfileImg(defaultImg);
+			setDefaultProfileImg(defaultImg);
+			setNewProfileImg('');
+		} catch (err) {
+			alert('기본 이미지 불러오기에 실패하였습니다. 재시도해주세요.');
+		}
 	};
 
 	const onClickSave = async (): Promise<void> => {
@@ -160,65 +198,109 @@ const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 	};
 
 	const onClickProfile = (): void => {
-		mainRef.current.classList.add('showing');
-		backgroundRef.current.classList.add('showing');
+		setIsShowing(true);
 	};
+
+	const onClickBg = () => {
+		setIsShowing(false);
+	};
+
+	useEffect(() => {
+		const getProfileImg = async (): Promise<void> => {
+			if (userInfo.uid !== null) {
+				try {
+					const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
+					if (profileDoc.exists) {
+						const data = profileDoc.data();
+						if (data !== undefined) {
+							const userProfileImg = data.image;
+							setProfileImg(userProfileImg);
+							setHeaderProfileImg(userProfileImg);
+						}
+					} else {
+						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+						setProfileImg(defaultImg);
+						setHeaderProfileImg(defaultImg);
+						dbService.collection('profile').doc(userInfo.uid).set({
+							image: defaultImg,
+						});
+					}
+				} catch (err) {
+					alert('프로필 구성에 실패하였습니다. 페이지를 새로고침합니다.');
+					window.location.reload();
+				}
+			}
+		};
+		getProfileImg();
+	}, []);
 
 	return (
 		<Container>
 			<ImgWrapper>
-				<ShowingProfileImg ref={imgRef} onClick={onClickProfile} imgUrl={headerProfileImg} />
+				<ShowingProfileImg onClick={onClickProfile} imgUrl={headerProfileImg} />
 			</ImgWrapper>
-			<Background ref={backgroundRef} onClick={onClickBg} />
-			<ProfileWrapper ref={mainRef}>
-				<HiddenWrapper isSaving={isSaving}>
-					<span>저장중...</span>
-				</HiddenWrapper>
-				<BtnWrapper>
-					{isEditing ? (
-						<>
-							<ToggleBtn onClick={onClickToggle} value="취소">
-								취소
-							</ToggleBtn>
-							<SaveBtn onClick={onClickSave}>저장</SaveBtn>
-						</>
-					) : (
-						<ToggleBtn onClick={onClickToggle} value="편집">
-							편집
-						</ToggleBtn>
-					)}
-				</BtnWrapper>
-				<EditWrapper isEditing={isEditing}>
-					<ProfileImg
-						userInfo={userInfo}
-						profileImg={profileImg}
-						setProfileImg={setProfileImg}
-						setHeaderProfileImg={setHeaderProfileImg}
-						setNewProfileImg={setNewProfileImg}
-						setDefaultProfileImg={setDefaultProfileImg}
-						isEditing={isEditing}
-					/>
-					{isEditing ? (
-						<EditNameWrapper>
-							<EditName
-								type="text"
-								placeholder="Name"
-								value={userName && userName ? userName : ''}
-								onChange={onChangeText}
-								isLimited={isLimited}
-								required
-							/>
-						</EditNameWrapper>
-					) : (
-						<NameWrapper>
-							<ShowingName>{userName ? userName : 'User'}</ShowingName>
-						</NameWrapper>
-					)}
-				</EditWrapper>
-				<LogOutWrapper onClick={onClickLogOut}>
-					<span>LOG OUT</span>
-				</LogOutWrapper>
-			</ProfileWrapper>
+			{isShowing ? (
+				<>
+					<Background onClick={onClickBg} />
+					<ProfileWrapper>
+						<HiddenWrapper isSaving={isSaving}>
+							<span>저장중...</span>
+						</HiddenWrapper>
+						<BtnWrapper>
+							{isEditing ? (
+								<>
+									<ToggleBtn onClick={onClickToggle} value="취소">
+										취소
+									</ToggleBtn>
+									<SaveBtn onClick={onClickSave}>저장</SaveBtn>
+								</>
+							) : (
+								<ToggleBtn onClick={onClickToggle} value="편집">
+									편집
+								</ToggleBtn>
+							)}
+						</BtnWrapper>
+						<EditWrapper isEditing={isEditing}>
+							<ProfileImgContainer isEditing={isEditing}>
+								<Wrapper onClick={onClickImg}>
+									<UserImg imgUrl={profileImg} />
+									<HiddenIconWrapper isEditing={isEditing}>
+										<EditIcon />
+									</HiddenIconWrapper>
+								</Wrapper>
+								<FileInput
+									type="file"
+									ref={fileRef}
+									onChange={onFileUpload}
+									accept="image/x-png,image/gif,image/jpeg"
+								/>
+								{isEditing ? <ImgDelBtn onClick={onClickDefaultImg}>기본 이미지로 변경</ImgDelBtn> : ''}
+							</ProfileImgContainer>
+							{isEditing ? (
+								<EditNameWrapper>
+									<EditName
+										type="text"
+										placeholder="Name"
+										value={userName && userName ? userName : ''}
+										onChange={onChangeText}
+										isLimited={isLimited}
+										required
+									/>
+								</EditNameWrapper>
+							) : (
+								<NameWrapper>
+									<ShowingName>{userName ? userName : 'User'}</ShowingName>
+								</NameWrapper>
+							)}
+						</EditWrapper>
+						<LogOutWrapper onClick={onClickLogOut}>
+							<span>LOG OUT</span>
+						</LogOutWrapper>
+					</ProfileWrapper>
+				</>
+			) : (
+				''
+			)}
 		</Container>
 	);
 };
@@ -233,7 +315,7 @@ const Container = styled.div`
 
 /* ********************* Background ********************* */
 const Background = styled.div`
-	display: none;
+	display: block;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -241,9 +323,6 @@ const Background = styled.div`
 	width: 100vw;
 	height: 100vh;
 	background-color: rgba(0, 0, 0, 0.6);
-	&.showing {
-		display: block;
-	}
 `;
 
 /* ********************* Img Wrapper ********************* */
@@ -269,7 +348,7 @@ const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 
 /* ********************* ProfileWrapper ********************* */
 const ProfileWrapper = styled.div`
-	display: none;
+	display: flex;
 	flex-direction: column;
 	align-items: center;
 	position: fixed;
@@ -282,9 +361,7 @@ const ProfileWrapper = styled.div`
 	transform: translate(-50%, -50%);
 	border-radius: 15px;
 	background-color: ${props => props.theme.light.greenColor};
-	&.showing {
-		display: flex;
-	}
+
 	${({ theme }) => theme.media.landscapeMobile`
 		top : 50%;
 		height: 12rem;
@@ -441,6 +518,88 @@ const LogOutWrapper = styled.div`
 		border-radius: 15px;
 		${{ border: `1px solid ${theme.light.yellowColor}` }};
 	`}
+	${({ theme }) => theme.media.desktop`
+		&:hover {
+			background-color: rgb(14, 59, 51);
+			transition: background-color ease-in-out 0.3s;
+		}
+	`}
+`;
+
+/* ********************* Profile Img Container ********************* */
+const ProfileImgContainer = styled.div<{ isEditing: boolean }>`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: ${props => (props.isEditing ? '1rem' : '1.5rem')};
+	${({ theme }) => theme.media.landscapeMobile`
+		margin-bottom : 1rem;
+	`}
+`;
+
+const Wrapper = styled.div`
+	position: relative;
+	cursor: pointer;
+`;
+
+const UserImg = styled.div<{ imgUrl: string }>`
+	width: 5rem;
+	height: 5rem;
+	border-radius: 50%;
+	background-image: url(${props => props.imgUrl});
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	${({ theme }) => theme.media.landscapeMobile`
+		width: 4rem;
+		height: 4rem;
+	`}
+`;
+
+const HiddenIconWrapper = styled.div<{ isEditing: boolean }>`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 5rem;
+	height: 5rem;
+	border-radius: 50%;
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 2;
+	position: absolute;
+	top: 0;
+	opacity: ${props => (props.isEditing ? 1 : 0)};
+	${({ theme }) => theme.media.landscapeMobile`
+		width: 4rem;
+		height: 4rem;
+	`}
+`;
+
+const EditIcon = styled(Edit3)`
+	height: 1.5rem;
+	color: ${props => props.theme.light.grayColor};
+	&:active {
+		transform: scale(0.9, 0.9);
+	}
+`;
+
+const FileInput = styled.input`
+	display: none;
+`;
+
+const ImgDelBtn = styled.button`
+	padding: 5px 8px;
+	margin-top: 0.5rem;
+	border: 1px solid ${props => props.theme.light.grayColor};
+	border-radius: 15px;
+	background-color: ${props => props.theme.light.greenColor};
+	font-size: 0.5rem;
+	color: ${props => props.theme.light.grayColor};
+	outline: none;
+	cursor: pointer;
+	transition: all 0.3s;
+	&:active {
+		transform: scale(0.9, 0.9);
+	}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
 			background-color: rgb(14, 59, 51);
