@@ -19,7 +19,6 @@ interface IProps {
 	taskValue: string;
 	editedDate: string;
 	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
-	isEditing: boolean;
 	isCompleted: boolean;
 	handleExitEditing: () => void;
 }
@@ -29,7 +28,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	taskKey,
 	taskValue,
 	userInfo,
-	isEditing,
 	editedDate,
 	setEditedDate,
 	handleExitEditing,
@@ -38,47 +36,8 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	setTaskList,
 }) => {
 	const [inputValue, setInputValue] = useState<string>(taskValue);
-	const textInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
-	const submitRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
-	const saveRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
-	const cancelRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
-	const deleteRef = React.useRef() as React.MutableRefObject<HTMLButtonElement>;
-	const EditWrapperRef = React.useRef() as React.MutableRefObject<HTMLDivElement>;
 	const temporaryStorage: any = {};
-
-	const handleOutsideClick = (e: any): void => {
-		const isInside = EditWrapperRef.current.contains(e.target as Node);
-		if (isInside) {
-			if (e.target === cancelRef.current) {
-				window.removeEventListener('click', handleOutsideClick);
-				setTimeout(function () {
-					handleExitEditing();
-				}, 100);
-			}
-			if (e.target === saveRef.current) {
-				window.removeEventListener('click', handleOutsideClick);
-				handleSubmitClick();
-			}
-			if (e.target === deleteRef.current) {
-				window.removeEventListener('click', handleOutsideClick);
-				handleDeleteClick();
-			}
-		} else {
-			window.removeEventListener('click', handleOutsideClick);
-			setTimeout(function () {
-				handleExitEditing();
-			}, 100);
-		}
-	};
-
-	if (isEditing) {
-		setTimeout(function () {
-			window.addEventListener('click', handleOutsideClick);
-		}, 100);
-	} else {
-		window.removeEventListener('click', handleOutsideClick);
-	}
 
 	const onClickClear = () => {
 		setEditedDate('날짜미정');
@@ -91,10 +50,9 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 		setInputValue(value);
 	};
 
-	const handleDeleteClick = async (): Promise<void> => {
+	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const warning = confirm('삭제하시겠습니까?');
-			if (warning === true) {
+			if (confirm('삭제하시겠습니까?') === true) {
 				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
@@ -121,17 +79,13 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
 					handleExitEditing();
 				}
-			} else {
-				window.addEventListener('click', handleOutsideClick);
-				return;
 			}
 		}
 	};
 
-	const handleSubmitClick = async (): Promise<void> => {
+	const onClickSave = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
-			const textInputValue = textInputRef.current.value;
 			const editedDateValue = dateInputRef.current.value == '' ? '날짜미정' : dateInputRef.current.value;
 			try {
 				if (date === editedDateValue) {
@@ -139,8 +93,8 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 					);
 					const data = copyedTaskList[docIndex].tasks;
-					data[taskKey] = textInputValue;
-					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: textInputValue });
+					data[taskKey] = inputValue;
+					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: inputValue });
 					setTaskList(copyedTaskList);
 				} else {
 					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
@@ -154,13 +108,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							date: editedDateValue,
 							tasks: {
 								...data,
-								[dataLength]: textInputValue,
+								[dataLength]: inputValue,
 							},
 						};
-
-						await dbService
-							.doc(`${userInfo.uid}/${editedDateValue}`)
-							.update({ [dataLength]: textInputValue });
+						await dbService.doc(`${userInfo.uid}/${editedDateValue}`).update({ [dataLength]: inputValue });
 						copyedTaskList.splice(docIndex, 1, taskObj);
 						const previousDocIndex = copyedTaskList.findIndex(
 							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
@@ -192,12 +143,11 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						const taskObj = {
 							date: editedDateValue,
 							tasks: {
-								0: textInputValue,
+								0: inputValue,
 							},
 						};
-
 						await dbService.collection(userInfo.uid).doc(editedDateValue).set({
-							0: textInputValue,
+							0: inputValue,
 						});
 						copyedTaskList.push(taskObj);
 						copyedTaskList.sort(function (
@@ -252,15 +202,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	return (
 		<Container>
-			<Background isEditing={isEditing} />
-			<EditWrapper ref={EditWrapperRef}>
+			<Background onClick={handleExitEditing} />
+			<EditWrapper>
 				<BtnWrapperTop>
-					<ToggleBtn ref={cancelRef}>취소</ToggleBtn>
-					<SaveBtn ref={saveRef}>{isCompleted ? '복구' : '저장'}</SaveBtn>
+					<ToggleBtn onClick={handleExitEditing}>취소</ToggleBtn>
+					<SaveBtn onClick={onClickSave}>{isCompleted ? '복구' : '저장'}</SaveBtn>
 				</BtnWrapperTop>
 				<InputWrapper>
 					<TaskInput
-						ref={textInputRef}
 						type="text"
 						maxLength={50}
 						value={inputValue}
@@ -285,10 +234,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							</ClearBtn>
 						</DateInputWrapper>
 					</DateWrapper>
-					<SaveInput type="submit" ref={submitRef} />
+					<SaveInput type="submit" />
 				</InputWrapper>
 				<BtnWrapperBottom>
-					<DeleteBtn ref={deleteRef}>삭제</DeleteBtn>
+					<DeleteBtn onClick={onClickDelete}>삭제</DeleteBtn>
 				</BtnWrapperBottom>
 			</EditWrapper>
 		</Container>
@@ -298,7 +247,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 const Container = styled.div``;
 
 /* ********************* Background ********************* */
-const Background = styled.div<{ isEditing: boolean }>`
+const Background = styled.div`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -306,7 +255,7 @@ const Background = styled.div<{ isEditing: boolean }>`
 	width: 100vw;
 	height: 100vh;
 	background-color: rgba(0, 0, 0, 0.6);
-	opacity: ${props => (props.isEditing ? 1 : 0)};
+ */
 `;
 
 /* ********************* Edit Task Wrapper ********************* */

@@ -169,7 +169,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 					taskKey={taskKey}
 					taskValue={taskValue}
 					userInfo={userInfo}
-					isEditing={isEditing}
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
 					handleExitEditing={handleExitEditing}
