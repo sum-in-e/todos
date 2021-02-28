@@ -6,14 +6,19 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
 
+interface ITaskList {
+	date: string;
+	tasks: { (key: number): string };
+}
+
 interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	taskList: any[];
-	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
+	taskList: ITaskList[];
+	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 	date: string;
 	taskKey: string;
 	taskValue: string;
@@ -55,7 +60,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			if (confirm('삭제하시겠습니까?') === true) {
 				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 				const docIndex = copyedTaskList.findIndex(
-					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
 				const data = copyedTaskList[docIndex].tasks;
 				delete data[taskKey];
@@ -90,17 +95,19 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 			try {
 				if (date === editedDateValue) {
 					const docIndex = copyedTaskList.findIndex(
-						(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+						(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 					);
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = inputValue;
 					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: inputValue });
 					setTaskList(copyedTaskList);
 				} else {
-					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
+					const docList = copyedTaskList.map(
+						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
+					);
 					if (docList.includes(editedDateValue)) {
 						const docIndex = copyedTaskList.findIndex(
-							(doc: { date: string; tasks: { task: string } }) => doc.date === editedDateValue,
+							(doc: { date: string; tasks: { (key: number): string } }) => doc.date === editedDateValue,
 						);
 						const data = copyedTaskList[docIndex].tasks;
 						const dataLength = Object.keys(data).length;
@@ -114,7 +121,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						await dbService.doc(`${userInfo.uid}/${editedDateValue}`).update({ [dataLength]: inputValue });
 						copyedTaskList.splice(docIndex, 1, taskObj);
 						const previousDocIndex = copyedTaskList.findIndex(
-							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+							(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 						);
 						const previousData = copyedTaskList[previousDocIndex].tasks;
 						delete previousData[taskKey];
@@ -157,7 +164,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
 						});
 						const previousDocIndex = copyedTaskList.findIndex(
-							(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+							(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 						);
 						const previousData = copyedTaskList[previousDocIndex].tasks;
 						delete previousData[taskKey];
@@ -194,7 +201,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	useEffect(() => {
 		flatpickr('#DatePickr', {
 			disableMobile: true,
-			onChange: function (selectedDates: any, dateStr: any, instance: any) {
+			onChange: function (selectedDates: any, dateStr: string, instance: any) {
 				setEditedDate(dateStr === '' ? '날짜미정' : dateStr);
 			},
 		});

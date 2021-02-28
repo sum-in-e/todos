@@ -6,16 +6,21 @@ import Task from './Task';
 import CompletedTask from './CompletedTask';
 import { TriangleDown } from 'styled-icons/entypo';
 
+interface ITaskList {
+	date: string;
+	tasks: { (key: number): string };
+}
+
 interface IProps {
 	date: string;
-	tasks: { taskKey: string; taskValue: string };
+	tasks: { (key: number): string };
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	taskList: any[];
-	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
+	taskList: ITaskList[];
+	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
 const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, taskList, setTaskList }) => {
@@ -32,7 +37,7 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 			if (warning === true) {
 				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 				const docIndex = copyedTaskList.findIndex(
-					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
 				copyedTaskList.splice(docIndex, 1);
 				try {

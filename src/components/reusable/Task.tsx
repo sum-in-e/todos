@@ -6,6 +6,11 @@ import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 import EditTaskForm from './EditTaskForm';
 
+interface ITaskList {
+	date: string;
+	tasks: { (key: number): string };
+}
+
 interface IProps {
 	date: string;
 	taskKey: string;
@@ -15,8 +20,8 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	taskList: any[];
-	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
+	taskList: ITaskList[];
+	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
 const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskValue, taskList, setTaskList }) => {
@@ -30,7 +35,7 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 			if (warning === true) {
 				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 				const docIndex = copyedTaskList.findIndex(
-					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
 				const data = copyedTaskList[docIndex].tasks;
 				delete data[taskKey];
@@ -73,11 +78,13 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 			if (e.target.labels !== null) {
 				if (e.target.checked) {
 					const copyedTaskList = JSON.parse(JSON.stringify(taskList));
-					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
+					const docList = copyedTaskList.map(
+						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
+					);
 					try {
 						if (docList.includes('완료')) {
 							const completedDocIndex = copyedTaskList.findIndex(
-								(doc: { date: string; tasks: { task: string } }) => doc.date === '완료',
+								(doc: { date: string; tasks: { (key: number): string } }) => doc.date === '완료',
 							);
 							const completedData = copyedTaskList[completedDocIndex].tasks;
 							const completedDataLength = Object.keys(completedData).length;
@@ -91,7 +98,7 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: taskValue });
 							copyedTaskList.splice(completedDocIndex, 1, taskObj);
 							const docIndex = copyedTaskList.findIndex(
-								(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+								(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 							);
 							const data = copyedTaskList[docIndex].tasks;
 							delete data[taskKey];
@@ -127,7 +134,7 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 							});
 							copyedTaskList.push(taskObj);
 							const docIndex = copyedTaskList.findIndex(
-								(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+								(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 							);
 							const data = copyedTaskList[docIndex].tasks;
 							delete data[taskKey];

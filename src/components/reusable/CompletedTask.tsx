@@ -5,6 +5,11 @@ import EditTaskForm from './EditTaskForm';
 import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 
+interface ITaskList {
+	date: string;
+	tasks: { (key: number): string };
+}
+
 interface IProps {
 	date: string;
 	taskKey: string;
@@ -14,8 +19,8 @@ interface IProps {
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	taskList: any[];
-	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
+	taskList: ITaskList[];
+	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
 const CompletedTask: React.FunctionComponent<IProps> = ({
@@ -45,7 +50,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({
 			if (warning === true) {
 				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 				const docIndex = copyedTaskList.findIndex(
-					(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
 				const data = copyedTaskList[docIndex].tasks;
 				delete data[taskKey];

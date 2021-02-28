@@ -5,14 +5,19 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
 
+interface ITaskList {
+	date: string;
+	tasks: { (key: number): string };
+}
+
 interface IProps {
 	userInfo: {
 		uid: string | null;
 		displayName: string | null;
 		updateProfile: (args: { displayName: string | null }) => void;
 	};
-	taskList: any[];
-	setTaskList: React.Dispatch<React.SetStateAction<any[]>>;
+	taskList: ITaskList[];
+	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
 const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskList }) => {
@@ -30,11 +35,11 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 		e.preventDefault();
 		if (userInfo.uid !== null) {
 			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
-			const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
+			const docList = copyedTaskList.map((doc: { date: string; tasks: { (key: number): string } }) => doc.date);
 			try {
 				if (docList.includes(date)) {
 					const docIndex = copyedTaskList.findIndex(
-						(doc: { date: string; tasks: { task: string } }) => doc.date === date,
+						(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 					);
 					const data = copyedTaskList[docIndex].tasks;
 					const dataLength = Object.keys(data).length;
@@ -59,8 +64,8 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 					};
 					copyedTaskList.push(taskObj);
 					copyedTaskList.sort(function (
-						a: { date: string; tasks: { task: string } },
-						b: { date: string; tasks: { task: string } },
+						a: { date: string; tasks: { (key: number): string } },
+						b: { date: string; tasks: { (key: number): string } },
 					) {
 						return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
 					});
@@ -81,7 +86,7 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 
 	flatpickr('#DatePicker', {
 		disableMobile: true,
-		onChange: function (selectedDates: any, dateStr: any, instance: any) {
+		onChange: function (selectedDates: any, dateStr: string, instance: any) {
 			setDate(dateStr === '' ? '날짜미정' : dateStr);
 		},
 	});

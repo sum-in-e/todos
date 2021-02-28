@@ -14,8 +14,13 @@ interface IProps {
 	reRender: () => void;
 }
 
+interface ITaskList {
+	date: string;
+	tasks: { (key: number): string };
+}
+
 const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
-	const [taskList, setTaskList] = useState<any[]>([]);
+	const [taskList, setTaskList] = useState<ITaskList[]>([]);
 	const temporaryStorage: any[] = [];
 
 	useEffect(() => {
@@ -39,6 +44,7 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 										tasks,
 									};
 									await temporaryStorage.push(taskObj);
+									console.log(temporaryStorage);
 								} else if (taskValues.length === 0) {
 									doc.ref.delete();
 								}
@@ -69,7 +75,7 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 				<TaskListWrapper>
 					{taskList &&
 						taskList.length > 0 &&
-						taskList.map((result: { date: string; tasks: { taskKey: string; taskValue: string } }) => (
+						taskList.map(result => (
 							<TaskContainer
 								key={result.date}
 								date={result.date}
