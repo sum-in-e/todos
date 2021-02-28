@@ -75,7 +75,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 					const copyedTaskList = JSON.parse(JSON.stringify(taskList));
 					const docList = copyedTaskList.map((doc: { date: string; tasks: { task: string } }) => doc.date);
 					try {
-						// 완료했으니 완료 doc에 추가하고 firebase에도 업데이트하는 코드
 						if (docList.includes('완료')) {
 							const completedDocIndex = copyedTaskList.findIndex(
 								(doc: { date: string; tasks: { task: string } }) => doc.date === '완료',
@@ -91,7 +90,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 							};
 							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: taskValue });
 							copyedTaskList.splice(completedDocIndex, 1, taskObj);
-							// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 							const docIndex = copyedTaskList.findIndex(
 								(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 							);
@@ -111,11 +109,9 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 								copyedTaskList.splice(docIndex, 1, newTaskObj);
 							}
 							try {
-								// 여기서 삑나면 완료 firebase만 추가하기 전 상태로 다시 만들면 됨
 								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
 								setTaskList(copyedTaskList);
 							} catch (err) {
-								// 여기 에러 찍히면 바깥에 있는 alert 있는 에러는 안뜸
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 								dbService.doc(`${userInfo.uid}/완료`).set(completedData);
 							}
@@ -130,7 +126,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 								0: taskValue,
 							});
 							copyedTaskList.push(taskObj);
-							// 기존 doc에서 옮겨진 task 지우고 firebase에서도 지우는 코드
 							const docIndex = copyedTaskList.findIndex(
 								(doc: { date: string; tasks: { task: string } }) => doc.date === date,
 							);
@@ -150,11 +145,9 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 								copyedTaskList.splice(docIndex, 1, newTaskObj);
 							}
 							try {
-								// 여기서 삑나면 완료 firebase만 추가하기 전 상태로 다시 만들면 됨
 								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
 								setTaskList(copyedTaskList);
 							} catch (err) {
-								// 여기 에러 찍히면 바깥에 있는 alert 있는 에러는 안뜸
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 								dbService.doc(`${userInfo.uid}/완료`).delete();
 							}
