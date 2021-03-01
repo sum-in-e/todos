@@ -193,6 +193,9 @@ const TaskInput = styled.input`
 	border: none;
 	background-color: ${props => props.theme.light.mainColor};
 	color: ${props => props.theme.light.textColor};
+	&::placeholder {
+		color: ${props => props.theme.light.lineColor};
+	}
 	${({ theme }) => theme.media.landscapeMobile`
 		padding-right : 0.5rem;
 	`}

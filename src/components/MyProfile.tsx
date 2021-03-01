@@ -519,7 +519,7 @@ const LogOutWrapper = styled.div`
 	`}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
-			background-color: rgb(14, 59, 51);
+			background-color: rgb(63, 97, 99);
 			transition: background-color ease-in-out 0.3s;
 		}
 	`}
@@ -601,7 +601,7 @@ const ImgDelBtn = styled.button`
 	}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
-			background-color: rgb(14, 59, 51);
+			background-color: rgb(63, 97, 99);
 			transition: background-color ease-in-out 0.3s;
 		}
 	`}
