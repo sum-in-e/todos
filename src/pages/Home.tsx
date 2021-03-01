@@ -44,7 +44,6 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 										tasks,
 									};
 									await temporaryStorage.push(taskObj);
-									console.log(temporaryStorage);
 								} else if (taskValues.length === 0) {
 									doc.ref.delete();
 								}
