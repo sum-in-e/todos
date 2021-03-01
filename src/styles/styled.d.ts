@@ -4,12 +4,11 @@ import { CSSProp } from 'styled-components';
 declare module 'styled-components' {
 	export interface DefaultTheme {
 		light: {
-			greenColor: string;
-			yellowColor: string;
-			grayColor: string;
-			blackColor: string;
-			whiteColor: string;
-			redColor: string;
+			mainColor: string;
+			subColor: string;
+			lineColor: string;
+			textColor: string;
+			warnColor: string;
 		};
 		media: {
 			portraitMobile: (...args: BackQuoteArgs) => CSSProp | undefined;

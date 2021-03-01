@@ -118,7 +118,7 @@ const Container = styled.div`
 /* ********************* Output Task ********************* */
 const OutputTask = styled.span`
 	width: 75%;
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 	text-decoration: line-through;
 	word-wrap: break-word;
 `;
@@ -133,13 +133,13 @@ const IconWrapper = styled.div`
 const EditI = styled(EditAlt)`
 	width: 1rem;
 	margin-right: 0.2rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	cursor: pointer;
 `;
 
 const DeleteI = styled(DeleteBin)`
 	width: 1rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	cursor: pointer;
 `;
 

@@ -80,11 +80,11 @@ const Container = styled.section`
 	height: 100vh;
 	height: calc(var(--vh, 1vh) * 100);
 	width: 100vw;
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	${({ theme }) => theme.media.landscapeMobile`
-		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
-		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-left': `1px solid ${theme.light.lineColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.lineColor}` }};
 	`}
 `;
 
@@ -95,14 +95,14 @@ const Header = styled.header`
 	width: 100vw;
 	height: 12vh;
 	padding: 1rem;
-	background-color: ${props => props.theme.light.greenColor};
-	border-bottom: 1px solid ${props => props.theme.light.grayColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	border-bottom: 1px solid ${props => props.theme.light.lineColor};
+	color: ${props => props.theme.light.textColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 15vh;
 		padding : 0 2.5rem;
-		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
-		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-left': `1px solid ${theme.light.lineColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.lineColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTablet`
 		height : 10vh;
@@ -196,25 +196,25 @@ const TextInputWrapper = styled.div`
 const TextInput = styled.input`
 	height: 50%;
 	border: none;
-	border-bottom: 1px solid ${props => props.theme.light.whiteColor};
+	border-bottom: 1px solid ${props => props.theme.light.textColor};
 	border-radius: 0;
 	background: none;
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 	&:focus {
 		outline: none;
 	}
 	&::placeholder {
-		color: ${props => props.theme.light.grayColor};
+		color: ${props => props.theme.light.lineColor};
 	}
 `;
 
 const SubmitInput = styled.input`
 	width: 100%;
 	height: 1.5rem;
-	background-color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.textColor};
 	font-weight: 700;
 	font-size: 0.8rem;
-	color: ${props => props.theme.light.greenColor};
+	color: ${props => props.theme.light.mainColor};
 	border: none;
 	outline: none;
 	cursor: pointer;
@@ -241,7 +241,7 @@ const ToggleButton = styled.span`
 
 /* ************** Footer ************** */
 const Footer = styled.footer`
-	border-top: 1px solid ${props => props.theme.light.grayColor};
+	border-top: 1px solid ${props => props.theme.light.lineColor};
 	height: 10vh;
 	width: 100vw;
 	${({ theme }) => theme.media.landscapeMobile`

@@ -30,8 +30,8 @@ const Container = styled.header`
 	width: 100vw;
 	height: 12vh;
 	height: calc(var(--vh, 1vh) * 12);
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 18vh;
 		height: calc(var(--vh, 1vh) * 18);
@@ -51,11 +51,11 @@ const ContentWrapper = styled.div`
 	justify-content: space-between;
 	height: 100%;
 	padding: 1rem;
-	border-bottom: 1px solid ${props => props.theme.light.grayColor};
+	border-bottom: 1px solid ${props => props.theme.light.lineColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		padding: 0.5rem;
-		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
-		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-left': `1px solid ${theme.light.lineColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.lineColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTabletS`
 		padding: 0.5rem 1.5rem;

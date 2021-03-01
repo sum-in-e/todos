@@ -136,24 +136,24 @@ const TitleWrapper = styled.div`
 
 const Title = styled.h4`
 	margin: 0 0.5rem 0 0;
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 	font-weight: 700;
 `;
 
 const NotifyPastTask = styled.span<{ isPast: boolean }>`
 	font-weight: 700;
 	font-size: 0.6rem;
-	color: ${props => props.theme.light.yellowColor};
+	color: ${props => props.theme.light.subColor};
 `;
 
 const ClearBtn = styled.button`
 	padding: 0.1rem 0.5rem;
-	border: 2px solid ${props => props.theme.light.grayColor};
+	border: 2px solid ${props => props.theme.light.lineColor};
 	border-radius: 15px;
 	background-color: transparent;
 	font-weight: 700;
 	font-size: 0.6rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	outline: none;
 	cursor: pointer;
 `;

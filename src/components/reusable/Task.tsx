@@ -215,7 +215,7 @@ const Label = styled.label`
 	align-items: center;
 	width: 80%;
 	padding-right: 0.3rem;
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 `;
 
 const CheckInputHidden = styled.input`
@@ -231,7 +231,7 @@ const CheckSpanShowing = styled.span`
 	width: 24px;
 	background-color: transparent;
 	border-radius: 5px;
-	border: 2px solid ${props => props.theme.light.whiteColor};
+	border: 2px solid ${props => props.theme.light.textColor};
 	cursor: pointer;
 	&::after {
 		position: absolute;
@@ -241,7 +241,7 @@ const CheckSpanShowing = styled.span`
 		height: 0px;
 		width: 0px;
 		border-radius: 5px;
-		border: solid ${props => props.theme.light.greenColor};
+		border: solid ${props => props.theme.light.mainColor};
 		border-width: 0 3px 3px 0;
 		-webkit-transform: rotate(0deg) scale(0);
 		-ms-transform: rotate(0deg) scale(0);
@@ -250,13 +250,13 @@ const CheckSpanShowing = styled.span`
 	}
 
 	${Label} input:checked ~ & {
-		background-color: ${props => props.theme.light.whiteColor};
+		background-color: ${props => props.theme.light.textColor};
 		border-radius: 5px;
 		-webkit-transform: rotate(0deg) scale(1);
 		-ms-transform: rotate(0deg) scale(1);
 		transform: rotate(0deg) scale(1);
 		opacity: 1;
-		border: 2px solid ${props => props.theme.light.whiteColor};
+		border: 2px solid ${props => props.theme.light.textColor};
 	}
 
 	${Label} input:checked ~ &::after {
@@ -268,7 +268,7 @@ const CheckSpanShowing = styled.span`
 		top: 1px;
 		width: 6px;
 		height: 12px;
-		border: solid ${props => props.theme.light.greenColor};
+		border: solid ${props => props.theme.light.mainColor};
 		border-width: 0 2px 2px 0;
 		background-color: transparent;
 		border-radius: 0;
@@ -293,13 +293,13 @@ const IconWrapper = styled.div`
 const EditI = styled(EditAlt)`
 	width: 1rem;
 	margin-right: 0.2rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	cursor: pointer;
 `;
 
 const DeleteI = styled(DeleteBin)`
 	width: 1rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	cursor: pointer;
 `;
 

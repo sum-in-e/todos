@@ -134,7 +134,7 @@ const TaskForm = styled.form`
 	flex-direction: column;
 	width: 100%;
 	padding: 0.5rem 1rem 0.8rem 1rem;
-	border-bottom: 1px solid ${props => props.theme.light.grayColor};
+	border-bottom: 1px solid ${props => props.theme.light.lineColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		flex-direction : row;
 		padding : 0.5rem;
@@ -184,15 +184,15 @@ const Shape = styled.div`
 	width: 24px;
 	background-color: transparent;
 	border-radius: 5px;
-	border: 2px solid ${props => props.theme.light.whiteColor};
+	border: 2px solid ${props => props.theme.light.textColor};
 `;
 
 const TaskInput = styled.input`
 	width: 90%;
 	outline: none;
 	border: none;
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		padding-right : 0.5rem;
 	`}
@@ -220,7 +220,7 @@ const ExceptTaskInput = styled.div`
 	width: 100%;
 	height: 2rem;
 	padding-top: 0.5rem;
-	border-top: 2px solid ${props => props.theme.light.grayColor};
+	border-top: 2px solid ${props => props.theme.light.lineColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		height : 1.5rem;
         width : 60%;
@@ -253,23 +253,23 @@ const DateWrapper = styled.div`
 	width: 80%;
 	padding: 0px 0.5rem 0 0;
 	border: none;
-	border-right: 2px solid ${props => props.theme.light.grayColor};
+	border-right: 2px solid ${props => props.theme.light.lineColor};
 	background-color: transparent;
 	${({ theme }) => theme.media.landscapeMobile`
 		padding: 0px 0.5rem;
-		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};		
+		${{ 'border-left': ` 2px solid ${theme.light.lineColor}` }};		
 		`}
 	${({ theme }) => theme.media.portraitTablet`
 		padding: 0px 0.5rem;
-		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
+		${{ 'border-left': ` 2px solid ${theme.light.lineColor}` }};	
 		`}
 	${({ theme }) => theme.media.landscapeTablet`
 		padding: 0px 0.5rem;
-		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
+		${{ 'border-left': ` 2px solid ${theme.light.lineColor}` }};	
 		`}
 	${({ theme }) => theme.media.desktop`
 		padding: 0px 0.5rem;
-		${{ 'border-left': ` 2px solid ${theme.light.grayColor}` }};	
+		${{ 'border-left': ` 2px solid ${theme.light.lineColor}` }};	
 		`}
 `;
 
@@ -277,15 +277,15 @@ const DateInput = styled.input`
 	width: 80%;
 	height: 100%;
 	padding: 0.2rem;
-	border: 1px solid ${props => props.theme.light.grayColor};
+	border: 1px solid ${props => props.theme.light.lineColor};
 	border-radius: 5px;
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	box-shadow: none;
 	cursor: pointer;
 	outline: none;
 	&::placeholder {
-		color: ${props => props.theme.light.whiteColor};
+		color: ${props => props.theme.light.textColor};
 	}
 	${({ theme }) => theme.media.landscapeMobile`
 		width : 82%;
@@ -301,7 +301,7 @@ const ClearBtn = styled.div`
 	align-items: center;
 	width: 15%;
 	height: 100%;
-	border: 1px solid ${props => props.theme.light.grayColor};
+	border: 1px solid ${props => props.theme.light.lineColor};
 	border-radius: 5px;
 	cursor: pointer;
 	${({ theme }) => theme.media.landscapeMobile`
@@ -314,15 +314,15 @@ const ClearBtn = styled.div`
 
 const ClearI = styled(Clear)`
 	width: 25px;
-	color: ${props => props.theme.light.redColor};
+	color: ${props => props.theme.light.warnColor};
 `;
 
 const SubmitInput = styled.input`
 	padding: 0 1rem;
 	outline: none;
 	border: none;
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	cursor: pointer;
 	${({ theme }) => theme.media.landscapeMobile`
 		padding : 0 0.5rem;

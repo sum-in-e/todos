@@ -16,7 +16,7 @@ export const GlobalStyle = createGlobalStyle`
     font-family: 'Eoe_Zno_L', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     overflow: hidden;
 		font-size : 25px;
-    background-color :${props => props.theme.light.greenColor};
+    background-color :${props => props.theme.light.mainColor};
     ${({ theme }) => theme.media.landscapeTablet`
 				font-size : 27px;
 	`}

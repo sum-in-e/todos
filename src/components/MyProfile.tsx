@@ -333,7 +333,7 @@ const ImgWrapper = styled.div`
 const ShowingProfileImg = styled.div<{ imgUrl: string }>`
 	width: 2rem;
 	height: 2rem;
-	border: 2px solid ${props => props.theme.light.whiteColor};
+	border: 2px solid ${props => props.theme.light.textColor};
 	border-radius: 50%;
 	background-image: url(${props => props.imgUrl});
 	background-position: center;
@@ -360,7 +360,7 @@ const ProfileWrapper = styled.div`
 	width: 80vw;
 	transform: translate(-50%, -50%);
 	border-radius: 15px;
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: ${props => props.theme.light.mainColor};
 
 	${({ theme }) => theme.media.landscapeMobile`
 		top : 50%;
@@ -422,7 +422,7 @@ const BtnWrapper = styled.div`
 		outline: none;
 		font-size: 0.7rem;
 		font-weight: 700;
-		color: ${props => props.theme.light.yellowColor};
+		color: ${props => props.theme.light.subColor};
 		cursor: pointer;
 		transition: all 0.3s;
 	}
@@ -458,17 +458,16 @@ const EditName = styled.input<{ isLimited: boolean }>`
 	margin-right: 3px;
 	border: none;
 	border-radius: 0;
-	border-bottom: 1px solid
-		${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
+	border-bottom: 1px solid ${props => (props.isLimited ? props.theme.light.subColor : props.theme.light.textColor)};
 	background: none;
 	font-size: 0.8rem;
 	text-align: center;
-	color: ${props => (props.isLimited ? props.theme.light.yellowColor : props.theme.light.whiteColor)};
+	color: ${props => (props.isLimited ? props.theme.light.subColor : props.theme.light.textColor)};
 	&:focus {
 		outline: none;
 	}
 	&::placeholder {
-		color: ${props => props.theme.light.grayColor};
+		color: ${props => props.theme.light.lineColor};
 	}
 `;
 
@@ -480,7 +479,7 @@ const NameWrapper = styled.div`
 
 const ShowingName = styled.span`
 	font-size: 0.8rem;
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 `;
 
 /* ********************* Log Out Wrapper ********************* */
@@ -492,11 +491,11 @@ const LogOutWrapper = styled.div`
 	bottom: 0px;
 	height: 2.5rem;
 	width: 100%;
-	border-top: 1px solid ${props => props.theme.light.yellowColor};
+	border-top: 1px solid ${props => props.theme.light.subColor};
 	border-radius: 0 0 15px 15px;
 	font-size: 0.7rem;
 	font-weight: 700;
-	color: ${props => props.theme.light.yellowColor};
+	color: ${props => props.theme.light.subColor};
 	cursor: pointer;
 	transition: all 0.3s;
 	&:active span {
@@ -508,7 +507,7 @@ const LogOutWrapper = styled.div`
 		height: 1.3rem;
 		padding : 0 0.2rem;
 		border-radius: 15px;
-		${{ border: `1px solid ${theme.light.yellowColor}` }};
+		${{ border: `1px solid ${theme.light.subColor}` }};
 	`}
 	${({ theme }) => theme.media.landscapeMobile`
 		bottom : 0.5rem;
@@ -516,7 +515,7 @@ const LogOutWrapper = styled.div`
 		height: 1.3rem;
 		padding : 0 0.2rem;
 		border-radius: 15px;
-		${{ border: `1px solid ${theme.light.yellowColor}` }};
+		${{ border: `1px solid ${theme.light.subColor}` }};
 	`}
 	${({ theme }) => theme.media.desktop`
 		&:hover {
@@ -576,7 +575,7 @@ const HiddenIconWrapper = styled.div<{ isEditing: boolean }>`
 
 const EditIcon = styled(Edit3)`
 	height: 1.5rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	&:active {
 		transform: scale(0.9, 0.9);
 	}
@@ -589,11 +588,11 @@ const FileInput = styled.input`
 const ImgDelBtn = styled.button`
 	padding: 5px 8px;
 	margin-top: 0.5rem;
-	border: 1px solid ${props => props.theme.light.grayColor};
+	border: 1px solid ${props => props.theme.light.lineColor};
 	border-radius: 15px;
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: ${props => props.theme.light.mainColor};
 	font-size: 0.5rem;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 	outline: none;
 	cursor: pointer;
 	transition: all 0.3s;

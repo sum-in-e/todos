@@ -18,16 +18,16 @@ const Container = styled.div`
 	align-items: center;
 	width: 100vw;
 	height: 100vh;
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: ${props => props.theme.light.mainColor};
 `;
 
 const LoaderI = styled(LoaderAlt)`
 	width: 4rem;
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 `;
 
 const Text = styled.h4`
-	color: ${props => props.theme.light.whiteColor};
+	color: ${props => props.theme.light.textColor};
 `;
 
 export default Initializing;

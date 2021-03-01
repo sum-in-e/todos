@@ -280,7 +280,7 @@ const EditWrapper = styled.div`
 	padding: 0.7rem 1rem;
 	border: none;
 	border-radius: 15px;
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: ${props => props.theme.light.mainColor};
 	${({ theme }) => theme.media.landscapeMobile`
 		width : 50vw;
 	`}
@@ -309,7 +309,7 @@ const BtnWrapperTop = styled.div`
 		background-color: transparent;
 		font-weight: 700;
 		font-size: 0.7rem;
-		color: ${props => props.theme.light.yellowColor};
+		color: ${props => props.theme.light.subColor};
 		cursor: pointer;
 		outline: none;
 	}
@@ -332,15 +332,15 @@ const TaskInput = styled.input`
 	margin-bottom: 1rem;
 	border: none;
 	border-radius: 5px 5px 0 0;
-	border-bottom: solid 2px ${props => props.theme.light.grayColor};
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	border-bottom: solid 2px ${props => props.theme.light.lineColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	&:focus {
 		outline: none;
-		border-bottom: solid 2px ${props => props.theme.light.yellowColor};
+		border-bottom: solid 2px ${props => props.theme.light.subColor};
 	}
 	&::placeholder {
-		color: ${props => props.theme.light.grayColor};
+		color: ${props => props.theme.light.lineColor};
 	}
 `;
 
@@ -353,7 +353,7 @@ const DateWrapper = styled.div`
 const DateTitle = styled.span`
 	font-size: 0.6rem;
 	font-weight: 700;
-	color: ${props => props.theme.light.grayColor};
+	color: ${props => props.theme.light.lineColor};
 `;
 
 const DateInputWrapper = styled.div`
@@ -366,19 +366,19 @@ const DateInput = styled.input`
 	height: 2rem;
 	margin-top: 0.3rem;
 	padding: 5px;
-	border: solid 2px ${props => props.theme.light.grayColor};
+	border: solid 2px ${props => props.theme.light.lineColor};
 	border-radius: 5px;
-	background-color: ${props => props.theme.light.greenColor};
-	color: ${props => props.theme.light.whiteColor};
+	background-color: ${props => props.theme.light.mainColor};
+	color: ${props => props.theme.light.textColor};
 	box-shadow: none;
 	cursor: pointer;
 	outline: none;
 	&:focus {
 		outline: none;
-		border: solid 2px ${props => props.theme.light.yellowColor};
+		border: solid 2px ${props => props.theme.light.subColor};
 	}
 	&::placeholder {
-		color: ${props => props.theme.light.whiteColor};
+		color: ${props => props.theme.light.textColor};
 	}
 `;
 
@@ -389,7 +389,7 @@ const ClearBtn = styled.div`
 	width: 15%;
 	height: 2rem;
 	margin-top: 0.3rem;
-	border: solid 2px ${props => props.theme.light.grayColor};
+	border: solid 2px ${props => props.theme.light.lineColor};
 	border-radius: 5px;
 	background-color: transparent;
 	cursor: pointer;
@@ -397,7 +397,7 @@ const ClearBtn = styled.div`
 
 const ClearI = styled(Clear)`
 	width: 25px;
-	color: ${props => props.theme.light.redColor};
+	color: ${props => props.theme.light.warnColor};
 `;
 const SaveInput = styled.input`
 	display: none;
@@ -415,7 +415,7 @@ const DeleteBtn = styled.button`
 	background-color: transparent;
 	font-weight: 700;
 	font-size: 0.7rem;
-	color: ${props => props.theme.light.redColor};
+	color: ${props => props.theme.light.warnColor};
 	cursor: pointer;
 	outline: none;
 `;

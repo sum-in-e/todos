@@ -96,7 +96,7 @@ const Container = styled.div`
 	width: 100vw;
 	height: 100vh;
 	height: calc(var(--vh, 1vh) * 100);
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: ${props => props.theme.light.mainColor};
 `;
 
 const Tasks = styled.main`
@@ -117,8 +117,8 @@ const Tasks = styled.main`
 		height: calc(var(--vh, 1vh) * 82);
 		margin-top : 18vh;
 		margin-top: calc(var(--vh, 1vh) * 18);
-		${{ 'border-left': `1px solid ${theme.light.grayColor}` }};
-		${{ 'border-right': `1px solid ${theme.light.grayColor}` }};
+		${{ 'border-left': `1px solid ${theme.light.lineColor}` }};
+		${{ 'border-right': `1px solid ${theme.light.lineColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
 		heigth : 90vh;
@@ -143,7 +143,7 @@ const AddTaskWrapper = styled.section`
 	left: 0;
 	width: 100%;
 	z-index: 1;
-	background-color: ${props => props.theme.light.greenColor};
+	background-color: ${props => props.theme.light.mainColor};
 	${({ theme }) => theme.media.landscapeMobile`		
 		top : 18vh;
 		top: calc(var(--vh, 1vh) * 18);
