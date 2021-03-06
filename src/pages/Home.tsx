@@ -120,13 +120,13 @@ const Tasks = styled.main`
 		${{ 'border-right': `1px solid ${theme.light.lineColor}` }};
 	`}
 	${({ theme }) => theme.media.portraitTablet`		
-		heigth : 90vh;
+		height : 90vh;
 		height: calc(var(--vh, 1vh) * 90);
 		margin-top : 10vh;
 		margin-top: calc(var(--vh, 1vh) * 10);
 	`}
 	${({ theme }) => theme.media.desktop`		
-		heigth : 85vh;
+		height : 85vh;
 		margin-top : 15vh;
 	`}
 `;

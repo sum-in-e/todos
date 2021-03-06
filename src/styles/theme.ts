@@ -5,11 +5,11 @@ type BackQuoteArgs = string[];
 
 const theme: DefaultTheme = {
 	light: {
-		mainColor: '#3c6e71',
+		mainColor: '#2D2D2D',
 		subColor: '#ffe1a8',
 		lineColor: '#d9d9d9',
 		textColor: '#ffffff',
-		warnColor: '#353535',
+		warnColor: '#EE6C4D',
 	},
 	media: {
 		portraitMobile: (...args: BackQuoteArgs): undefined => undefined,
