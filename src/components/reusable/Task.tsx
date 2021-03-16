@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../../fbase';
 import theme from '../../styles/theme';
 import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 import EditTaskForm from './EditTaskForm';
+import { UserStateContext } from '../../components/App';
 
 interface ITaskList {
 	date: string;
@@ -15,16 +16,12 @@ interface IProps {
 	date: string;
 	taskKey: string;
 	taskValue: string;
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	taskList: ITaskList[];
 	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
-const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskValue, taskList, setTaskList }) => {
+const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue, taskList, setTaskList }) => {
+	const userInfo = useContext(UserStateContext);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
@@ -175,7 +172,6 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 					date={date}
 					taskKey={taskKey}
 					taskValue={taskValue}
-					userInfo={userInfo}
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
 					handleExitEditing={handleExitEditing}

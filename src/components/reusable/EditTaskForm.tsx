@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import theme from '../../styles/theme';
 import { dbService } from '../../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
+import { UserStateContext } from '../../components/App';
 
 interface ITaskList {
 	date: string;
@@ -12,11 +13,6 @@ interface ITaskList {
 }
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	taskList: ITaskList[];
 	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 	date: string;
@@ -32,7 +28,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	date,
 	taskKey,
 	taskValue,
-	userInfo,
 	editedDate,
 	setEditedDate,
 	handleExitEditing,
@@ -40,6 +35,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	taskList,
 	setTaskList,
 }) => {
+	const userInfo = useContext(UserStateContext);
 	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const temporaryStorage: any = {};

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
+import { UserStateContext } from '../components/App';
 
 interface ITaskList {
 	date: string;
@@ -11,16 +12,12 @@ interface ITaskList {
 }
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	taskList: ITaskList[];
 	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
-const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskList }) => {
+const AddTask: React.FunctionComponent<IProps> = ({ taskList, setTaskList }) => {
+	const userInfo = useContext(UserStateContext);
 	const [inputValue, setInputValue] = useState<string>('');
 	const [date, setDate] = useState<string>('날짜미정');
 

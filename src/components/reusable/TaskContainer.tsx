@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import Task from './Task';
 import CompletedTask from './CompletedTask';
 import { TriangleDown } from 'styled-icons/entypo';
+import { UserStateContext } from '../../components/App';
 
 interface ITaskList {
 	date: string;
@@ -14,16 +15,12 @@ interface ITaskList {
 interface IProps {
 	date: string;
 	tasks: { (key: number): string };
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	taskList: ITaskList[];
 	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
-const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, taskList, setTaskList }) => {
+const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, taskList, setTaskList }) => {
+	const userInfo = useContext(UserStateContext);
 	const [isPast, setIsPast] = useState<boolean>(false);
 	const today = new Date();
 	const dd = today.getDate();
@@ -93,7 +90,6 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 								date={date}
 								taskKey={taskKey}
 								taskValue={taskValue}
-								userInfo={userInfo}
 								taskList={taskList}
 								setTaskList={setTaskList}
 							/>
@@ -104,7 +100,6 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 								date={date}
 								taskKey={taskKey}
 								taskValue={taskValue}
-								userInfo={userInfo}
 								taskList={taskList}
 								setTaskList={setTaskList}
 							/>

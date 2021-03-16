@@ -1,19 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { dbService, authService, storageService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import { Edit3 } from 'styled-icons/feather';
+import { UserStateContext } from '../components/App';
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	reRender: () => void;
 }
 
-const MyProfile: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
+const MyProfile: React.FunctionComponent<IProps> = ({ reRender }) => {
+	const userInfo = useContext(UserStateContext);
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [headerProfileImg, setHeaderProfileImg] = useState<string>('');

@@ -1,22 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useReducer } from 'react';
 import Router from './Router';
 import { authService } from '../fbase';
 import Initializing from './Initializing';
 
-interface IUser {
+interface UserStateI {
 	uid: string | null;
 	displayName: string | null;
 	updateProfile: (args: { displayName: string | null }) => void;
 }
 
+interface UserActionI {
+	type: 'SET_USER_INFO';
+	uid: string | null;
+	displayName: string | null;
+	updateProfile: (args: { displayName: string | null }) => void;
+}
+
+const userReducer = (state: UserStateI, action: UserActionI): UserStateI => {
+	switch (action.type) {
+		case 'SET_USER_INFO':
+			return {
+				...state,
+				uid: action.uid,
+				displayName: action.displayName,
+				updateProfile: action.updateProfile,
+			};
+		default:
+			throw new Error('Unhandled action');
+	}
+};
+
+export const UserStateContext = createContext<UserStateI>({
+	uid: null,
+	displayName: null,
+	updateProfile: (args: { displayName: string | null }) => args,
+});
+
 const App: React.FunctionComponent = () => {
-	const [userInfo, setUserInfo] = useState<IUser>({
-		uid: null,
-		displayName: null,
-		updateProfile: args => args,
-	});
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [init, setInit] = useState<boolean>(false);
+	const [userState, userDispatch] = useReducer(userReducer, {
+		uid: null,
+		displayName: null,
+		updateProfile: (args: { displayName: string | null }) => args,
+	});
 
 	const vh = window.innerHeight * 0.01;
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -28,7 +55,8 @@ const App: React.FunctionComponent = () => {
 	useEffect(() => {
 		authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
 			if (loggedUser) {
-				setUserInfo({
+				userDispatch({
+					type: 'SET_USER_INFO',
 					uid: loggedUser.uid,
 					displayName: loggedUser.displayName,
 					updateProfile: args => loggedUser.updateProfile(args),
@@ -44,7 +72,8 @@ const App: React.FunctionComponent = () => {
 	const reRender = (): void => {
 		const loggedUser: firebase.User | null = authService.currentUser;
 		if (loggedUser) {
-			setUserInfo({
+			userDispatch({
+				type: 'SET_USER_INFO',
 				uid: loggedUser.uid,
 				displayName: loggedUser.displayName,
 				updateProfile: args => loggedUser.updateProfile(args),
@@ -52,7 +81,17 @@ const App: React.FunctionComponent = () => {
 		}
 	};
 
-	return <>{init ? <Router userInfo={userInfo} isLoggedIn={isLoggedIn} reRender={reRender} /> : <Initializing />}</>;
+	return (
+		<>
+			{init ? (
+				<UserStateContext.Provider value={userState}>
+					<Router isLoggedIn={isLoggedIn} reRender={reRender} />
+				</UserStateContext.Provider>
+			) : (
+				<Initializing />
+			)}
+		</>
+	);
 };
 
 export default App;

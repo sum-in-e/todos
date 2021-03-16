@@ -1,16 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import Header from '../components/Header';
 import TaskContainer from '../components/reusable/TaskContainer';
 import AddTask from '../components/AddTask';
+import { UserStateContext } from '../components/App';
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	reRender: () => void;
 }
 
@@ -19,13 +15,13 @@ interface ITaskList {
 	tasks: { (key: number): string };
 }
 
-const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
+const Home: React.FunctionComponent<IProps> = ({ reRender }) => {
+	const userInfo = useContext(UserStateContext);
 	const [taskList, setTaskList] = useState<ITaskList[]>([]);
 	const temporaryStorage: any[] = [];
 
 	useEffect(() => {
 		const getTasks = async (): Promise<void> => {
-			('');
 			if (userInfo.uid !== null) {
 				const userCollection = await dbService.collection(userInfo.uid).get();
 				if (!userCollection.empty) {
@@ -66,10 +62,10 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 
 	return (
 		<Container>
-			<Header userInfo={userInfo} reRender={reRender} />
+			<Header reRender={reRender} />
 			<Tasks>
 				<AddTaskWrapper>
-					<AddTask userInfo={userInfo} taskList={taskList} setTaskList={setTaskList} />
+					<AddTask taskList={taskList} setTaskList={setTaskList} />
 				</AddTaskWrapper>
 				<TaskListWrapper>
 					{taskList &&
@@ -79,7 +75,6 @@ const Home: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
 								key={result.date}
 								date={result.date}
 								tasks={result.tasks}
-								userInfo={userInfo}
 								taskList={taskList}
 								setTaskList={setTaskList}
 							/>

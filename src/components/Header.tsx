@@ -1,22 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import MyProfile from './MyProfile';
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	reRender: () => void;
 }
 
-const Header: React.FunctionComponent<IProps> = ({ userInfo, reRender }) => {
+const Header: React.FunctionComponent<IProps> = ({ reRender }) => {
 	return (
 		<Container>
 			<ContentWrapper>
 				<AppTitle>To Dos</AppTitle>
-				<MyProfile userInfo={userInfo} reRender={reRender} />
+				<MyProfile reRender={reRender} />
 			</ContentWrapper>
 		</Container>
 	);
