@@ -3,13 +3,10 @@ import { dbService, authService, storageService } from '../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import { Edit3 } from 'styled-icons/feather';
-import { UserStateContext } from '../components/App';
+import { UserStateContext, UserDispatchContext } from './App';
 
-interface IProps {
-	reRender: () => void;
-}
-
-const MyProfile: React.FunctionComponent<IProps> = ({ reRender }) => {
+const MyProfile: React.FunctionComponent = () => {
+	const userDispatch = useContext(UserDispatchContext);
 	const userInfo = useContext(UserStateContext);
 	const [userName, setUserName] = useState<string | null>(userInfo.displayName);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -82,7 +79,15 @@ const MyProfile: React.FunctionComponent<IProps> = ({ reRender }) => {
 						alert('유저명 변경에 실패하였습니다. 재시도해주세요.');
 						setUserName(userInfo.displayName);
 					} finally {
-						await reRender();
+						const loggedUser: firebase.User | null = await authService.currentUser;
+						if (loggedUser && userDispatch !== null) {
+							userDispatch({
+								type: 'SET_USER_INFO',
+								uid: loggedUser.uid,
+								displayName: loggedUser.displayName,
+								updateProfile: args => loggedUser.updateProfile(args),
+							});
+						}
 					}
 				}
 

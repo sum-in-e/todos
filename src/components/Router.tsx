@@ -5,17 +5,16 @@ import Home from '../pages/Home';
 
 interface IProps {
 	isLoggedIn: boolean;
-	reRender: () => void;
 }
 
-const Routes: React.FunctionComponent<IProps> = ({ isLoggedIn, reRender }) => {
+const Routes: React.FunctionComponent<IProps> = ({ isLoggedIn }) => {
 	return (
 		<Router>
 			<Switch>
 				{isLoggedIn ? (
 					<>
 						<Route exact path="/">
-							<Home reRender={reRender} />
+							<Home />
 						</Route>
 					</>
 				) : (

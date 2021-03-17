@@ -6,16 +6,12 @@ import TaskContainer from '../components/reusable/TaskContainer';
 import AddTask from '../components/AddTask';
 import { UserStateContext } from '../components/App';
 
-interface IProps {
-	reRender: () => void;
-}
-
 interface ITaskList {
 	date: string;
 	tasks: { (key: number): string };
 }
 
-const Home: React.FunctionComponent<IProps> = ({ reRender }) => {
+const Home: React.FunctionComponent = () => {
 	const userInfo = useContext(UserStateContext);
 	const [taskList, setTaskList] = useState<ITaskList[]>([]);
 	const temporaryStorage: any[] = [];
@@ -62,7 +58,7 @@ const Home: React.FunctionComponent<IProps> = ({ reRender }) => {
 
 	return (
 		<Container>
-			<Header reRender={reRender} />
+			<Header />
 			<Tasks>
 				<AddTaskWrapper>
 					<AddTask taskList={taskList} setTaskList={setTaskList} />

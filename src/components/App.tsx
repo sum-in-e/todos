@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useReducer } from 'react';
+import React, { useState, useEffect, createContext, useReducer, Dispatch } from 'react';
 import Router from './Router';
 import { authService } from '../fbase';
 import Initializing from './Initializing';
@@ -36,6 +36,8 @@ export const UserStateContext = createContext<UserStateI>({
 	updateProfile: (args: { displayName: string | null }) => args,
 });
 
+export const UserDispatchContext = createContext<Dispatch<UserActionI> | null>(null);
+
 const App: React.FunctionComponent = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [init, setInit] = useState<boolean>(false);
@@ -69,23 +71,13 @@ const App: React.FunctionComponent = () => {
 		});
 	}, []);
 
-	const reRender = (): void => {
-		const loggedUser: firebase.User | null = authService.currentUser;
-		if (loggedUser) {
-			userDispatch({
-				type: 'SET_USER_INFO',
-				uid: loggedUser.uid,
-				displayName: loggedUser.displayName,
-				updateProfile: args => loggedUser.updateProfile(args),
-			});
-		}
-	};
-
 	return (
 		<>
 			{init ? (
 				<UserStateContext.Provider value={userState}>
-					<Router isLoggedIn={isLoggedIn} reRender={reRender} />
+					<UserDispatchContext.Provider value={userDispatch}>
+						<Router isLoggedIn={isLoggedIn} />
+					</UserDispatchContext.Provider>
 				</UserStateContext.Provider>
 			) : (
 				<Initializing />

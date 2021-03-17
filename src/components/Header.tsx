@@ -1,17 +1,13 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import MyProfile from './MyProfile';
 
-interface IProps {
-	reRender: () => void;
-}
-
-const Header: React.FunctionComponent<IProps> = ({ reRender }) => {
+const Header: React.FunctionComponent = () => {
 	return (
 		<Container>
 			<ContentWrapper>
 				<AppTitle>To Dos</AppTitle>
-				<MyProfile reRender={reRender} />
+				<MyProfile />
 			</ContentWrapper>
 		</Container>
 	);
