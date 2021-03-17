@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import Header from '../components/Header';
 import TaskContainer from '../components/reusable/TaskContainer';
 import AddTask from '../components/AddTask';
 import { UserStateContext } from '../components/App';
-
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
+import { useTaskListState, useTaskListDispatch } from '../context/TaskListContext';
 
 const Home: React.FunctionComponent = () => {
+	const taskListState = useTaskListState();
+	const taskListDispatch = useTaskListDispatch();
 	const userInfo = useContext(UserStateContext);
-	const [taskList, setTaskList] = useState<ITaskList[]>([]);
 	const temporaryStorage: any[] = [];
 
 	useEffect(() => {
@@ -46,10 +43,16 @@ const Home: React.FunctionComponent = () => {
 							}
 						},
 					);
-					setTaskList(temporaryStorage);
+					taskListDispatch({
+						type: 'SET_TASKLIST',
+						taskList: temporaryStorage,
+					});
 				} else {
 					// 유저 데이터 없음 -> 새로운 유저 / 데이터 하나도 없는 유저
-					setTaskList([]);
+					taskListDispatch({
+						type: 'SET_TASKLIST',
+						taskList: [],
+					});
 				}
 			}
 		};
@@ -61,19 +64,13 @@ const Home: React.FunctionComponent = () => {
 			<Header />
 			<Tasks>
 				<AddTaskWrapper>
-					<AddTask taskList={taskList} setTaskList={setTaskList} />
+					<AddTask />
 				</AddTaskWrapper>
 				<TaskListWrapper>
-					{taskList &&
-						taskList.length > 0 &&
-						taskList.map(result => (
-							<TaskContainer
-								key={result.date}
-								date={result.date}
-								tasks={result.tasks}
-								taskList={taskList}
-								setTaskList={setTaskList}
-							/>
+					{taskListState &&
+						taskListState.taskList.length > 0 &&
+						taskListState.taskList.map(result => (
+							<TaskContainer key={result.date} date={result.date} tasks={result.tasks} />
 						))}
 				</TaskListWrapper>
 			</Tasks>

@@ -5,18 +5,11 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
 import { UserStateContext } from '../components/App';
+import { useTaskListState, useTaskListDispatch } from '../context/TaskListContext';
 
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
-
-interface IProps {
-	taskList: ITaskList[];
-	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
-}
-
-const AddTask: React.FunctionComponent<IProps> = ({ taskList, setTaskList }) => {
+const AddTask: React.FunctionComponent = () => {
+	const taskListState = useTaskListState();
+	const taskListDispatch = useTaskListDispatch();
 	const userInfo = useContext(UserStateContext);
 	const [inputValue, setInputValue] = useState<string>('');
 	const [date, setDate] = useState<string>('날짜미정');
@@ -31,7 +24,7 @@ const AddTask: React.FunctionComponent<IProps> = ({ taskList, setTaskList }) => 
 	const onSubmitTask = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 			const docList = copyedTaskList.map((doc: { date: string; tasks: { (key: number): string } }) => doc.date);
 			try {
 				if (docList.includes(date)) {
@@ -70,7 +63,10 @@ const AddTask: React.FunctionComponent<IProps> = ({ taskList, setTaskList }) => 
 			} catch (err) {
 				alert('오류로 인해 저장에 실패하였습니다. 재시도 해주세요.');
 			} finally {
-				setTaskList(copyedTaskList);
+				taskListDispatch({
+					type: 'SET_TASKLIST',
+					taskList: copyedTaskList,
+				});
 				setInputValue('');
 				setDate('날짜미정');
 			}

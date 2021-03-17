@@ -2,6 +2,7 @@ import React, { useState, useEffect, createContext, useReducer, Dispatch } from 
 import Router from './Router';
 import { authService } from '../fbase';
 import Initializing from './Initializing';
+import { TaskListContext } from '../context/TaskListContext';
 
 interface UserStateI {
 	uid: string | null;
@@ -76,7 +77,9 @@ const App: React.FunctionComponent = () => {
 			{init ? (
 				<UserStateContext.Provider value={userState}>
 					<UserDispatchContext.Provider value={userDispatch}>
-						<Router isLoggedIn={isLoggedIn} />
+						<TaskListContext>
+							<Router isLoggedIn={isLoggedIn} />
+						</TaskListContext>
 					</UserDispatchContext.Provider>
 				</UserStateContext.Provider>
 			) : (
