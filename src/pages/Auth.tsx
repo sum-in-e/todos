@@ -15,7 +15,7 @@ const Auth: React.FunctionComponent = () => {
 			try {
 				await authService.createUserWithEmailAndPassword(email, password);
 			} catch (err) {
-				alert('이미 사용되고 있는 이메일 입니다.\n다른 이메일로 가입해 주세요.');
+				alert(err.message);
 			}
 		} else if (value === 'LOGIN') {
 			try {
