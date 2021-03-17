@@ -50,10 +50,6 @@ const App: React.FunctionComponent = () => {
 
 	const vh = window.innerHeight * 0.01;
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
-	window.addEventListener('resize', () => {
-		const vh = window.innerHeight * 0.01;
-		document.documentElement.style.setProperty('--vh', `${vh}px`);
-	});
 
 	useEffect(() => {
 		authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
@@ -69,6 +65,10 @@ const App: React.FunctionComponent = () => {
 				setIsLoggedIn(false);
 			}
 			setInit(true);
+		});
+		window.addEventListener('resize', () => {
+			const vh = window.innerHeight * 0.01;
+			document.documentElement.style.setProperty('--vh', `${vh}px`);
 		});
 	}, []);
 
