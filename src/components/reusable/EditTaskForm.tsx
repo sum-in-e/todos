@@ -427,4 +427,4 @@ const DeleteBtn = styled.button`
 	outline: none;
 `;
 
-export default EditTaskForm;
+export default React.memo(EditTaskForm);

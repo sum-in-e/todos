@@ -307,4 +307,4 @@ const DeleteI = styled(DeleteBin)`
 	cursor: pointer;
 `;
 
-export default Task;
+export default React.memo(Task);

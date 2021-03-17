@@ -249,4 +249,4 @@ const Footer = styled.footer`
 	`}
 `;
 
-export default Auth;
+export default React.memo(Auth);

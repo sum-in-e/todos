@@ -609,4 +609,4 @@ const ImgDelBtn = styled.button`
 	`}
 `;
 
-export default MyProfile;
+export default React.memo(MyProfile);

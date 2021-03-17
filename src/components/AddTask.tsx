@@ -120,8 +120,6 @@ const AddTask: React.FunctionComponent = () => {
 	);
 };
 
-export default AddTask;
-
 const TaskForm = styled.form`
 	display: flex;
 	flex-direction: column;
@@ -333,3 +331,5 @@ const SubmitInput = styled.input`
 		padding : 0 0.5rem 0 1.2rem;
 	`}
 `;
+
+export default React.memo(AddTask);
