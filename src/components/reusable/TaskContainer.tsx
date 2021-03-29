@@ -106,7 +106,7 @@ const Container = styled.article`
 `;
 
 /* ********************* Title Wrapper ********************* */
-const Header = styled.header`
+const Header = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
