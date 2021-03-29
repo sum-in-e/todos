@@ -1,26 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
+import { UserStateContext } from '../components/App';
+import { useTaskListState, useTaskListDispatch } from '../context/TaskListContext';
 
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
-
-interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
-	taskList: ITaskList[];
-	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
-}
-
-const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskList }) => {
+const AddTask: React.FunctionComponent = () => {
+	const taskListState = useTaskListState();
+	const taskListDispatch = useTaskListDispatch();
+	const userInfo = useContext(UserStateContext);
 	const [inputValue, setInputValue] = useState<string>('');
 	const [date, setDate] = useState<string>('날짜미정');
 
@@ -34,7 +24,7 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 	const onSubmitTask = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 			const docList = copyedTaskList.map((doc: { date: string; tasks: { (key: number): string } }) => doc.date);
 			try {
 				if (docList.includes(date)) {
@@ -73,7 +63,10 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 			} catch (err) {
 				alert('오류로 인해 저장에 실패하였습니다. 재시도 해주세요.');
 			} finally {
-				setTaskList(copyedTaskList);
+				taskListDispatch({
+					type: 'SET_TASKLIST',
+					taskList: copyedTaskList,
+				});
 				setInputValue('');
 				setDate('날짜미정');
 			}
@@ -126,8 +119,6 @@ const AddTask: React.FunctionComponent<IProps> = ({ userInfo, taskList, setTaskL
 		</>
 	);
 };
-
-export default AddTask;
 
 const TaskForm = styled.form`
 	display: flex;
@@ -340,3 +331,5 @@ const SubmitInput = styled.input`
 		padding : 0 0.5rem 0 1.2rem;
 	`}
 `;
+
+export default React.memo(AddTask);

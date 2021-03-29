@@ -1,30 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../../fbase';
 import theme from '../../styles/theme';
 import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 import EditTaskForm from './EditTaskForm';
-
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
+import { UserStateContext } from '../../components/App';
+import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
 
 interface IProps {
 	date: string;
 	taskKey: string;
 	taskValue: string;
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
-	taskList: ITaskList[];
-	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
-const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskValue, taskList, setTaskList }) => {
+const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => {
+	const taskListState = useTaskListState();
+	const taskListDispatch = useTaskListDispatch();
+	const userInfo = useContext(UserStateContext);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const temporaryStorage: any = {};
@@ -33,7 +26,7 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 		if (userInfo.uid !== null) {
 			const warning = confirm('삭제하시겠습니까?');
 			if (warning === true) {
-				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
@@ -54,7 +47,10 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 				}
 				try {
 					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-					setTaskList(copyedTaskList);
+					taskListDispatch({
+						type: 'SET_TASKLIST',
+						taskList: copyedTaskList,
+					});
 				} catch (err) {
 					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
 				}
@@ -77,7 +73,7 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 		if (userInfo.uid !== null) {
 			if (e.target.labels !== null) {
 				if (e.target.checked) {
-					const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+					const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 					const docList = copyedTaskList.map(
 						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
 					);
@@ -117,7 +113,10 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 							}
 							try {
 								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-								setTaskList(copyedTaskList);
+								taskListDispatch({
+									type: 'SET_TASKLIST',
+									taskList: copyedTaskList,
+								});
 							} catch (err) {
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 								dbService.doc(`${userInfo.uid}/완료`).set(completedData);
@@ -153,7 +152,10 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 							}
 							try {
 								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-								setTaskList(copyedTaskList);
+								taskListDispatch({
+									type: 'SET_TASKLIST',
+									taskList: copyedTaskList,
+								});
 							} catch (err) {
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 								dbService.doc(`${userInfo.uid}/완료`).delete();
@@ -175,13 +177,10 @@ const Task: React.FunctionComponent<IProps> = ({ userInfo, date, taskKey, taskVa
 					date={date}
 					taskKey={taskKey}
 					taskValue={taskValue}
-					userInfo={userInfo}
 					editedDate={editedDate}
 					setEditedDate={setEditedDate}
 					handleExitEditing={handleExitEditing}
 					isCompleted={false}
-					taskList={taskList}
-					setTaskList={setTaskList}
 				/>
 			) : (
 				''
@@ -303,4 +302,4 @@ const DeleteI = styled(DeleteBin)`
 	cursor: pointer;
 `;
 
-export default Task;
+export default React.memo(Task);

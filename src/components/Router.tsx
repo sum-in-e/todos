@@ -4,23 +4,17 @@ import Auth from '../pages/Auth';
 import Home from '../pages/Home';
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
 	isLoggedIn: boolean;
-	reRender: () => void;
 }
 
-const Routes: React.FunctionComponent<IProps> = ({ userInfo, isLoggedIn, reRender }) => {
+const Routes: React.FunctionComponent<IProps> = ({ isLoggedIn }) => {
 	return (
 		<Router>
 			<Switch>
 				{isLoggedIn ? (
 					<>
 						<Route exact path="/">
-							<Home userInfo={userInfo} reRender={reRender} />
+							<Home />
 						</Route>
 					</>
 				) : (

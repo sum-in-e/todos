@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import theme from '../../styles/theme';
 import { dbService } from '../../fbase';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
+import { UserStateContext } from '../../components/App';
+import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
 
 interface ITaskList {
 	date: string;
@@ -12,13 +14,6 @@ interface ITaskList {
 }
 
 interface IProps {
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
-	taskList: ITaskList[];
-	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 	date: string;
 	taskKey: string;
 	taskValue: string;
@@ -32,14 +27,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	date,
 	taskKey,
 	taskValue,
-	userInfo,
 	editedDate,
 	setEditedDate,
 	handleExitEditing,
 	isCompleted,
-	taskList,
-	setTaskList,
 }) => {
+	const taskListState = useTaskListState();
+	const taskListDispatch = useTaskListDispatch();
+	const userInfo = useContext(UserStateContext);
 	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 	const temporaryStorage: any = {};
@@ -58,7 +53,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			if (confirm('삭제하시겠습니까?') === true) {
-				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
@@ -79,7 +74,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 				}
 				try {
 					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-					setTaskList(copyedTaskList);
+					taskListDispatch({
+						type: 'SET_TASKLIST',
+						taskList: copyedTaskList,
+					});
 				} catch (err) {
 					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
 					handleExitEditing();
@@ -90,7 +88,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	const onClickSave = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 			const editedDateValue = dateInputRef.current.value == '' ? '날짜미정' : dateInputRef.current.value;
 			try {
 				if (date === editedDateValue) {
@@ -100,7 +98,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = inputValue;
 					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: inputValue });
-					setTaskList(copyedTaskList);
+					taskListDispatch({
+						type: 'SET_TASKLIST',
+						taskList: copyedTaskList,
+					});
 				} else {
 					const docList = copyedTaskList.map(
 						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
@@ -140,7 +141,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						}
 						try {
 							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-							setTaskList(copyedTaskList);
+							taskListDispatch({
+								type: 'SET_TASKLIST',
+								taskList: copyedTaskList,
+							});
 						} catch (err) {
 							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 							dbService.doc(`${userInfo.uid}/${editedDateValue}`).set(data);
@@ -183,7 +187,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						}
 						try {
 							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
-							setTaskList(copyedTaskList);
+							taskListDispatch({
+								type: 'SET_TASKLIST',
+								taskList: copyedTaskList,
+							});
 						} catch (err) {
 							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 							dbService.doc(`${userInfo.uid}/${editedDateValue}`).delete();
@@ -420,4 +427,4 @@ const DeleteBtn = styled.button`
 	outline: none;
 `;
 
-export default EditTaskForm;
+export default React.memo(EditTaskForm);

@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import styled from 'styled-components';
 import { dbService } from '../../fbase';
 import { v4 as uuidv4 } from 'uuid';
 import Task from './Task';
 import CompletedTask from './CompletedTask';
 import { TriangleDown } from 'styled-icons/entypo';
+import { UserStateContext } from '../../components/App';
+import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
 
 interface ITaskList {
 	date: string;
@@ -14,16 +16,12 @@ interface ITaskList {
 interface IProps {
 	date: string;
 	tasks: { (key: number): string };
-	userInfo: {
-		uid: string | null;
-		displayName: string | null;
-		updateProfile: (args: { displayName: string | null }) => void;
-	};
-	taskList: ITaskList[];
-	setTaskList: React.Dispatch<React.SetStateAction<ITaskList[]>>;
 }
 
-const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo, taskList, setTaskList }) => {
+const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks }) => {
+	const taskListState = useTaskListState();
+	const taskListDispatch = useTaskListDispatch();
+	const userInfo = useContext(UserStateContext);
 	const [isPast, setIsPast] = useState<boolean>(false);
 	const today = new Date();
 	const dd = today.getDate();
@@ -35,14 +33,17 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 		if (userInfo.uid !== null) {
 			const warning = confirm('완료 탭의 모든 할일을 삭제합니다.');
 			if (warning === true) {
-				const copyedTaskList = JSON.parse(JSON.stringify(taskList));
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
 				copyedTaskList.splice(docIndex, 1);
 				try {
 					await dbService.doc(`${userInfo.uid}/완료`).delete();
-					setTaskList(copyedTaskList);
+					taskListDispatch({
+						type: 'SET_TASKLIST',
+						taskList: copyedTaskList,
+					});
 				} catch (err) {
 					alert('오류로 인해 비우기에 실패하였습니다. 재시도 해주세요.');
 				}
@@ -88,26 +89,10 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks, userInfo,
 			<TasksWrapper>
 				{date === '완료'
 					? Object.entries(tasks).map(([taskKey, taskValue]) => (
-							<CompletedTask
-								key={uuidv4()}
-								date={date}
-								taskKey={taskKey}
-								taskValue={taskValue}
-								userInfo={userInfo}
-								taskList={taskList}
-								setTaskList={setTaskList}
-							/>
+							<CompletedTask key={uuidv4()} date={date} taskKey={taskKey} taskValue={taskValue} />
 					  ))
 					: Object.entries(tasks).map(([taskKey, taskValue]) => (
-							<Task
-								key={uuidv4()}
-								date={date}
-								taskKey={taskKey}
-								taskValue={taskValue}
-								userInfo={userInfo}
-								taskList={taskList}
-								setTaskList={setTaskList}
-							/>
+							<Task key={uuidv4()} date={date} taskKey={taskKey} taskValue={taskValue} />
 					  ))}
 			</TasksWrapper>
 		</Container>
@@ -121,7 +106,7 @@ const Container = styled.article`
 `;
 
 /* ********************* Title Wrapper ********************* */
-const Header = styled.header`
+const Header = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
