@@ -11,12 +11,13 @@ const Home: React.FunctionComponent = () => {
 	const taskListState = useTaskListState();
 	const taskListDispatch = useTaskListDispatch();
 	const userInfo = useContext(UserStateContext);
-	const temporaryStorage: any[] = [];
 
 	useEffect(() => {
 		const getTasks = async (): Promise<void> => {
 			if (userInfo.uid !== null) {
 				const userCollection = await dbService.collection(userInfo.uid).get();
+				const temporaryStorage: any[] = [];
+
 				if (!userCollection.empty) {
 					// 유저 데이터 있음
 					userCollection.forEach(

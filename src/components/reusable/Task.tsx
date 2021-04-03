@@ -20,12 +20,12 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 	const userInfo = useContext(UserStateContext);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [isEditing, setIsEditing] = useState<boolean>(false);
-	const temporaryStorage: any = {};
 
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			const warning = confirm('삭제하시겠습니까?');
 			if (warning === true) {
+				const temporaryStorage: any = {};
 				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
@@ -73,6 +73,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 		if (userInfo.uid !== null) {
 			if (e.target.labels !== null) {
 				if (e.target.checked) {
+					const temporaryStorage: any = {};
 					const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 					const docList = copyedTaskList.map(
 						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,

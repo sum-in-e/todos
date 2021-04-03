@@ -8,11 +8,6 @@ import { TriangleDown } from 'styled-icons/entypo';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
 
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
-
 interface IProps {
 	date: string;
 	tasks: { (key: number): string };

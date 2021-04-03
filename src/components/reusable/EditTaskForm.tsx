@@ -8,11 +8,6 @@ import { Clear } from 'styled-icons/material-outlined';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
 
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
-
 interface IProps {
 	date: string;
 	taskKey: string;
@@ -37,7 +32,6 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const userInfo = useContext(UserStateContext);
 	const [inputValue, setInputValue] = useState<string>(taskValue);
 	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
-	const temporaryStorage: any = {};
 
 	const onClickClear = () => {
 		setEditedDate('날짜미정');
@@ -53,6 +47,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
 			if (confirm('삭제하시겠습니까?') === true) {
+				const temporaryStorage: any = {};
 				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
@@ -103,6 +98,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 						taskList: copyedTaskList,
 					});
 				} else {
+					const temporaryStorage: any = {};
 					const docList = copyedTaskList.map(
 						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
 					);

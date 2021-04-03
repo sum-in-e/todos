@@ -7,11 +7,6 @@ import { DeleteBin } from 'styled-icons/remix-line';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
 
-interface ITaskList {
-	date: string;
-	tasks: { (key: number): string };
-}
-
 interface IProps {
 	date: string;
 	taskKey: string;
@@ -24,7 +19,6 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 	const userInfo = useContext(UserStateContext);
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [isEditing, setIsEditing] = useState<boolean>(false);
-	const temporaryStorage: any = {};
 
 	const onClickEdit = () => {
 		setIsEditing(true);
@@ -39,6 +33,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 		if (userInfo.uid !== null) {
 			const warning = confirm('삭제하시겠습니까?');
 			if (warning === true) {
+				const temporaryStorage: any = {};
 				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
