@@ -211,6 +211,7 @@ const MyProfile: React.FunctionComponent = () => {
 		const getProfileImg = async (): Promise<void> => {
 			if (userInfo.uid !== null) {
 				try {
+					// 프로필 이미지가 있는 경우 해당 이미지 Set
 					const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
 					if (profileDoc.exists) {
 						const data = profileDoc.data();
@@ -220,6 +221,7 @@ const MyProfile: React.FunctionComponent = () => {
 							setHeaderProfileImg(userProfileImg);
 						}
 					} else {
+						// 프로필 이미지 없는 경우 기본 이미지를 set하고 firebase에서 해당 유저 profile에 defaultImg를 이미지로 추가
 						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
 						setProfileImg(defaultImg);
 						setHeaderProfileImg(defaultImg);

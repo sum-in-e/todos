@@ -46,7 +46,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			if (confirm('삭제하시겠습니까?') === true) {
+			if (confirm('할 일을 삭제하시겠습니까?') === true) {
 				const temporaryStorage: any = {};
 				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
 				const docIndex = copyedTaskList.findIndex(

@@ -21,18 +21,25 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 	const [editedDate, setEditedDate] = useState<string>('날짜미정');
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 
+	console.log('taskList', taskListState);
+
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const warning = confirm('삭제하시겠습니까?');
-			if (warning === true) {
+			if (confirm('삭제하시겠습니까?') === true) {
 				const temporaryStorage: any = {};
+				// 기존 TaskList 가지고 있기 위해 복제
 				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+				// 복제한 TaskList에서 현재 date의 task obj의 index를 추출
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
+				// 선택된 task가 속한 date의 task obj
 				const data = copyedTaskList[docIndex].tasks;
+				// 복제한 data에서 선택한 task를 제거
 				delete data[taskKey];
+				// data의 값들만 추출
 				const values = Object.values(data);
+				// 제거되고 남은 task들을 temporaryStorage에 덮어씌움
 				values.forEach((value, index): void => {
 					temporaryStorage[index] = value;
 				});
@@ -69,17 +76,21 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 		setIsEditing(false);
 	};
 
-	const onClickCheckbox = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+	const handleTaskComplete = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
 		if (userInfo.uid !== null) {
 			if (e.target.labels !== null) {
 				if (e.target.checked) {
 					const temporaryStorage: any = {};
+					// 기존 TaskList 가지고 있기 위해 복제
 					const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+					// 복제한 TaskList의 날짜만 있는 배열 생성
 					const docList = copyedTaskList.map(
 						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
 					);
 					try {
+						// 날짜만 있는 배열에 완료가 있는 경우
 						if (docList.includes('완료')) {
+							// 완료 doc의 index 추출
 							const completedDocIndex = copyedTaskList.findIndex(
 								(doc: { date: string; tasks: { (key: number): string } }) => doc.date === '완료',
 							);
@@ -122,6 +133,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
 								dbService.doc(`${userInfo.uid}/완료`).set(completedData);
 							}
+							// 날짜만 있는 배열에 완료가 없는 경우
 						} else {
 							const taskObj = {
 								date: '완료',
@@ -188,7 +200,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 			)}
 			<Container>
 				<Label>
-					<CheckInputHidden type="checkbox" onChange={onClickCheckbox} />
+					<CheckInputHidden type="checkbox" onChange={handleTaskComplete} />
 					<CheckSpanShowing />
 					<OutputTask>{taskValue}</OutputTask>
 				</Label>

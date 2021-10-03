@@ -18,10 +18,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "sourceMap": true
+    "sourceMap": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src/**/*"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
