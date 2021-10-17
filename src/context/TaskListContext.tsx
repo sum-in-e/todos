@@ -1,40 +1,28 @@
 import React, { useContext, useReducer, Dispatch, createContext } from 'react';
-
-interface ITasks {
-	(key: number): string;
-}
-
-interface ITaskContainer {
-	date: string;
-	tasks: ITasks;
-}
-
-interface ITaskListState {
-	taskList: ITaskContainer[];
-}
+import { IDateContainer, ITodoAll } from '../types/taskListTypes';
 
 interface ITaskListDispatch {
 	type: 'SET_TASKLIST';
-	taskList: ITaskContainer[];
+	todoAll: IDateContainer[];
 }
 
-const taskListReducer = (state: ITaskListState, action: ITaskListDispatch): ITaskListState => {
+const taskListReducer = (state: ITodoAll, action: ITaskListDispatch): ITodoAll => {
 	switch (action.type) {
 		case 'SET_TASKLIST':
 			return {
 				...state,
-				taskList: action.taskList,
+				todoAll: action.todoAll,
 			};
 		default:
 			throw new Error('Unhandled action');
 	}
 };
 
-const TaskListStateContext = createContext<ITaskListState | null>(null);
+const TaskListStateContext = createContext<ITodoAll | null>(null);
 const TaskListDispatchContext = createContext<Dispatch<ITaskListDispatch> | null>(null);
 
 export const TaskListContext = ({ children }: { children: React.ReactNode }) => {
-	const [taskListState, taskListDispatch] = useReducer(taskListReducer, { taskList: [] });
+	const [taskListState, taskListDispatch] = useReducer(taskListReducer, { todoAll: [] });
 	return (
 		<TaskListStateContext.Provider value={taskListState}>
 			<TaskListDispatchContext.Provider value={taskListDispatch}>{children}</TaskListDispatchContext.Provider>
@@ -42,7 +30,7 @@ export const TaskListContext = ({ children }: { children: React.ReactNode }) => 
 	);
 };
 
-export function useTaskListState(): ITaskListState {
+export function useTaskListState(): ITodoAll {
 	const state = useContext(TaskListStateContext);
 	if (!state) throw new Error('Cannot find TaskListProvider');
 	return state;

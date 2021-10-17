@@ -6,6 +6,7 @@ import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
 import { UserStateContext } from '../components/App';
 import { useTaskListState, useTaskListDispatch } from '../context/TaskListContext';
+import { doc, setDoc, updateDoc } from '@firebase/firestore';
 
 const AddTask: React.FunctionComponent = () => {
 	const taskListState = useTaskListState();
@@ -24,7 +25,7 @@ const AddTask: React.FunctionComponent = () => {
 	const onSubmitTask = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
 		e.preventDefault();
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 			const docList = copyedTaskList.map((doc: { date: string; tasks: { (key: number): string } }) => doc.date);
 			try {
 				if (docList.includes(date)) {
@@ -33,7 +34,10 @@ const AddTask: React.FunctionComponent = () => {
 					);
 					const data = copyedTaskList[docIndex].tasks;
 					const dataLength = Object.keys(data).length;
-					await dbService.doc(`${userInfo.uid}/${date}`).update({ [dataLength]: inputValue });
+
+					const docRef = doc(dbService, userInfo.uid, date);
+
+					await updateDoc(docRef, { [dataLength]: inputValue });
 					const taskObj = {
 						date,
 						tasks: {
@@ -43,9 +47,10 @@ const AddTask: React.FunctionComponent = () => {
 					};
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				} else {
-					await dbService.collection(userInfo.uid).doc(date).set({
+					await setDoc(doc(dbService, userInfo.uid, date), {
 						0: inputValue,
 					});
+
 					const taskObj = {
 						date: date,
 						tasks: {
@@ -65,7 +70,7 @@ const AddTask: React.FunctionComponent = () => {
 			} finally {
 				taskListDispatch({
 					type: 'SET_TASKLIST',
-					taskList: copyedTaskList,
+					todoAll: copyedTaskList,
 				});
 				setInputValue('');
 				setDate('날짜미정');

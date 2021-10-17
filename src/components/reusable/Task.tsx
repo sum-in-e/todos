@@ -7,11 +7,15 @@ import { DeleteBin } from 'styled-icons/remix-line';
 import EditTaskForm from './EditTaskForm';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import useDeleteTodoMutation from '../../hooks/useDeleteTask';
+import { updateDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { ITodo } from '../../types/taskListTypes';
+import { useMutation } from 'react-query';
 
 interface IProps {
 	date: string;
 	taskKey: string;
-	taskValue: string;
+	taskValue: ITodo;
 }
 
 const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => {
@@ -23,19 +27,25 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 
 	console.log('taskList', taskListState);
 
+	// const { mutate: deleteTodoMutate } = useMutation(deleteTaskApi, {
+	// 	onSuccess: () => {},
+	// 	onError: () => {},
+	// });
+
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			if (confirm('삭제하시겠습니까?') === true) {
+			if (confirm('삭제하시겠습니까?')) {
 				const temporaryStorage: any = {};
-				// 기존 TaskList 가지고 있기 위해 복제
-				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+
+				// 기존 TaskList 가지고 있기 위해 복제 -> 대박 안 해도 된다.. Mutaion에 넘겨주면 롤백 기능 있어서 저장 안해도 되돌림
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 				// 복제한 TaskList에서 현재 date의 task obj의 index를 추출
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
 				// 선택된 task가 속한 date의 task obj
 				const data = copyedTaskList[docIndex].tasks;
-				// 복제한 data에서 선택한 task를 제거
+				// 복제한 data에서 선택한 task를 제거 -> 이거를 여기서 하면 안되고 mutation 내에서 처리
 				delete data[taskKey];
 				// data의 값들만 추출
 				const values = Object.values(data);
@@ -43,22 +53,45 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 				values.forEach((value, index): void => {
 					temporaryStorage[index] = value;
 				});
+				// 새롭게 구성된 temporaryStorage를 가진 taskObj를 만듦
 				const taskObj = {
 					date,
 					tasks: temporaryStorage,
 				};
+				// 삭제되고 남은 todo가 한개도 없으면 전체 리스트에서 해당 날짜의 doc 제거
 				if (Object.values(temporaryStorage).length === 0) {
 					copyedTaskList.splice(docIndex, 1);
 				} else {
+					// 삭제되고 todo가 하나라도 있으면 전체 todoAll에서 해당 날짜의 doc을 새로운 taskObj로 바꿔줌
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				}
 				try {
-					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					// const deleteTodoMutation = useDeleteTodoMutation();
+					// mutation에 todos 넘겨줄 때 filtering된 todos말고 기존 todos를 넘겨줘야 mutation 안에서 스냅샷 찍어서 롤백 가능
+					// deleteTodoMutation.mutate({
+					// 	uid: userInfo.uid,
+					// 	date,
+					// 	updatedTodos: temporaryStorage,
+					// },{
+					// 	onSuccess : {
+					// 		alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+
+					// 	},
+					// 	onError : {
+					// 		alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
+
+					// 	}
+					// })
+					// 서버에 새로운 taskList로 업데이트 성공하면 dispatch
+					await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
+
+					// 전역 상태에 할일이 수정된 todoAll을 dispatch
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: copyedTaskList,
+						todoAll: copyedTaskList,
 					});
 				} catch (err) {
+					// 서버에 새로운 taskList로 업데이트 실패 시, 기존 taskList는 그대로 있을테니 아무 변화 없음
 					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
 				}
 			} else {
@@ -82,7 +115,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 				if (e.target.checked) {
 					const temporaryStorage: any = {};
 					// 기존 TaskList 가지고 있기 위해 복제
-					const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+					const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 					// 복제한 TaskList의 날짜만 있는 배열 생성
 					const docList = copyedTaskList.map(
 						(doc: { date: string; tasks: { (key: number): string } }) => doc.date,
@@ -103,7 +136,10 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 									[completedDataLength]: taskValue,
 								},
 							};
-							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: taskValue });
+
+							const completeRef = doc(dbService, userInfo.uid, '완료');
+
+							await updateDoc(completeRef, { [completedDataLength]: taskValue });
 							copyedTaskList.splice(completedDocIndex, 1, taskObj);
 							const docIndex = copyedTaskList.findIndex(
 								(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
@@ -124,14 +160,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 								copyedTaskList.splice(docIndex, 1, newTaskObj);
 							}
 							try {
-								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+								await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 								taskListDispatch({
 									type: 'SET_TASKLIST',
-									taskList: copyedTaskList,
+									todoAll: copyedTaskList,
 								});
 							} catch (err) {
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-								dbService.doc(`${userInfo.uid}/완료`).set(completedData);
+								await setDoc(doc(dbService, userInfo.uid, '완료'), completedData);
 							}
 							// 날짜만 있는 배열에 완료가 없는 경우
 						} else {
@@ -141,7 +177,7 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 									0: taskValue,
 								},
 							};
-							await dbService.collection(userInfo.uid).doc('완료').set({
+							await setDoc(doc(dbService, userInfo.uid, '완료'), {
 								0: taskValue,
 							});
 							copyedTaskList.push(taskObj);
@@ -164,14 +200,16 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 								copyedTaskList.splice(docIndex, 1, newTaskObj);
 							}
 							try {
-								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+								await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
+								// 서버에 새로운 taskList로 업데이트 성공하면 dispatch
 								taskListDispatch({
 									type: 'SET_TASKLIST',
-									taskList: copyedTaskList,
+									todoAll: copyedTaskList,
 								});
 							} catch (err) {
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-								dbService.doc(`${userInfo.uid}/완료`).delete();
+								// 서버에 새로운 taskList 업데이트 실패하면, 서버에는 기본 taskList가 그대로 있을테니
+								deleteDoc(doc(dbService, userInfo.uid, '완료'));
 							}
 						}
 					} catch (err) {

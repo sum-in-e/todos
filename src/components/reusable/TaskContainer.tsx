@@ -7,13 +7,10 @@ import CompletedTask from './CompletedTask';
 import { TriangleDown } from 'styled-icons/entypo';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { deleteDoc, doc } from '@firebase/firestore';
+import { IDateContainer } from '../../types/taskListTypes';
 
-interface IProps {
-	date: string;
-	tasks: { (key: number): string };
-}
-
-const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks }) => {
+const TaskContainer: React.FunctionComponent<IDateContainer> = ({ date, todos }) => {
 	const taskListState = useTaskListState();
 	const taskListDispatch = useTaskListDispatch();
 	const userInfo = useContext(UserStateContext);
@@ -28,16 +25,16 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks }) => {
 		if (userInfo.uid !== null) {
 			const warning = confirm('완료 탭의 모든 할일을 삭제합니다.');
 			if (warning === true) {
-				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 				const docIndex = copyedTaskList.findIndex(
-					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
+					(doc: { date: string; todos: { (key: number): string } }) => doc.date === date,
 				);
 				copyedTaskList.splice(docIndex, 1);
 				try {
-					await dbService.doc(`${userInfo.uid}/완료`).delete();
+					await deleteDoc(doc(dbService, userInfo.uid, '완료'));
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: copyedTaskList,
+						todoAll: copyedTaskList,
 					});
 				} catch (err) {
 					alert('오류로 인해 비우기에 실패하였습니다. 재시도 해주세요.');
@@ -83,10 +80,10 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks }) => {
 			</Header>
 			<TasksWrapper>
 				{date === '완료'
-					? Object.entries(tasks).map(([taskKey, taskValue]) => (
+					? Object.entries(todos).map(([taskKey, taskValue]) => (
 							<CompletedTask key={uuidv4()} date={date} taskKey={taskKey} taskValue={taskValue} />
 					  ))
-					: Object.entries(tasks).map(([taskKey, taskValue]) => (
+					: Object.entries(todos).map(([taskKey, taskValue]) => (
 							<Task key={uuidv4()} date={date} taskKey={taskKey} taskValue={taskValue} />
 					  ))}
 			</TasksWrapper>

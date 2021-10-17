@@ -4,6 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import { Edit3 } from 'styled-icons/feather';
 import { UserStateContext, UserDispatchContext } from './App';
+import { ref, getDownloadURL, uploadString, list, deleteObject } from 'firebase/storage';
+import { updateProfile, User, UserInfo } from '@firebase/auth';
+import { doc, updateDoc, getDoc } from '@firebase/firestore';
 
 const MyProfile: React.FunctionComponent = () => {
 	const userDispatch = useContext(UserDispatchContext);
@@ -56,7 +59,9 @@ const MyProfile: React.FunctionComponent = () => {
 
 	const onClickDefaultImg = async (): Promise<void> => {
 		try {
-			const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+			const defaultImgRef = ref(storageService, 'defaultProfile.png');
+			const defaultImg = await getDownloadURL(defaultImgRef);
+			// 이거 정상으로 가져와졌는지 테스트;
 			setProfileImg(defaultImg);
 			setDefaultProfileImg(defaultImg);
 			setNewProfileImg('');
@@ -79,13 +84,13 @@ const MyProfile: React.FunctionComponent = () => {
 						alert('유저명 변경에 실패하였습니다. 재시도해주세요.');
 						setUserName(userInfo.displayName);
 					} finally {
-						const loggedUser: firebase.User | null = await authService.currentUser;
+						const loggedUser: User | null = await authService.currentUser;
 						if (loggedUser && userDispatch !== null) {
 							userDispatch({
 								type: 'SET_USER_INFO',
 								uid: loggedUser.uid,
 								displayName: loggedUser.displayName,
-								updateProfile: args => loggedUser.updateProfile(args),
+								updateProfile: args => updateProfile(loggedUser, args),
 							});
 						}
 					}
@@ -93,45 +98,62 @@ const MyProfile: React.FunctionComponent = () => {
 
 				// 새 이미지 업로드
 				if (newProfileImg !== '') {
-					const imageRef = storageService.ref().child(`${userInfo.uid}/${uuidv4()}`);
-					const response = await imageRef.putString(newProfileImg, 'data_url');
-					const downLoadUrl = await response.ref.getDownloadURL();
-					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+					const imageRef = ref(storageService, `${userInfo.uid}/${uuidv4()}`);
+					// const response = await imageRef. putString(newProfileImg, 'data_url');
+					const response = uploadString(imageRef, newProfileImg, 'data_url');
+					// const downLoadUrl = getDownloadURL((await response).ref);
+					const downLoadUrl = await getDownloadURL((await response).ref);
+					const storageRef = ref(storageService, `${userInfo.uid}/`);
+
+					const items = (await list(storageRef)).items;
 					const previousImageIndex = items.findIndex(item => item.name !== imageRef.name);
 					if (previousImageIndex > -1) {
-						items[previousImageIndex].delete();
+						deleteObject(items[previousImageIndex]);
 					}
 					setProfileImg(downLoadUrl);
 					setHeaderProfileImg(downLoadUrl);
 					setNewProfileImg('');
-					await dbService.collection('profile').doc(userInfo.uid).update({
+
+					const profileRef = doc(dbService, 'profile', userInfo.uid);
+
+					await updateDoc(profileRef, {
 						image: downLoadUrl,
 					});
 				}
 
 				// 기본 이미지로 변경
 				if (defaultProfileImg !== '') {
-					const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+					const storageRef = ref(storageService, `${userInfo.uid}/`);
+
+					const items = (await list(storageRef)).items;
 					setProfileImg(defaultProfileImg);
 					setHeaderProfileImg(defaultProfileImg);
-					dbService.collection('profile').doc(userInfo.uid).update({
+					const profileRef = doc(dbService, 'profile', userInfo.uid);
+
+					await updateDoc(profileRef, {
 						image: defaultProfileImg,
 					});
+
 					if (items.length > 0) {
-						items.forEach(item => item.delete());
+						items.forEach(item => deleteObject(item));
 					}
 				}
 			} catch (err) {
 				alert('이미지 변경에 실패하였습니다. 재시도해주세요.');
-				const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
-				const items = (await storageService.ref().child(`${userInfo.uid}/`).list()).items;
+				const defaultImgRef = ref(storageService, 'defaultProfile.png');
+				const defaultImg = await getDownloadURL(defaultImgRef);
+				const storageRef = ref(storageService, `${userInfo.uid}/`);
+				const items = (await list(storageRef)).items;
 				setProfileImg(defaultImg);
 				setHeaderProfileImg(defaultImg);
 				setNewProfileImg('');
 				if (items.length > 0) {
-					items.forEach(item => item.delete());
+					items.forEach(item => deleteObject(item));
 				}
-				dbService.collection('profile').doc(userInfo.uid).update({
+
+				const profileRef = doc(dbService, 'profile', userInfo.uid);
+
+				await updateDoc(profileRef, {
 					image: defaultImg,
 				});
 			} finally {
@@ -148,7 +170,9 @@ const MyProfile: React.FunctionComponent = () => {
 		const value = e.target.value;
 		if (value === '취소' && userInfo.uid !== null) {
 			try {
-				const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
+				const profileRef = doc(dbService, 'profile', userInfo.uid);
+				const profileDoc = await getDoc(profileRef);
+
 				const data = profileDoc.data();
 				if (data !== undefined) {
 					const userProfileImg = data.image;
@@ -157,7 +181,8 @@ const MyProfile: React.FunctionComponent = () => {
 				}
 			} catch (err) {
 				alert('알 수 없는 오류가 발생하였습니다. 프로필 이미지를 초기화합니다.');
-				const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+				const defaultImgRef = ref(storageService, 'defaultProfile.png');
+				const defaultImg = await getDownloadURL(defaultImgRef);
 				setProfileImg(defaultImg);
 				setUserName(userInfo.displayName);
 			} finally {
@@ -212,8 +237,9 @@ const MyProfile: React.FunctionComponent = () => {
 			if (userInfo.uid !== null) {
 				try {
 					// 프로필 이미지가 있는 경우 해당 이미지 Set
-					const profileDoc = await dbService.collection('profile').doc(userInfo.uid).get();
-					if (profileDoc.exists) {
+					const profileRef = doc(dbService, 'profile', userInfo.uid);
+					const profileDoc = await getDoc(profileRef);
+					if (profileDoc.exists()) {
 						const data = profileDoc.data();
 						if (data !== undefined) {
 							const userProfileImg = data.image;
@@ -222,10 +248,14 @@ const MyProfile: React.FunctionComponent = () => {
 						}
 					} else {
 						// 프로필 이미지 없는 경우 기본 이미지를 set하고 firebase에서 해당 유저 profile에 defaultImg를 이미지로 추가
-						const defaultImg = await storageService.ref().child('defaultProfile.png').getDownloadURL();
+						const defaultImgRef = ref(storageService, 'defaultProfile.png');
+						const defaultImg = await getDownloadURL(defaultImgRef);
 						setProfileImg(defaultImg);
 						setHeaderProfileImg(defaultImg);
-						dbService.collection('profile').doc(userInfo.uid).set({
+
+						const profileRef = doc(dbService, 'profile', userInfo.uid);
+
+						updateDoc(profileRef, {
 							image: defaultImg,
 						});
 					}

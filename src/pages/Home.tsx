@@ -6,6 +6,7 @@ import TaskContainer from '../components/reusable/TaskContainer';
 import AddTask from '../components/AddTask';
 import { UserStateContext } from '../components/App';
 import { useTaskListState, useTaskListDispatch } from '../context/TaskListContext';
+import { doc, deleteDoc, collection, getDocs, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
 const Home: React.FunctionComponent = () => {
 	const taskListState = useTaskListState();
@@ -15,18 +16,16 @@ const Home: React.FunctionComponent = () => {
 	useEffect(() => {
 		const getTasks = async (): Promise<void> => {
 			if (userInfo.uid !== null) {
-				const userCollection = await dbService.collection(userInfo.uid).get();
+				const userCollection = await getDocs(collection(dbService, userInfo.uid));
 				const temporaryStorage: any[] = [];
 
 				if (!userCollection.empty) {
 					// 유저 데이터 있음
 					userCollection.forEach(
-						async (
-							doc: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>,
-						): Promise<void> => {
-							const docDate = doc.id;
-							const tasks = doc.data();
-							const taskValues = Object.values(doc.data());
+						async (userDoc: QueryDocumentSnapshot<DocumentData>): Promise<void> => {
+							const docDate = userDoc.id;
+							const tasks = userDoc.data();
+							const taskValues = Object.values(userDoc.data());
 							try {
 								if (taskValues.length > 0) {
 									const taskObj = {
@@ -35,7 +34,9 @@ const Home: React.FunctionComponent = () => {
 									};
 									await temporaryStorage.push(taskObj);
 								} else if (taskValues.length === 0) {
-									doc.ref.delete();
+									if (docDate && userInfo.uid) {
+										await deleteDoc(doc(dbService, userInfo.uid, docDate));
+									}
 								}
 							} catch (err) {
 								alert('오류로 인해 불러오기에 실패하였습니다. 페이지를 새로고침 합니다.');
@@ -46,13 +47,13 @@ const Home: React.FunctionComponent = () => {
 					);
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: temporaryStorage,
+						todoAll: temporaryStorage,
 					});
 				} else {
 					// 유저 데이터 없음 -> 새로운 유저 / 데이터 하나도 없는 유저
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: [],
+						todoAll: [],
 					});
 				}
 			}
@@ -69,9 +70,9 @@ const Home: React.FunctionComponent = () => {
 				</AddTaskWrapper>
 				<TaskListWrapper>
 					{taskListState &&
-						taskListState.taskList.length > 0 &&
-						taskListState.taskList.map(result => (
-							<TaskContainer key={result.date} date={result.date} tasks={result.tasks} />
+						taskListState.todoAll.length > 0 &&
+						taskListState.todoAll.map(result => (
+							<TaskContainer key={result.date} date={result.date} todos={result.todos} />
 						))}
 				</TaskListWrapper>
 			</Tasks>

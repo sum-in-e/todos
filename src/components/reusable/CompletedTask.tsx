@@ -6,11 +6,13 @@ import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { doc, setDoc } from '@firebase/firestore';
+import { ITodo } from '../../types/taskListTypes';
 
 interface IProps {
 	date: string;
 	taskKey: string;
-	taskValue: string;
+	taskValue: ITodo;
 }
 
 const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => {
@@ -31,10 +33,9 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const warning = confirm('삭제하시겠습니까?');
-			if (warning === true) {
+			if (confirm('삭제하시겠습니까?')) {
 				const temporaryStorage: any = {};
-				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
@@ -54,10 +55,10 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				}
 				try {
-					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: copyedTaskList,
+						todoAll: copyedTaskList,
 					});
 				} catch (err) {
 					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');

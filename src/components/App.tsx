@@ -3,6 +3,8 @@ import Router from './Router';
 import { authService } from '../fbase';
 import Initializing from './Initializing';
 import { TaskListContext } from '../context/TaskListContext';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { updateProfile, User, onAuthStateChanged } from 'firebase/auth';
 
 interface UserStateI {
 	uid: string | null;
@@ -39,6 +41,8 @@ export const UserStateContext = createContext<UserStateI>({
 
 export const UserDispatchContext = createContext<Dispatch<UserActionI> | null>(null);
 
+const queryClient = new QueryClient();
+
 const App: React.FunctionComponent = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const [init, setInit] = useState<boolean>(false);
@@ -50,15 +54,17 @@ const App: React.FunctionComponent = () => {
 
 	const vh = window.innerHeight * 0.01;
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
-
+	// updateCurrentUser()
 	useEffect(() => {
-		authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
+		onAuthStateChanged(authService, (loggedUser: User | null): void => {
 			if (loggedUser) {
 				userDispatch({
 					type: 'SET_USER_INFO',
 					uid: loggedUser.uid,
 					displayName: loggedUser.displayName,
-					updateProfile: args => loggedUser.updateProfile(args),
+					updateProfile: args => {
+						if (authService.currentUser) updateProfile(authService.currentUser, args);
+					},
 				});
 				setIsLoggedIn(true);
 			} else {
@@ -75,13 +81,15 @@ const App: React.FunctionComponent = () => {
 	return (
 		<>
 			{init ? (
-				<UserStateContext.Provider value={userState}>
-					<UserDispatchContext.Provider value={userDispatch}>
-						<TaskListContext>
-							<Router isLoggedIn={isLoggedIn} />
-						</TaskListContext>
-					</UserDispatchContext.Provider>
-				</UserStateContext.Provider>
+				<QueryClientProvider client={queryClient}>
+					<UserStateContext.Provider value={userState}>
+						<UserDispatchContext.Provider value={userDispatch}>
+							<TaskListContext>
+								<Router isLoggedIn={isLoggedIn} />
+							</TaskListContext>
+						</UserDispatchContext.Provider>
+					</UserStateContext.Provider>
+				</QueryClientProvider>
 			) : (
 				<Initializing />
 			)}

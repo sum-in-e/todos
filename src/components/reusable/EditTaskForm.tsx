@@ -7,11 +7,13 @@ import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { deleteDoc, doc, setDoc, updateDoc } from '@firebase/firestore';
+import { ITodo } from '../../types/taskListTypes';
 
 interface IProps {
 	date: string;
 	taskKey: string;
-	taskValue: string;
+	taskValue: ITodo;
 	editedDate: string;
 	setEditedDate: React.Dispatch<React.SetStateAction<string>>;
 	isCompleted: boolean;
@@ -30,7 +32,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 	const taskListState = useTaskListState();
 	const taskListDispatch = useTaskListDispatch();
 	const userInfo = useContext(UserStateContext);
-	const [inputValue, setInputValue] = useState<string>(taskValue);
+	const [inputValue, setInputValue] = useState<string>(''); // 여기 원래 taskValue
 	const dateInputRef = React.useRef() as React.MutableRefObject<HTMLInputElement>;
 
 	const onClickClear = () => {
@@ -46,9 +48,9 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	const onClickDelete = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			if (confirm('할 일을 삭제하시겠습니까?') === true) {
+			if (confirm('할 일을 삭제하시겠습니까?')) {
 				const temporaryStorage: any = {};
-				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+				const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 				const docIndex = copyedTaskList.findIndex(
 					(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
 				);
@@ -68,10 +70,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				}
 				try {
-					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: copyedTaskList,
+						todoAll: copyedTaskList,
 					});
 				} catch (err) {
 					alert('오류로 인해 삭제에 실패하였습니다. 재시도 해주세요.');
@@ -83,7 +85,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 
 	const onClickSave = async (): Promise<void> => {
 		if (userInfo.uid !== null) {
-			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.taskList));
+			const copyedTaskList = JSON.parse(JSON.stringify(taskListState.todoAll));
 			const editedDateValue = dateInputRef.current.value == '' ? '날짜미정' : dateInputRef.current.value;
 			try {
 				if (date === editedDateValue) {
@@ -92,10 +94,13 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					);
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = inputValue;
-					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: inputValue });
+
+					const docRef = doc(dbService, userInfo.uid, date);
+
+					await updateDoc(docRef, { [taskKey]: inputValue });
 					taskListDispatch({
 						type: 'SET_TASKLIST',
-						taskList: copyedTaskList,
+						todoAll: copyedTaskList,
 					});
 				} else {
 					const temporaryStorage: any = {};
@@ -115,7 +120,9 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 								[dataLength]: inputValue,
 							},
 						};
-						await dbService.doc(`${userInfo.uid}/${editedDateValue}`).update({ [dataLength]: inputValue });
+						const completeRef = doc(dbService, userInfo.uid, editedDateValue);
+
+						await updateDoc(completeRef, { [dataLength]: inputValue });
 						copyedTaskList.splice(docIndex, 1, taskObj);
 						const previousDocIndex = copyedTaskList.findIndex(
 							(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
@@ -136,14 +143,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							copyedTaskList.splice(previousDocIndex, 1, newTaskObj);
 						}
 						try {
-							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+							await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 							taskListDispatch({
 								type: 'SET_TASKLIST',
-								taskList: copyedTaskList,
+								todoAll: copyedTaskList,
 							});
 						} catch (err) {
 							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-							dbService.doc(`${userInfo.uid}/${editedDateValue}`).set(data);
+							setDoc(doc(dbService, userInfo.uid, editedDateValue), data);
 							handleExitEditing();
 						}
 					} else {
@@ -153,7 +160,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 								0: inputValue,
 							},
 						};
-						await dbService.collection(userInfo.uid).doc(editedDateValue).set({
+						await setDoc(doc(dbService, userInfo.uid, editedDateValue), {
 							0: inputValue,
 						});
 						copyedTaskList.push(taskObj);
@@ -182,14 +189,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							copyedTaskList.splice(previousDocIndex, 1, newTaskObj);
 						}
 						try {
-							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+							await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 							taskListDispatch({
 								type: 'SET_TASKLIST',
-								taskList: copyedTaskList,
+								todoAll: copyedTaskList,
 							});
 						} catch (err) {
 							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-							dbService.doc(`${userInfo.uid}/${editedDateValue}`).delete();
+							deleteDoc(doc(dbService, userInfo.uid, editedDateValue));
 							handleExitEditing();
 						}
 					}
