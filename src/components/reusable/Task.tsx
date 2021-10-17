@@ -7,6 +7,7 @@ import { DeleteBin } from 'styled-icons/remix-line';
 import EditTaskForm from './EditTaskForm';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { updateDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 interface IProps {
 	date: string;
@@ -46,7 +47,8 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				}
 				try {
-					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
+
 					taskListDispatch({
 						type: 'SET_TASKLIST',
 						taskList: copyedTaskList,
@@ -92,7 +94,10 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 									[completedDataLength]: taskValue,
 								},
 							};
-							await dbService.doc(`${userInfo.uid}/완료`).update({ [completedDataLength]: taskValue });
+
+							const completeRef = doc(dbService, userInfo.uid, '완료');
+							await updateDoc(completeRef, { [completedDataLength]: taskValue });
+
 							copyedTaskList.splice(completedDocIndex, 1, taskObj);
 							const docIndex = copyedTaskList.findIndex(
 								(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
@@ -113,14 +118,15 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 								copyedTaskList.splice(docIndex, 1, newTaskObj);
 							}
 							try {
-								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+								await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
+
 								taskListDispatch({
 									type: 'SET_TASKLIST',
 									taskList: copyedTaskList,
 								});
 							} catch (err) {
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-								dbService.doc(`${userInfo.uid}/완료`).set(completedData);
+								await setDoc(doc(dbService, userInfo.uid, '완료'), completedData);
 							}
 						} else {
 							const taskObj = {
@@ -129,7 +135,8 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 									0: taskValue,
 								},
 							};
-							await dbService.collection(userInfo.uid).doc('완료').set({
+
+							await setDoc(doc(dbService, userInfo.uid, '완료'), {
 								0: taskValue,
 							});
 							copyedTaskList.push(taskObj);
@@ -152,14 +159,14 @@ const Task: React.FunctionComponent<IProps> = ({ date, taskKey, taskValue }) => 
 								copyedTaskList.splice(docIndex, 1, newTaskObj);
 							}
 							try {
-								await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+								await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 								taskListDispatch({
 									type: 'SET_TASKLIST',
 									taskList: copyedTaskList,
 								});
 							} catch (err) {
 								alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-								dbService.doc(`${userInfo.uid}/완료`).delete();
+								deleteDoc(doc(dbService, userInfo.uid, '완료'));
 							}
 						}
 					} catch (err) {

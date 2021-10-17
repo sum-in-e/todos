@@ -6,6 +6,7 @@ import { EditAlt } from 'styled-icons/boxicons-regular';
 import { DeleteBin } from 'styled-icons/remix-line';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { doc, setDoc } from '@firebase/firestore';
 
 interface IProps {
 	date: string;
@@ -54,7 +55,7 @@ const CompletedTask: React.FunctionComponent<IProps> = ({ date, taskKey, taskVal
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				}
 				try {
-					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 					taskListDispatch({
 						type: 'SET_TASKLIST',
 						taskList: copyedTaskList,

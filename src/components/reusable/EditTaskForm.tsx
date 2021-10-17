@@ -7,6 +7,7 @@ import 'flatpickr/dist/themes/airbnb.css';
 import { Clear } from 'styled-icons/material-outlined';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { deleteDoc, doc, setDoc, updateDoc } from '@firebase/firestore';
 
 interface IProps {
 	date: string;
@@ -68,7 +69,8 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					copyedTaskList.splice(docIndex, 1, taskObj);
 				}
 				try {
-					await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+					await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
+
 					taskListDispatch({
 						type: 'SET_TASKLIST',
 						taskList: copyedTaskList,
@@ -92,7 +94,10 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 					);
 					const data = copyedTaskList[docIndex].tasks;
 					data[taskKey] = inputValue;
-					await dbService.doc(`${userInfo.uid}/${date}`).update({ [taskKey]: inputValue });
+
+					const docRef = doc(dbService, userInfo.uid, date);
+					await updateDoc(docRef, { [taskKey]: inputValue });
+
 					taskListDispatch({
 						type: 'SET_TASKLIST',
 						taskList: copyedTaskList,
@@ -115,7 +120,9 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 								[dataLength]: inputValue,
 							},
 						};
-						await dbService.doc(`${userInfo.uid}/${editedDateValue}`).update({ [dataLength]: inputValue });
+						const completeRef = doc(dbService, userInfo.uid, editedDateValue);
+						await updateDoc(completeRef, { [dataLength]: inputValue });
+
 						copyedTaskList.splice(docIndex, 1, taskObj);
 						const previousDocIndex = copyedTaskList.findIndex(
 							(doc: { date: string; tasks: { (key: number): string } }) => doc.date === date,
@@ -136,14 +143,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							copyedTaskList.splice(previousDocIndex, 1, newTaskObj);
 						}
 						try {
-							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+							await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 							taskListDispatch({
 								type: 'SET_TASKLIST',
 								taskList: copyedTaskList,
 							});
 						} catch (err) {
 							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-							dbService.doc(`${userInfo.uid}/${editedDateValue}`).set(data);
+							setDoc(doc(dbService, userInfo.uid, editedDateValue), data);
 							handleExitEditing();
 						}
 					} else {
@@ -153,7 +160,7 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 								0: inputValue,
 							},
 						};
-						await dbService.collection(userInfo.uid).doc(editedDateValue).set({
+						await setDoc(doc(dbService, userInfo.uid, editedDateValue), {
 							0: inputValue,
 						});
 						copyedTaskList.push(taskObj);
@@ -182,14 +189,14 @@ const EditTaskForm: React.FunctionComponent<IProps> = ({
 							copyedTaskList.splice(previousDocIndex, 1, newTaskObj);
 						}
 						try {
-							await dbService.doc(`${userInfo.uid}/${date}`).set(temporaryStorage);
+							await setDoc(doc(dbService, userInfo.uid, date), temporaryStorage);
 							taskListDispatch({
 								type: 'SET_TASKLIST',
 								taskList: copyedTaskList,
 							});
 						} catch (err) {
 							alert('오류로 인해 작업에 실패하였습니다. 재시도 해주세요.');
-							dbService.doc(`${userInfo.uid}/${editedDateValue}`).delete();
+							deleteDoc(doc(dbService, userInfo.uid, editedDateValue));
 							handleExitEditing();
 						}
 					}

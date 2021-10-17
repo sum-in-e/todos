@@ -3,6 +3,7 @@ import Router from './Router';
 import { authService } from '../fbase';
 import Initializing from './Initializing';
 import { TaskListContext } from '../context/TaskListContext';
+import { updateProfile, User, onAuthStateChanged } from 'firebase/auth';
 
 interface UserStateI {
 	uid: string | null;
@@ -52,13 +53,15 @@ const App: React.FunctionComponent = () => {
 	document.documentElement.style.setProperty('--vh', `${vh}px`);
 
 	useEffect(() => {
-		authService.onAuthStateChanged((loggedUser: firebase.User | null): void => {
+		onAuthStateChanged(authService, (loggedUser: User | null): void => {
 			if (loggedUser) {
 				userDispatch({
 					type: 'SET_USER_INFO',
 					uid: loggedUser.uid,
 					displayName: loggedUser.displayName,
-					updateProfile: args => loggedUser.updateProfile(args),
+					updateProfile: args => {
+						if (authService.currentUser) updateProfile(authService.currentUser, args);
+					},
 				});
 				setIsLoggedIn(true);
 			} else {

@@ -7,6 +7,7 @@ import CompletedTask from './CompletedTask';
 import { TriangleDown } from 'styled-icons/entypo';
 import { UserStateContext } from '../../components/App';
 import { useTaskListState, useTaskListDispatch } from '../../context/TaskListContext';
+import { deleteDoc, doc } from '@firebase/firestore';
 
 interface IProps {
 	date: string;
@@ -34,7 +35,8 @@ const TaskContainer: React.FunctionComponent<IProps> = ({ date, tasks }) => {
 				);
 				copyedTaskList.splice(docIndex, 1);
 				try {
-					await dbService.doc(`${userInfo.uid}/완료`).delete();
+					await deleteDoc(doc(dbService, userInfo.uid, '완료'));
+
 					taskListDispatch({
 						type: 'SET_TASKLIST',
 						taskList: copyedTaskList,

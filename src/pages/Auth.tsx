@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { authService } from '../fbase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Auth: React.FunctionComponent = () => {
 	const [email, setEmail] = useState<string>('');
@@ -13,13 +14,13 @@ const Auth: React.FunctionComponent = () => {
 		const value = (form.children[1] as HTMLInputElement).value;
 		if (value === 'SIGN UP') {
 			try {
-				await authService.createUserWithEmailAndPassword(email, password);
-			} catch (err) {
+				await createUserWithEmailAndPassword(authService, email, password);
+			} catch (err: any) {
 				alert(err.message);
 			}
 		} else if (value === 'LOGIN') {
 			try {
-				await authService.signInWithEmailAndPassword(email, password);
+				await signInWithEmailAndPassword(authService, email, password);
 			} catch (err) {
 				alert('존재하지 않는 이메일 이거나, 비밀번호를 잘못 입력하였습니다.\n다시 시도해 주세요.');
 			}
